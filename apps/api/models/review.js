@@ -1,0 +1,30 @@
+const mongoose = require('mongoose')
+
+const Schema = mongoose.Schema
+const reviewSchema = new Schema(
+  {
+    order: {
+      type: Schema.Types.ObjectId,
+      ref: 'Order'
+    },
+    restaurant: {
+      type: Schema.Types.ObjectId,
+      ref: 'Restaurant'
+    },
+    rating: {
+      type: Number,
+      required: true
+    },
+    description: {
+      type: String,
+      default: ''
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    }
+  },
+  { timestamps: true }
+)
+const myModule = (module.exports = mongoose.model('Review', reviewSchema))
+myModule.reviewSchema = reviewSchema

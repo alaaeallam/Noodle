@@ -1,0 +1,16 @@
+{
+  "name": "noodles-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {
+    "dev:api": "pnpm --filter ./apps/api dev || pnpm --filter ./apps/api start",
+    "dev:admin": "pnpm --filter ./apps/admin dev",
+    "dev:web": "pnpm --filter ./apps/web dev",
+    "dev:store": "pnpm --filter ./apps/store dev || pnpm --filter ./apps/store start",
+    "dev:rider": "pnpm --filter ./apps/rider dev || pnpm --filter ./apps/rider start",
+    "dev:app": "pnpm --filter ./apps/app start"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^6.1.1"
+  }
+}
