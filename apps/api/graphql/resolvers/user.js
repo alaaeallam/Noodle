@@ -4,33 +4,44 @@ const path = require('path')
 const { sign, TOKEN_EXP_SECONDS } = require('../../helpers/jwt')
 const User = require('../../models/user')
 const Restaurant = require('../../models/restaurant')
+const Owner = require('../../models/owner');
 const { sendEmail, sendTextEmail } = require('../../helpers/email')
 const {
   signupTemplate,
   signupText,
   resetPasswordTemplate
 } = require('../../helpers/templates')
+const { requireAuth } = require('../../helpers/guards');
 const { checkPhoneAlreadyUsed } = require('../../helpers/utilities')
-const { transformUser, transformRestaurants } = require('./merge')
+const { transformUser, transformRestaurants, transformOwner } = require('./merge')
 const { sendOtpToPhone } = require('../../helpers/sms')
 const { sendUserInfoToZapier } = require('../../helpers/api')
 const Configuration = require('../../models/configuration')
 
 module.exports = {
   Query: {
-    profile: async(_, args, { req, res }) => {
-      if (!req.isAuth) {
-        throw new Error('Unauthenticated')
-      }
-      try {
-        const user = await User.findById(req.userId)
-        if (!user) throw new Error('User does not exist')
-        return transformUser(user)
-      } catch (err) {
-        console.log(err)
-        throw err
-      }
-    },
+  profile: async (_,_args, { req }) => {
+  if (!req || !req.isAuth) {
+    throw new Error('Unauthenticated');
+  }
+  try {
+    const { userId, userType } = req;
+
+    if (userType === 'USER') {
+      const user = await User.findById(userId);
+      if (!user) throw new Error('User does not exist');
+      return transformUser(user);
+    }
+
+    // For ADMIN / VENDOR tokens (stored in owners collection)
+    const owner = await Owner.findById(userId);
+    if (!owner) throw new Error('User does not exist');
+    return transformOwner(owner);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+},
     users: async(_, args, context) => {
       console.log('users')
       try {

@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-
+//app/admin/lib/ui/screen-components/protected/layout/vendor-layout/app-bar/index.tsx
 'use client';
 
 // Core
@@ -61,6 +61,7 @@ import classes from './app-bar.module.css';
 import { AppLogo } from '@/lib/utils/assets/svgs/logo';
 import { useQuery } from '@apollo/client';
 import { GET_VENDOR_BY_ID } from '@/lib/api/graphql';
+import { PROFILE } from '../../../../../../api/graphql/queries/me';
 import { useLocale, useTranslations } from 'next-intl';
 import { setUserLocale } from '@/lib/utils/methods/locale';
 import { TLocale } from '@/lib/utils/types/locale';
@@ -100,6 +101,24 @@ const VendorAppTopbar = () => {
       id: vendorId ?? '',
     },
   });
+
+  // Profile (current logged-in user) — prefer this for header
+  // NOTE: Query file provides a minimal shape: { profile { name image email userType } }
+  // If your query exports a different root field (e.g., `me`), the optional chaining below keeps this safe.
+  const { data: profileData } = useQuery(PROFILE, {
+    fetchPolicy: 'cache-first',
+  });
+
+  // Derive display values with safe fallbacks
+  const profileName =
+    (profileData as any)?.profile?.name ||
+    (profileData as any)?.me?.name ||
+    '';
+
+  const profileImage =
+    (profileData as any)?.profile?.image ||
+    (profileData as any)?.me?.image ||
+    '';
 
   // Handlers
   const onDevicePixelRatioChange = useCallback(() => {
@@ -288,15 +307,14 @@ const VendorAppTopbar = () => {
           aria-controls="popup_menu_right"
           aria-haspopup
         >
-          <span>{user?.name ? user?.name : vendorName ? vendorName : ''}</span>
+          <span>{user?.name || profileName || vendorName || ''}</span>
 
           <Image
             src={
-              user?.image
-                ? user.image
-                : vendorData?.getVendor?.image
-                  ? vendorData?.getVendor?.image
-                  : 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png'
+              user?.image ||
+              profileImage ||
+              vendorData?.getVendor?.image ||
+              'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png'
             }
             alt="profile-img"
             height={32}
