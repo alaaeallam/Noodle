@@ -5,6 +5,9 @@ const Restaurant = require('../../models/restaurant')
 const { transformOwner } = require('./merge')
 const bcrypt = require('bcryptjs')
 
+// helper
+const normalizeEmail = (e = '') => String(e).trim().toLowerCase();
+
 module.exports = {
   Query: {
     vendors: async (_,_args,{ req }) => {
@@ -15,32 +18,41 @@ module.exports = {
       return vendors.map(transformOwner);
     },
      getVendor: async (_, { id }, { req }) => {
-      requireRole(req, ['ADMIN','SUPER_ADMIN']);
-
+      requireRole(req, ADMIN_ROLES);
+      
       const vendor = await Owner.findById(id);
+      if (!vendor) {
+        throw new Error('Vendor not found');
+      }
       return transformOwner(vendor);
     },
+    
   },
   Mutation: {
     // TODO: need to rethink about how restaurants are being added
     createVendor: async (_, args, { req }) => {
-      requireRole(req, ['ADMIN','SUPER_ADMIN']);
+      requireRole(req, ADMIN_ROLES);
       console.log('createVendor')
       try {
-        if (args.vendorInput.email) {
-          const existingEmail = await Owner.findOne({
-            email: args.vendorInput.email
-          })
-          if (existingEmail) {
-            throw new Error('Email is already associated with another account.')
-          }
+        const email = normalizeEmail(args.vendorInput.email);
+        if (!email) {
+          throw new Error('Email is required');
         }
-        const hashedPassword = await bcrypt.hash(args.vendorInput.password, 12)
+        if (!args.vendorInput.password) {
+          throw new Error('Password is required');
+        }
+
+        const existingEmail = await Owner.findOne({ email, isActive: true });
+        if (existingEmail) {
+          throw new Error('Email is already associated with another account.');
+        }
+
+        const hashedPassword = await bcrypt.hash(args.vendorInput.password, 12);
         const owner = Owner({
-          email: args.vendorInput.email,
+          email,
           password: hashedPassword,
           userType: 'VENDOR'
-        })
+        });
         const result = await owner.save()
         return transformOwner(result)
       } catch (err) {
@@ -49,49 +61,65 @@ module.exports = {
       }
     },
     editVendor: async(_, args, context) => {
-      console.log('editVendor')
+      console.log('editVendor');
       try {
+        const { vendorInput } = args;
         const owner = await Owner.findOne({
-          _id: args.vendorInput._id,
+          _id: vendorInput._id,
           isActive: true
-        })
-        const existingOwnerWithEmail = await Owner.find({
-          email: args.vendorInput.email,
-          isActive: true
-        })
-        if (existingOwnerWithEmail.length <= 1) {
-          if (
-            existingOwnerWithEmail.length === 1 &&
-            existingOwnerWithEmail[0].id !== args.vendorInput._id
-          ) {
-            throw Error('Email is associated with another account')
-          }
-          owner.email = args.vendorInput.email
-          const result = await owner.save()
-          return transformOwner(result)
-        } else {
-          throw Error('Email is associated with another account')
+        });
+        if (!owner) {
+          throw new Error('Vendor not found');
         }
+
+        const email = normalizeEmail(vendorInput.email);
+        if (!email) {
+          throw new Error('Email is required');
+        }
+
+        const existing = await Owner.findOne({
+          email,
+          isActive: true,
+          _id: { $ne: owner._id }
+        });
+
+        if (existing) {
+          throw new Error('Email is associated with another account');
+        }
+
+        owner.email = email;
+        const result = await owner.save();
+        return transformOwner(result);
       } catch (err) {
-        console.log(err)
-        throw err
+        console.log(err);
+        throw err;
       }
     },
     // TODO: if vendor is deleted, shouldn't the restaurants also(isActive:false)
     deleteVendor: async(_, args, context) => {
       console.log('Delete Vendor')
       try {
-        const owner = await Owner.findById(args.id)
-        owner.restaurants.forEach(async element => {
-          const restaurant = await Restaurant.findById(element)
-          restaurant.isActive = false
-          await restaurant.save()
-        })
-        owner.isActive = false
-        await owner.save()
-        return true
+        const owner = await Owner.findById(args.id);
+        if (!owner) {
+          throw new Error('Vendor not found');
+        }
+
+        await Promise.all(
+          (owner.restaurants || []).map(async (rid) => {
+            const restaurant = await Restaurant.findById(rid);
+            if (restaurant) {
+              restaurant.isActive = false;
+              await restaurant.save();
+            }
+          })
+        );
+
+        owner.isActive = false;
+        await owner.save();
+        return true;
       } catch (error) {
-        console.log(error)
+        console.log(error);
+        throw error;
       }
     }
   }

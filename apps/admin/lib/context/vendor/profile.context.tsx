@@ -1,3 +1,4 @@
+'use client';
 // Core
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
@@ -15,16 +16,15 @@ import { ToastContext } from '@/lib/context/global/toast.context';
 import { VendorLayoutContext } from './layout-vendor.context';
 
 // GraphQL
-import { GET_VENDOR_BY_ID } from '@/lib/api/graphql';
+import { PROFILE } from '@/lib/api/graphql/queries/me';
 import { useQueryGQL } from '../../hooks/useQueryQL';
 
 export const ProfileContext = createContext<IVendorProfileContextData>(
   {} as IVendorProfileContextData
 );
 
-export const ProfileProvider: React.FC<IProfileProviderProps> = ({
-  children,
-}) => {
+type ProviderProps = { children: React.ReactNode };
+export const ProfileProvider = ({ children }: ProviderProps) => {
   const { showToast } = useContext(ToastContext);
   const { vendorLayoutContextData } = useContext(VendorLayoutContext);
   const { vendorId } = vendorLayoutContextData;
@@ -33,13 +33,13 @@ export const ProfileProvider: React.FC<IProfileProviderProps> = ({
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const vendorProfileResponse = useQueryGQL(
-    GET_VENDOR_BY_ID,
-    { id: vendorId },
+    PROFILE,
+    {},
     {
       fetchPolicy: 'network-only',
       debounceMs: 300,
       onCompleted: () => {
-        // You can perform any actions with the fetched data here
+        // fetched
       },
       onError: () => {
         showToast({
@@ -49,7 +49,7 @@ export const ProfileProvider: React.FC<IProfileProviderProps> = ({
         });
       },
     }
-  ) as IQueryResult<ISingleVendorResponseGraphQL | undefined, undefined>;
+  ) as IQueryResult<any, undefined>;
 
   const handleUpdateProfile = () => {
     setIsUpdateProfileVisible(true);
@@ -64,10 +64,8 @@ export const ProfileProvider: React.FC<IProfileProviderProps> = ({
   };
 
   useEffect(() => {
-    if (vendorId) {
-      vendorProfileResponse.refetch();
-    }
-  }, [vendorId]);
+    vendorProfileResponse.refetch();
+  }, []);
 
   const value: IVendorProfileContextData = {
     isUpdateProfileVisible,
