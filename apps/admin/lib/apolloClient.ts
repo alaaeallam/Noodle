@@ -14,8 +14,7 @@ import { getToken, clearToken } from './auth/token';
 
 const httpLink = createHttpLink({
   uri: GRAPHQL_URL,
-  // cookies not needed for bearer flow; keep default unless you use them
-  // credentials: 'same-origin',
+  // credentials: 'same-origin', // not needed for bearer flow
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -28,7 +27,28 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
+const errorLink = onError(({ operation, graphQLErrors, networkError, response }) => {
+  // 🔎 Log everything useful first (helps with 400 validation errors)
+  if (graphQLErrors && graphQLErrors.length) {
+    // Server returned GraphQL errors (often still HTTP 200)
+    // eslint-disable-next-line no-console
+    console.error(
+      `[GraphQL errors] op=${operation?.operationName || '<anonymous>'}`,
+      graphQLErrors
+    );
+  }
+
+  if (networkError) {
+    const n = networkError as any;
+    // apollo-server uses 400 for validation errors; result?.errors will have details
+    // eslint-disable-next-line no-console
+    console.error(
+      `[Network error] op=${operation?.operationName || '<anonymous>'} status=${n?.statusCode}`,
+      n?.result || n
+    );
+  }
+
+  // 🚧 auth handling stays as-is (clear token + redirect)
   const isAuthError =
     graphQLErrors?.some(
       (e) => e.message === 'Unauthenticated' || e.message === 'Forbidden'
