@@ -20,12 +20,11 @@ export const EDIT_VENDOR = gql`
     editVendor(vendorInput: $vendorInput) {
       _id
       email
-      password
-      name
       image
       firstName
       lastName
       phoneNumber
+      userType
     }
   }
 `;

@@ -1,3 +1,4 @@
+//apps/admin/lib/utils/schema/vendor.ts
 import * as Yup from 'yup';
 // import { PasswordErrors } from '../constants';
 import { IDropdownSelectItem } from '../interfaces';
@@ -74,18 +75,29 @@ export const VendorEditSchema = Yup.object().shape({
     .nullable()
     .oneOf([Yup.ref('password'), null], 'Password must match')
     .required('Required'),
-  image: Yup.string().required(),
-  phoneNumber: Yup.string()
-    .required('Required')
-    .min(5, 'Minimum 5 Numbers are Required'),
+   image: Yup.string()
+    .nullable()
+    .transform(v => (v === '' ? null : v))
+    .url('Invalid image URL')
+    .notRequired(),
+   phoneNumber: Yup.string()
+    .nullable()
+    .transform(v => (v === '' ? null : v))
+    .min(5, 'Minimum 5 Numbers are Required')
+    .notRequired(),
   firstName: Yup.string()
+    .nullable()
+    .transform(v => (v === '' ? null : v))
     .trim()
     .matches(/\S/, 'First Name cannot be only spaces')
-    .required('Required'),
+    .notRequired(),
+
   lastName: Yup.string()
+    .nullable()
+    .transform(v => (v === '' ? null : v))
     .trim()
     .matches(/\S/, 'Last Name cannot be only spaces')
-    .required('Required'),
+    .notRequired(),
 });
 
 export const RestaurantsVendorDetails = Yup.object().shape({

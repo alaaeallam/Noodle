@@ -1,4 +1,5 @@
 // Core
+//apps/admin/lib/ui/screen-components/protected/vendor/profile/main/index.tsx
 import { ApolloError, useMutation } from '@apollo/client';
 import { Form, Formik } from 'formik';
 import { useContext, useEffect, useState } from 'react';
@@ -46,10 +47,17 @@ export default function VendorUpdateForms() {
   // Hooks
   const t = useTranslations();
 
+  // Utility: strip undefined, null, and empty strings from an object
+const compactInput = <T extends Record<string, any>>(obj: T): Partial<T> =>
+  Object.fromEntries(
+    Object.entries(obj).filter(
+      ([, v]) => v !== undefined && v !== null && !(typeof v === 'string' && v.trim() === '')
+    )
+  ) as Partial<T>;
   // Context
   const { showToast } = useContext(ToastContext);
   const { vendorProfileResponse } = useContext(ProfileContext);
-  let vendor = vendorProfileResponse.data?.getVendor;
+  let vendor = vendorProfileResponse.data?.profile;
 
   // States
   const [formInitialValues, setFormValues] = useState<IVendorForm>({
@@ -66,41 +74,63 @@ export default function VendorUpdateForms() {
   });
 
   // Handlers
-  const onVendorCreate = async (data: IVendorForm) => {
-    try {
-      await updateVendor({
-        variables: {
-          vendorInput: {
-            _id: vendor?._id,
-            name: data?.name ?? ' ',
-            email: data?.email,
-            password: data?.password,
-            image: data?.image,
-            lastName: data?.lastName,
-            phoneNumber: `${data.phoneNumber?.toString()}`,
-            firstName: data?.firstName,
-          },
-        },
-      });
+const onVendorCreate = async (data: IVendorForm) => {
+  try {
+    // Build only meaningful fields; omit empty strings & undefined
+    const payload = compactInput({
+      _id: vendor?._id,                                // required for edit
+      email: data?.email,
+      firstName: data?.firstName,
+      lastName: data?.lastName,
+      image: data?.image,
+      phoneNumber: data?.phoneNumber ? String(data.phoneNumber) : undefined,
+      // send password ONLY if entered
+      password: data?.password ? String(data.password) : undefined,
+    });
 
-      showToast({
-        type: 'success',
-        title: t('Edit Vendor'),
-        message: t(`Vendor has been edited successfully`),
-        duration: 3000,
-      });
-      // setIsUpdateProfileVisible(false);
-    } catch (error) {
-      console.log('error', error);
+    const { data: result } = await updateVendor({
+      variables: { vendorInput: payload },
+    });
 
-      showToast({
-        type: 'error',
-        title: t(`Edit Vendor`),
-        message: t(`Vendor Edit Failed`),
-        duration: 2500,
-      });
+    // Optional sanity check
+    if (!result?.editVendor?._id) {
+      throw new Error('Edit Vendor returned no data');
     }
-  };
+
+    showToast({
+      type: 'success',
+      title: t('Edit Vendor'),
+      message: t('Vendor has been edited successfully'),
+      duration: 3000,
+    });
+
+    // Refresh header/profile panels
+    try {
+      await vendorProfileResponse.refetch();
+    } catch { /* ignore */ }
+
+    // Optional: refresh the form with fresh values from the server
+    // setFormValues(v => ({
+    //   ...v,
+    //   email: result.editVendor.email ?? v.email,
+    //   firstName: (result.editVendor as any).firstName ?? v.firstName,
+    //   lastName: (result.editVendor as any).lastName ?? v.lastName,
+    //   image: result.editVendor.image ?? v.image,
+    //   phoneNumber: (result.editVendor as any).phoneNumber ?? v.phoneNumber,
+    // }));
+  } catch (error: any) {
+    console.log('error', error);
+    showToast({
+      type: 'error',
+      title: t('Edit Vendor'),
+      message:
+        error?.graphQLErrors?.[0]?.message ??
+        error?.message ??
+        t('Vendor Edit Failed'),
+      duration: 2500,
+    });
+  }
+};
   function onError({ graphQLErrors, networkError }: ApolloError) {
     showToast({
       type: 'error',
@@ -117,10 +147,10 @@ export default function VendorUpdateForms() {
   useEffect(() => {
     if (vendor) {
       setFormValues({
-        name: vendor?.name ?? '',
+        name: '',
         email: vendor?.email ?? '',
-        password: vendor?.plainPassword ?? '',
-        confirmPassword: vendor?.plainPassword ?? '',
+        password: '',
+        confirmPassword: '',
         image: vendor?.image || '',
         phoneNumber: vendor?.phoneNumber ?? '',
         lastName: vendor?.lastName ?? '',
@@ -305,7 +335,7 @@ export default function VendorUpdateForms() {
                           <div className="!mt-0 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
                             <div>
                               <label className="mb-[4px] text-[14px] font-medium text-[#09090B]">
-                                {t('Current Password')}
+                                {t('New Password')}
                               </label>
                               <CustomPasswordTextField
                                 autoComplete="new-password"
@@ -331,7 +361,7 @@ export default function VendorUpdateForms() {
                             <div>
                               <label className="mb-[4px] text-[14px] font-medium text-[#09090B]">
                                 {' '}
-                                {t('New Password')}
+                                {t('Confirm New Password')}
                               </label>
                               <CustomPasswordTextField
                                 autoComplete="new-password"

@@ -3,16 +3,23 @@ import {
   IQueryResult,
   ISingleVendorResponseGraphQL,
 } from '@/lib/utils/interfaces';
-
-export interface IVendorProfileContextData extends IGlobalComponentProps {
+export interface IVendorProfile {
+  _id: string;
+  email: string;
+  userType: 'ADMIN' | 'VENDOR' | 'SUPER_ADMIN';
+  name?: string;
+  image?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+}
+export type ProfileQueryResult = { profile: IVendorProfile };
+export interface IVendorProfileContextData {
   isUpdateProfileVisible: boolean;
-  setIsUpdateProfileVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsUpdateProfileVisible: (v: boolean) => void;
   handleUpdateProfile: () => void;
-  vendorProfileResponse: IQueryResult<
-    ISingleVendorResponseGraphQL | undefined,
-    undefined
-  >;
+  vendorProfileResponse: IQueryResult<ProfileQueryResult, undefined>;
   activeIndex: number;
-  onActiveStepChange: (activeStep: number) => void;
-  refetchVendorProfile: () => Promise<void>; // Add this line
+  onActiveStepChange: (idx: number) => void;
+  refetchVendorProfile: () => Promise<void> | void;
 }

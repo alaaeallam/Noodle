@@ -108,6 +108,7 @@ const VendorAppTopbar = () => {
   const { data: profileData } = useQuery(PROFILE, {
     fetchPolicy: 'cache-first',
   });
+  const p = profileData?.profile;
 
   // Derive display values with safe fallbacks
   const profileName =

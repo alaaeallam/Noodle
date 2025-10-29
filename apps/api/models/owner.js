@@ -11,6 +11,10 @@ const ownerSchema = new Schema({
     type: String,
     required: true
   },
+  firstName: { type: String, trim: true },
+    lastName:  { type: String, trim: true },
+    phoneNumber: { type: String, trim: true },
+    image: { type: String, trim: true },
   restaurants: [
     {
       type: Schema.Types.ObjectId,
