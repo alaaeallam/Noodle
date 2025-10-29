@@ -78,6 +78,7 @@ export default function VendorAddForm({
   });
 
   // Mutations
+  const [editVendor] = useMutation(EDIT_VENDOR); 
   const [createVendor] = useMutation(
     isEditingVendor && vendorId ? EDIT_VENDOR : CREATE_VENDOR,
     {
@@ -107,32 +108,70 @@ export default function VendorAddForm({
   }) as ILazyQueryResult<IGetVendorResponseGraphQL | undefined, { id: string }>;
 
   // Handlers
-  const onVendorCreate = async (data: IVendorForm) => {
-    try {
-      await createVendor({
-        variables: {
-          vendorInput: {
-            _id: isEditingVendor && vendorId ? vendorId : '',
-            name: data.firstName + ' ' + data.lastName,
-            email: data.email,
-            password: data.password,
-            image: data.image,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            phoneNumber: `${data.phoneNumber?.toString()}`,
-          },
-        },
-      });
-    } catch (error) {
-      console.log('error during add vendor ==> ', error);
-      showToast({
-        type: 'error',
-        title: `${isEditingVendor ? t('Edit') : t('Create')} ${t('Vendor')}`,
-        message: `${t('Vendor')} ${isEditingVendor ? t('Edit') : t('Create')} ${t('Failed')}`,
-        duration: 2500,
-      });
+  const compactInput = <T extends Record<string, any>>(obj: T): Partial<T> =>
+  Object.fromEntries(
+    Object.entries(obj)
+      // remove undefined, null, or empty strings
+      .filter(([, v]) => v !== undefined && v !== null && !(typeof v === 'string' && v.trim() === ''))
+  ) as Partial<T>;
+
+const onVendorCreate = async (data: IVendorForm) => {
+  try {
+    // Build a minimal input and drop empty/undefined values
+    const base = {
+      // Only include _id when editing
+      ...(isEditingVendor && vendorId ? { _id: vendorId } : {}),
+      name: [data.firstName, data.lastName].filter(Boolean).join(' ') || undefined,
+      email: data.email,
+      image: data.image || undefined,
+      firstName: (data as any).firstName || undefined,
+      lastName: (data as any).lastName || undefined,
+      phoneNumber: data.phoneNumber ? String(data.phoneNumber) : undefined,
+      // Send password ONLY if provided
+      password: data.password ? String(data.password) : undefined,
+    };
+
+    const variables = { vendorInput: compactInput(base) };
+
+    // Call the proper mutation depending on the mode
+    const { data: result } = isEditingVendor && vendorId
+      ? await editVendor({ variables })
+      : await createVendor({ variables });
+
+    const payload = isEditingVendor ? result?.editVendor : result?.createVendor;
+    if (!payload?._id) {
+      throw new Error(`${isEditingVendor ? 'Edit' : 'Create'} Vendor returned no data`);
     }
-  };
+
+    showToast({
+      type: 'success',
+      title: isEditingVendor ? t('Edit Vendor') : t('New Vendor'),
+      message: isEditingVendor
+        ? t('Vendor has been edited successfully')
+        : t('Vendor has been added successfully'),
+      duration: 3000,
+    });
+
+    // Close the drawer and refresh the vendor list in the parent context
+    onSetVendorFormVisible(false);
+    try {
+      await vendorResponse.refetch();
+    } catch {
+      /* ignore refetch errors */
+    }
+  } catch (error: any) {
+    console.log('error during add/edit vendor ==> ', error);
+    showToast({
+      type: 'error',
+      title: isEditingVendor ? t('Edit Vendor') : t('Create Vendor'),
+      message:
+        error?.graphQLErrors?.[0]?.message ??
+        error?.message ??
+        (isEditingVendor ? t('Vendor Edit Failed') : t('Vendor Create Failed')),
+      duration: 3000,
+    });
+  }
+};
 
   function onError({ graphQLErrors, networkError }: ApolloError) {
     showToast({

@@ -5,8 +5,6 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 // Interfaces and Types
 import {
   IQueryResult,
-  IProfileProviderProps,
-  ISingleVendorResponseGraphQL,
 } from '../../utils/interfaces';
 
 import { IVendorProfileContextData } from '@/lib/utils/interfaces/profile/vendor.profile.interface';
@@ -18,12 +16,16 @@ import { VendorLayoutContext } from './layout-vendor.context';
 // GraphQL
 import { PROFILE } from '@/lib/api/graphql/queries/me';
 import { useQueryGQL } from '../../hooks/useQueryQL';
+import type { IVendorProfile } from '@/lib/utils/interfaces/profile/vendor.profile.interface';
+
+type ProfileQueryResult = { profile: IVendorProfile };
 
 export const ProfileContext = createContext<IVendorProfileContextData>(
   {} as IVendorProfileContextData
 );
 
 type ProviderProps = { children: React.ReactNode };
+
 export const ProfileProvider = ({ children }: ProviderProps) => {
   const { showToast } = useContext(ToastContext);
   const { vendorLayoutContextData } = useContext(VendorLayoutContext);
@@ -38,9 +40,7 @@ export const ProfileProvider = ({ children }: ProviderProps) => {
     {
       fetchPolicy: 'network-only',
       debounceMs: 300,
-      onCompleted: () => {
-        // fetched
-      },
+      onCompleted: () => {},
       onError: () => {
         showToast({
           type: 'error',
@@ -49,19 +49,11 @@ export const ProfileProvider = ({ children }: ProviderProps) => {
         });
       },
     }
-  ) as IQueryResult<any, undefined>;
+  ) as unknown as IQueryResult<ProfileQueryResult, undefined>;
 
-  const handleUpdateProfile = () => {
-    setIsUpdateProfileVisible(true);
-  };
-
-  const onActiveStepChange = (activeStep: number) => {
-    setActiveIndex(activeStep);
-  };
-
-  const refetchVendorProfile = async (): Promise<void> => {
-    vendorProfileResponse.refetch();
-  };
+  const handleUpdateProfile = () => setIsUpdateProfileVisible(true);
+  const onActiveStepChange = (activeStep: number) => setActiveIndex(activeStep);
+  const refetchVendorProfile = async () => vendorProfileResponse.refetch();
 
   useEffect(() => {
     vendorProfileResponse.refetch();

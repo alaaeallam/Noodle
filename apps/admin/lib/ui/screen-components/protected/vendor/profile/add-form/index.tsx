@@ -1,4 +1,5 @@
 // Core
+//apps/admin/lib/ui/screen-components/protected/vendor/profile/add-form/index.tsx
 import { ApolloError, useMutation } from '@apollo/client';
 import { Form, Formik } from 'formik';
 import { useContext, useEffect, useState } from 'react';
@@ -54,7 +55,7 @@ export default function VendorUpdateForm({
   // Context
   const { showToast } = useContext(ToastContext);
   const { vendorProfileResponse } = useContext(ProfileContext);
-  let vendor = vendorProfileResponse.data?.getVendor;
+  let vendor = vendorProfileResponse.data?.profile;
 
   // States
   const [formInitialValues, setFormValues] = useState<IVendorForm>({
@@ -120,11 +121,11 @@ export default function VendorUpdateForm({
       setFormValues({
         name: vendor?.name ?? '',
         email: vendor?.email ?? '',
-        password: vendor?.plainPassword ?? '',
-        confirmPassword: vendor?.plainPassword ?? '',
+        password: '',
+        confirmPassword: '',
         image: vendor?.image || '',
-        phoneNumber: vendor?.phoneNumber || '',
-        lastName: vendor?.lastName || '',
+        phoneNumber: (vendor as any)?.phoneNumber || '',
+        lastName: (vendor as any)?.lastName || '',
       });
     }
   }, [vendor]);

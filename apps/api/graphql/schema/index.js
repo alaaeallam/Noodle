@@ -340,7 +340,12 @@ const typeDefs = gql`
   type OwnerData {
     _id: ID!
     email: String!
+    
     userType: String!
+    firstName: String
+    lastName: String
+    phoneNumber: String
+    image: String
     restaurants: [Restaurant]!
     pushToken: String
   }
@@ -721,11 +726,15 @@ const typeDefs = gql`
     password: String
   }
 
-  input VendorInput {
-    _id: String
-    email: String
-    password: String
-  }
+input VendorInput {
+  _id: ID
+  email: String
+  password: String
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  image: String
+}
 
   input ReviewInput {
     order: String
@@ -1019,6 +1028,7 @@ const typeDefs = gql`
       search: String
     ): [Food!]!
     profile: User
+    vendorProfile: OwnerData
     configuration: Configuration!
     users: [User!]
     userFavourite(latitude: Float, longitude: Float): [Restaurant]
