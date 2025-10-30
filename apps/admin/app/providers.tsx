@@ -22,7 +22,12 @@ export default function Providers({ locale, messages, children }: ProvidersProps
   return (
     <ApolloProvider client={apolloClient}>
       {/* ✅ provide locale explicitly */}
-      <NextIntlClientProvider locale={locale} messages={messages}>
+      <NextIntlClientProvider
+  locale={locale}
+  messages={messages}
+  timeZone="Africa/Cairo"
+  now={new Date()}
+>
         {children}
       </NextIntlClientProvider>
     </ApolloProvider>

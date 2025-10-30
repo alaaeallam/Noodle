@@ -20,7 +20,6 @@ export const GET_RESTAURANTS_DROPDOWN = gql`
 export const GET_RESTAURANTS = gql`
   query restaurants {
     restaurants {
-      unique_restaurant_id
       _id
       name
       image
@@ -76,7 +75,6 @@ export const GET_RESTAURANTS_BY_OWNER = gql`
       email
       userType
       restaurants {
-        unique_restaurant_id
         _id
         orderId
         orderPrefix
@@ -92,10 +90,8 @@ export const GET_RESTAURANTS_BY_OWNER = gql`
         location {
           coordinates
         }
-        deliveryInfo {
-          minDeliveryFee
-          deliveryDistance
-          deliveryFee
+        deliveryBounds {
+          coordinates
         }
         openingTimes {
           day
@@ -150,11 +146,6 @@ export const GET_RESTAURANT_PROFILE = gql`
       deliveryBounds {
         coordinates
       }
-      deliveryInfo {
-        minDeliveryFee
-        deliveryDistance
-        deliveryFee
-      }
       username
       password
       deliveryTime
@@ -175,7 +166,6 @@ export const GET_RESTAURANT_PROFILE = gql`
       }
       shopType
       cuisines
-
       bussinessDetails {
         bankName
         accountName
@@ -185,7 +175,6 @@ export const GET_RESTAURANT_PROFILE = gql`
         companyRegNo
         taxRate
       }
-
       currentWalletAmount
       totalWalletAmount
       withdrawnWalletAmount
@@ -197,7 +186,6 @@ export const GET_RESTAURANTS_PAGINATED = gql`
   query restaurantsPaginated($page: Int, $limit: Int, $search: String) {
     restaurantsPaginated(page: $page, limit: $limit, search: $search) {
       data {
-        unique_restaurant_id
         _id
         name
         image

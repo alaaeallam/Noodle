@@ -7,13 +7,13 @@ export const CuisineFormSchema = Yup.object().shape({
     .matches(/\S/, 'Name cannot be only spaces')
     .required('Name is a required'),
   description: Yup.string()
-    .max(40, 'You have reached the maximum limit of 1500 characters!')
+    .max(100, 'You have reached the maximum limit of 100 characters!')
     .trim()
-    .matches(/\S/, 'Name cannot be only spaces')
-    .required('Description is required'),
+    .nullable()
+    .notRequired(),
   shopType: Yup.object({
     label: Yup.string().required('Required'),
     code: Yup.string().required('Required'),
   }).required('Please choose one'),
-  image: Yup.string().url().required("Image is Required"),
+  image: Yup.string().url().nullable().notRequired(),
 });
