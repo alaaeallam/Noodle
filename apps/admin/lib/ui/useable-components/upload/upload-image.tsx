@@ -4,7 +4,7 @@ import { ToastContext } from '@/lib/context/global/toast.context';
 
 // GraphQL
 import { useMutation } from '@apollo/client';
-import { UPLOAD_IMAGE_TO_S3 } from '@/lib/api/graphql/mutations';
+// import { UPLOAD_IMAGE_TO_S3 } from '@/lib/api/graphql/mutations';
 
 // Interfaces
 import {
@@ -32,8 +32,11 @@ import {
 import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload } from '@fortawesome/free-solid-svg-icons';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
 // import { MAX_VIDEO_FILE_SIZE } from '@/lib/utils/constants';
+
+const CLOUDINARY_UPLOAD_URL = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_URL as string;
+const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET as string;
 
 function CustomUploadImageComponent({
   name,
@@ -58,7 +61,7 @@ function CustomUploadImageComponent({
   const { showToast } = useContext(ToastContext);
 
   // Mutations
-  const [uploadToS3] = useMutation(UPLOAD_IMAGE_TO_S3);
+  // const [uploadToS3] = useMutation(UPLOAD_IMAGE_TO_S3);
 
   // States
   const [isUploading, setIsUploading] = useState(false);
@@ -81,8 +84,8 @@ function CustomUploadImageComponent({
     return extracted_files.length ? extracted_files[0] : files[0];
   };
 
-  // Upload to S3
-  const uploadImageToS3 = useCallback(
+  // Upload to Cloudinary
+  const uploadImageToCloudinary = useCallback(
     async (file: File): Promise<void> => {
       setIsUploading(true);
       setImageFile(URL.createObjectURL(file));
@@ -93,18 +96,15 @@ function CustomUploadImageComponent({
           ? await compressImage(file, 800, 0.7)
           : file;
         
-        // Convert to base64
-        const base64 = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(processedFile);
+        const formData = new FormData();
+        formData.append('file', processedFile);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        const res = await fetch(CLOUDINARY_UPLOAD_URL, {
+          method: 'POST',
+          body: formData,
         });
-        
-        const { data } = await uploadToS3({
-          variables: { image: base64 }
-        });
-        
-        const imageUrl = data?.uploadImageToS3?.imageUrl;
+        const json = await res.json();
+        const imageUrl = json.secure_url as string;
         
         if (imageUrl) {
           onSetImageUrl(name, imageUrl);
@@ -134,7 +134,7 @@ function CustomUploadImageComponent({
         setIsUploading(false);
       }
     },
-    [name, onSetImageUrl, showToast, title, fileTypes, uploadToS3, t]
+    [name, onSetImageUrl, showToast, title, fileTypes, t]
   );
 
   // Select Image
@@ -143,10 +143,10 @@ function CustomUploadImageComponent({
       const result = filterFiles(event);
       if (result) {
         setCurrentFileType(result.type);
-        uploadImageToS3(result);
+        uploadImageToCloudinary(result);
       }
     },
-    [uploadImageToS3]
+    [uploadImageToCloudinary]
   );
 
   // Handle cancel click

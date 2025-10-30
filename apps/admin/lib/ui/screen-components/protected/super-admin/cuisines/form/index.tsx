@@ -150,18 +150,26 @@ export default function CuisineForm({
          
 onSubmit={async (values, { setSubmitting }) => {
   setSubmitting(true);
-
+   const shopTypeValue =
+    typeof values.shopType === 'string'
+      ? values.shopType
+      : values.shopType?.code || '';
   let formData;
   if (!isEditing.bool) {
     formData = {
       name: values.name,
       description: values.description || '',
+      image: values.image || '',
+    shopType: shopTypeValue || '',
+
     };
   } else {
     formData = {
       _id: values._id,
       name: values.name,
       description: values.description || '',
+      image: values.image || '',
+      shopType: shopTypeValue || '',
     };
   }
 

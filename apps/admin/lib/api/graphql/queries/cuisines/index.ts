@@ -6,6 +6,8 @@ export const GET_CUISINES = gql`
       _id
       name
       description
+      image
+      shopType
     }
   }
 `;

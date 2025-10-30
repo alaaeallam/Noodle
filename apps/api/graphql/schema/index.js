@@ -897,12 +897,17 @@ input VendorInput {
     _id: String
     name: String!
     description: String
+    image: String
+    shopType: String
   }
 
   type Cuisine {
     _id: String!
     name: String!
     description: String
+    image: String
+    shopType: String
+    isActive: Boolean
   }
 
   type FormSubmissionResponse {
@@ -1106,6 +1111,7 @@ input VendorInput {
     popularItems(restaurantId: String!): [PopularItemsResponse!]!
     topRatedVendors(latitude: Float!, longitude: Float!): [Restaurant!]
     lastOrderCreds: DemoCredentails
+    cuisine(cuisine: String!): Cuisine
   }
 
   type Mutation {
@@ -1247,7 +1253,6 @@ input VendorInput {
     createCuisine(cuisineInput: CuisineInput!): Cuisine!
     editCuisine(cuisineInput: CuisineInput!): Cuisine!
     deleteCuisine(id: String!): String!
-    cuisine(cuisine: String!): Cuisine!
     createTipping(tippingInput: TippingInput!): Tipping!
     editTipping(tippingInput: TippingInput!): Tipping!
     createTaxation(taxationInput: TaxationInput!): Taxation!
