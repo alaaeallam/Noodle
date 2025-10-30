@@ -32,8 +32,6 @@ export const GET_VENDOR_BY_ID = gql`
       _id
       email
       userType
-      name
-      plainPassword
       image
       firstName
       lastName

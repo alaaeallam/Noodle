@@ -18,8 +18,8 @@ import { FilterMatchMode } from 'primereact/api';
 import { ToastContext } from '@/lib/context/global/toast.context';
 
 // Hooks
-import { useLazyQueryQL } from '@/lib/hooks/useLazyQueryQL';
-import { useMutation } from '@apollo/client';
+
+import { useMutation, useQuery } from '@apollo/client';
 import { useContext, useEffect, useState } from 'react';
 
 // Components
@@ -45,9 +45,9 @@ export default function CuisinesMain({
   );
 
   // Queries
-  const { data, fetch } = useLazyQueryQL(GET_CUISINES, {
-    onCompleted: () => setIsLoading(false),
-  }) as ILazyQueryResult<IGetCuisinesData | undefined, undefined>;
+  const { data, loading, refetch } = useQuery<IGetCuisinesData>(GET_CUISINES, {
+    fetchPolicy: 'network-only',
+  });
 
   // Hooks
   const t = useTranslations();
@@ -67,7 +67,6 @@ export default function CuisinesMain({
     },
   });
   const [selectedActions, setSelectedActions] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
 
   // Filters
@@ -151,29 +150,26 @@ export default function CuisinesMain({
     }
   }
 
-  const onFetchCuisines = () => {
-    setIsLoading(true);
-    fetch();
-  };
 
   // UseEffects
-  useEffect(() => {
-    setVisible(isEditing.bool);
-  }, [data, isEditing.bool]);
+ useEffect(() => {
+  setVisible(isEditing.bool);
+}, [isEditing.bool]);
 
   useEffect(() => {
-    onFetchCuisines();
-  }, []);
+    // Initial query already runs via useQuery; refetch here only if you need a hard refresh on mount.
+    refetch();
+  }, [refetch]);
 
   return (
     <div className="p-3">
       <Table
         columns={CUISINE_TABLE_COLUMNS({ menuItems })}
-        data={data?.cuisines || (isLoading ? generateDummyCuisines() : [])}
+        data={data?.cuisines || (loading ? generateDummyCuisines() : [])}
         selectedData={selectedData}
         setSelectedData={(e) => setSelectedData(e as ICuisine[])}
         filters={filters}
-        loading={isLoading}
+        loading={loading}
         header={
           <CuisineTableHeader
             globalFilterValue={globalFilterValue}

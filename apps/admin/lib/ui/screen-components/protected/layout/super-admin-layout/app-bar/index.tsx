@@ -14,7 +14,7 @@ import {
 } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { ToastContext } from '@/lib/context/global/toast.context';
 // Icons
 import {
   faBell,
@@ -32,7 +32,7 @@ import {
 import TextIconClickable from '@/lib/ui/useable-components/text-icon-clickable';
 import CustomDialog from '@/lib/ui/useable-components/delete-dialog';
 
-// Prime Reat
+// Prime React
 import { Menu } from 'primereact/menu';
 import { Skeleton } from 'primereact/skeleton';
 
@@ -65,21 +65,28 @@ import { useLocale, useTranslations } from 'next-intl';
 import { TLocale } from '@/lib/utils/types/locale';
 import { setUserLocale } from '@/lib/utils/methods/locale';
 
-// GraphQL
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import { RIDER_UPDATED_SUBSCRIPTION } from '@/lib/api/graphql/subscription/rider-subscription';
-import {
-  GET_WEB_NOTIFICATIONS,
-  MARK_WEB_NOTIFICATIONS_AS_READ,
-} from '@/lib/api/graphql';
+// ⛔️ NOTE: no GraphQL imports here — backend doesn’t expose notifications
 
 const AppTopbar = () => {
+  // ✅ local loading (no apollo)
+  const loading = false;
+
   // States
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNtfnOpen, setIsNtfnOpen] = useState(false);
-  const [isLogoutModalVisible, setLogoutModalVisible] = useState(false); // New state for the modal
-  const [notifications, setNotifications] = useState<IWebNotification[]>([]);
+  const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
+  const [notifications, setNotifications] = useState<IWebNotification[]>([
+    // optional: seed with 1 fake notification so UI works
+    // {
+    //   _id: 'demo-1',
+    //   body: 'Notifications API is not enabled on this backend.',
+    //   navigateTo: '/management/notifications',
+    //   read: false,
+    //   createdAt: Date.now().toString(),
+    // },
+  ]);
 
+  const { showToast } = useContext(ToastContext);
   // Hooks
   const t = useTranslations();
   const pathname = usePathname();
@@ -87,7 +94,7 @@ const AppTopbar = () => {
   const [, startTransition] = useTransition();
   const currentLocale = useLocale();
 
-  // Ref
+  // Refs
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<Menu>(null);
   const ntfnDropdownRef = useRef<HTMLDivElement>(null);
@@ -98,35 +105,9 @@ const AppTopbar = () => {
     useContext<LayoutContextProps>(LayoutContext);
   const { user, setUser } = useUserContext();
 
-  // Query
-  const { loading, refetch } = useQuery(GET_WEB_NOTIFICATIONS, {
-    fetchPolicy: 'network-only',
-    onCompleted: (data) => {
-      setNotifications(data?.webNotifications);
-    },
-  });
-
-  // Subscriptions
-  useSubscription(RIDER_UPDATED_SUBSCRIPTION, {
-    fetchPolicy: 'network-only',
-    onData: async () => {
-      const result = await refetch();
-      setNotifications(result?.data?.webNotifications);
-    },
-  });
-
-  // Mutation
-  const [markAllAsRead] = useMutation(MARK_WEB_NOTIFICATIONS_AS_READ, {
-    refetchQueries: [{ query: GET_WEB_NOTIFICATIONS }],
-    onCompleted: (data) => {
-      setNotifications(data?.markWebNotificationsAsRead);
-    },
-  });
-
   // Handlers
   const toggleDropdown = () => {
-    markAllAsRead();
-    setIsNtfnOpen((prevState) => !prevState);
+    setIsNtfnOpen((prev) => !prev);
   };
 
   const onDevicePixelRatioChange = useCallback(() => {
@@ -169,7 +150,7 @@ const AppTopbar = () => {
     });
   }
 
-  // Use Effects
+  // Effects
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('resize', onDevicePixelRatioChange);
@@ -182,7 +163,6 @@ const AppTopbar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Close the notification dropdown if the click is outside the dropdown or on the bell icon
       if (
         ntfnDropdownRef.current &&
         !ntfnDropdownRef.current.contains(event.target as Node) &&
@@ -198,7 +178,6 @@ const AppTopbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
   return (
     <div className={`${classes['layout-topbar']}`}>
       <div className="flex items-center cursor-pointer">
@@ -212,6 +191,7 @@ const AppTopbar = () => {
         </div>
       </div>
       <div className="hidden items-center space-x-5 md:flex">
+        {/* Zone button */}
         {shouldShow('Zone') && (
           <TextIconClickable
             icon={faMap}
@@ -227,6 +207,8 @@ const AppTopbar = () => {
             onClick={() => onRedirectToPage('/zone')}
           />
         )}
+
+        {/* Dispatch button */}
         {shouldShow('Dispatch') && (
           <TextIconClickable
             icon={faTruck}
@@ -240,13 +222,17 @@ const AppTopbar = () => {
             onClick={() => onRedirectToPage('/dispatch')}
           />
         )}
+
+        {/* Notifications bell */}
         <div className="relative z-50">
           <FontAwesomeIcon
             icon={faBell}
             className="cursor-pointer text-gray-600 hover:text-black"
             onClick={toggleDropdown}
-            title="Notifications" // 👈 native tooltip added here
+            title="Notifications"
           />
+
+          {/* badge */}
           {!loading &&
             notifications?.filter((ntfn) => !ntfn.read).length > 0 && (
               <span className="absolute text-xs top-[-4px] right-[-8px] w-4 h-4 flex justify-center items-center rounded-full bg-red-500 text-white">
@@ -254,6 +240,7 @@ const AppTopbar = () => {
               </span>
             )}
 
+          {/* dropdown */}
           {isNtfnOpen && (
             <div
               ref={ntfnDropdownRef}
@@ -264,7 +251,6 @@ const AppTopbar = () => {
               </p>
 
               <ul className="flex flex-col gap-1 pt-2 overflow-y-auto max-h-[368px]">
-                {/* If loading, show skeleton loaders */}
                 {loading ? (
                   [1, 2, 3].map((_, index) => (
                     <div className="px-3" key={index}>
@@ -285,19 +271,19 @@ const AppTopbar = () => {
                     />
                   </div>
                 ) : (
-                  notifications?.map((notification, index) => (
+                  notifications.map((notification) => (
                     <Link
-                      key={index}
+                      key={notification._id}
                       className={`p-2 mx-3 rounded-md text-sm cursor-pointer ${
                         notification.read
                           ? 'text-black'
                           : 'text-[#484848] bg-[#d8e3a369]'
                       } hover:bg-gray-300`}
-                      href={`${notification.navigateTo}`}
-                      onClick={() => {
-                        markAllAsRead();
-                        setIsNtfnOpen(false);
-                      }}
+                      href={
+                        notification.navigateTo ||
+                        '/management/notifications'
+                      }
+                      onClick={() => setIsNtfnOpen(false)}
                     >
                       <p>{notification.body}</p>
                       <p className="text-xs text-gray-400">
@@ -730,13 +716,13 @@ const AppTopbar = () => {
           </div>
         </div>
       )}
-      <CustomDialog
+    <CustomDialog
         title={t('Logout Confirmation')}
         message={t('Are you sure you want to logout?')}
         visible={isLogoutModalVisible}
         onHide={() => setLogoutModalVisible(false)}
         onConfirm={onConfirmLogout}
-        loading={false} // Set to true if you have a loading state for logout
+        loading={false}
         buttonConfig={{
           primaryButtonProp: { label: t('Yes'), icon: 'pi pi-check' },
           secondaryButtonProp: { label: t('Cancel'), icon: 'pi pi-times' },

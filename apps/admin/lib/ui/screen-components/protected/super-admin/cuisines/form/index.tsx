@@ -35,6 +35,22 @@ export default function CuisineForm({
   isEditing,
   visible,
 }: IAddCuisineProps) {
+  // Remove undefined, null, empty-string values
+  function compactInput<T extends Record<string, any>>(obj: T): Partial<T> {
+    const out: Record<string, any> = {};
+    Object.keys(obj).forEach((k) => {
+      const v = (obj as any)[k];
+      if (
+        v !== undefined &&
+        v !== null &&
+        !(typeof v === "string" && v.trim() === "")
+      ) {
+        out[k] = v;
+      }
+    });
+    return out as Partial<T>
+  }
+
   // Utility function to capitalize the first word of a string
   const capitalizeFirstWord = (str: string): string => {
     if (!str) return '';
@@ -52,7 +68,7 @@ export default function CuisineForm({
     description: isEditing.bool ? isEditing?.data?.description : '',
     shopType: {
       label: capitalizeFirstWord(isEditing?.data?.shopType ?? ''),
-      code: isEditing?.data?.shopType.toLocaleLowerCase() ?? '',
+      code: isEditing?.data?.shopType?.toLowerCase() ?? '',
     },
     image: isEditing.bool ? isEditing.data.image : '',
   };
@@ -62,32 +78,31 @@ export default function CuisineForm({
   const [CreateCuisine, { loading: createCuisineLoading }] = useMutation(
     CREATE_CUISINE,
     {
-      onError,
       onCompleted: () => {
         showToast({
-          title: `${!isEditing.bool ? t('New') : t('Edit')} ${t('Cuisine')}`,
           type: 'success',
-          message: `${t('Cuisine has been')} ${!isEditing.bool ? t('Created') : t('edited')} ${t('successfully')}`,
+          title: `${t('New')} ${t('Cuisine')}`,
+          message: t('Cuisine has been Created successfully'),
           duration: 2000,
         });
       },
+      onError,
       refetchQueries: [{ query: GET_CUISINES }],
     }
   );
-  console.log(isEditing.data);
 
   const [editCuisine, { loading: editCuisineLoading }] = useMutation(
     EDIT_CUISINE,
     {
-      onError,
       onCompleted: () => {
         showToast({
-          title: `${!isEditing.bool ? t('New') : t('Edit')} ${t('Cuisine')}`,
           type: 'success',
-          message: `${t('Cuisine has been')} ${!isEditing.bool ? t('Created') : t('edited')} ${t('successfully')}`,
+          title: `${t('Edit')} ${t('Cuisine')}`,
+          message: t('Cuisine has been edited successfully'),
           duration: 2000,
         });
       },
+      onError,
       refetchQueries: [{ query: GET_CUISINES }],
     }
   );
@@ -133,54 +148,51 @@ export default function CuisineForm({
           initialValues={initialValues}
           validationSchema={CuisineFormSchema}
          
-          onSubmit={async (values, { setSubmitting }) => {
-            setSubmitting(true);
+onSubmit={async (values, { setSubmitting }) => {
+  setSubmitting(true);
 
-            let formData;
-            if (!isEditing.bool) {
-              formData = {
-                name: values.name,
-                description: values.description,
-                shopType: values.shopType.label,
-                image: values.image,
-              };
-            } else {
-              formData = {
-                _id: values._id,
-                name: values.name,
-                description: values.description,
-                shopType: values.shopType.label,
-                image: values.image,
-              };
-            }
-            if (!isEditing.bool) {
-              await CreateCuisine({
-                variables: {
-                  cuisineInput: formData,
-                },
-              });
-            } else {
-              await editCuisine({
-                variables: {
-                  cuisineInput: formData,
-                },
-              });
-            }
+  let formData;
+  if (!isEditing.bool) {
+    formData = {
+      name: values.name,
+      description: values.description || '',
+    };
+  } else {
+    formData = {
+      _id: values._id,
+      name: values.name,
+      description: values.description || '',
+    };
+  }
 
-            setVisible(false);
-            setSubmitting(false);
-            setIsEditing({
-              bool: false,
-              data: {
-                __typename: '',
-                _id: '',
-                description: '',
-                name: '',
-                shopType: '',
-                image: '',
-              },
-            });
-          }}
+  if (!isEditing.bool) {
+    await CreateCuisine({
+      variables: {
+        cuisineInput: formData,
+      },
+    });
+  } else {
+    await editCuisine({
+      variables: {
+        cuisineInput: formData,
+      },
+    });
+  }
+
+  setVisible(false);
+  setSubmitting(false);
+  setIsEditing({
+    bool: false,
+    data: {
+      __typename: '',
+      _id: '',
+      description: '',
+      name: '',
+      shopType: '',
+      image: '',
+    },
+  });
+}}
           validateOnChange={false}
           enableReinitialize
         >
@@ -278,9 +290,7 @@ export default function CuisineForm({
                     }
                     type="submit"
                   >
-                    {isSubmitting ||
-                    createCuisineLoading ||
-                    editCuisineLoading ? (
+                    {isSubmitting || createCuisineLoading || editCuisineLoading ? (
                       <ProgressSpinner
                         className="m-0 h-6 w-6 items-center self-center p-0"
                         strokeWidth="5"

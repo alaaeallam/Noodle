@@ -1,3 +1,4 @@
+'use client';
 // Core
 import { useContext } from 'react';
 
@@ -73,27 +74,23 @@ export default function VendorRestaurantsMain() {
           </div>
         </div>
 
-        <div className="pt- grid grid-cols-1 gap-6 pb-16 pt-2 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 pb-16 pt-2 lg:grid-cols-2 xl:grid-cols-3">
           {restaurantByOwnerResponse?.loading ? (
-            new Array(10)
-              .fill(0)
-              .map((_, i: number) => <CustomRestaurantCardSkeleton key={i} />)
-          ) : restaurants?.length !== 0 ? (
-            restaurants?.map((restaurant) => (
-              <VendorsLayoutRestaurantCard
-                key={restaurant?._id}
-                restaurant={restaurant}
-              />
-            ))
-          ) : !restaurants ? (
-            <div className="col-span-full flex h-64 items-centerjustify-center px-4">
-              <NoData />
-            </div>
-          ) : (
-            <div className="col-span-full flex h-64 items-center justify-center px-4">
-              <NoData />
-            </div>
-          )}
+  Array.from({ length: 10 }).map((_, i) => (
+    <CustomRestaurantCardSkeleton key={i} />
+  ))
+) : (restaurants && restaurants.length > 0) ? (
+  restaurants.map((restaurant) => (
+    <VendorsLayoutRestaurantCard
+      key={restaurant?._id}
+      restaurant={restaurant}
+    />
+  ))
+) : (
+  <div className="col-span-full flex h-64 items-center justify-center px-4">
+    <NoData />
+  </div>
+)}
         </div>
       </div>
     </div>
