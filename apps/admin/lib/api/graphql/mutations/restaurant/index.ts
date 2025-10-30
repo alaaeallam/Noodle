@@ -1,3 +1,4 @@
+// apps/admin/lib/api/graphql/mutations/restaurant/index.ts
 import { gql } from '@apollo/client';
 
 export const CREATE_RESTAURANT = gql`
@@ -9,22 +10,17 @@ export const CREATE_RESTAURANT = gql`
       username
       orderPrefix
       slug
-      phone
       address
       deliveryTime
       minimumOrder
-      isActive
       commissionRate
       tax
       owner {
         _id
         email
-        isActive
       }
       shopType
       orderId
-      logo
-      password
       location {
         coordinates
       }
@@ -129,18 +125,14 @@ export const DUPLICATE_RESTAURANT = gql`
       address
       deliveryTime
       minimumOrder
-      isActive
       commissionRate
       tax
       owner {
         _id
         email
-        isActive
       }
       shopType
       orderId
-      logo
-      password
       location {
         coordinates
       }

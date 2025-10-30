@@ -14,7 +14,7 @@ const cuisineSchema = new Schema(
     image: {
       type: String,
       default: '',
-    },
+  },
     shopType: {
       type: String,
       default: '',

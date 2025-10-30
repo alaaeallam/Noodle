@@ -1,3 +1,4 @@
+//apps/admin/lib/ui/screen-components/protected/vendor/restaurants/add-form/restaurant-details.tsx
 // Core
 import { useContext, useMemo } from 'react';
 import { Form, Formik } from 'formik';
@@ -146,22 +147,19 @@ export default function RestaurantDetails({
 
       await createRestaurant({
         variables: {
-          owner: vendorId,
-          restaurant: {
-            name: data.name,
-            phone: data.phoneNumber,
-            address: data.address,
-            image: data.image,
-            logo: data.logo,
-            deliveryTime: data.deliveryTime,
-            minimumOrder: data.minOrder,
-            username: data.username,
-            password: data.password,
-            shopType: data.shopType?.code,
-            salesTax: data.salesTax,
-            cuisines: data.cuisines.map(
-              (cuisin: IDropdownSelectItem) => cuisin.code
-            ),
+    owner: vendorId,
+    restaurant: {
+      name: data.name,
+      address: data.address,
+      image: data.image,
+      deliveryTime: data.deliveryTime,
+      minimumOrder: data.minOrder,
+      username: data.username,
+      shopType: data.shopType?.code,
+      salesTax: data.salesTax,
+      cuisines: data.cuisines.map(
+        (cuisin: IDropdownSelectItem) => cuisin.code
+      ),
           },
         },
       });
