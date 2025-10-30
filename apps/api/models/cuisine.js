@@ -11,6 +11,14 @@ const cuisineSchema = new Schema(
       type: String,
       required: false
     },
+    image: {
+      type: String,
+      default: '',
+    },
+    shopType: {
+      type: String,
+      default: '',
+    },
     isActive: {
       type: Boolean,
       default: true
