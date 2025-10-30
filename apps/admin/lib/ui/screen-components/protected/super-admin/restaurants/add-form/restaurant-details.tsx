@@ -170,22 +170,19 @@ export default function RestaurantDetailsForm({
       }
 
       await createRestaurant({
-        variables: {
-          owner: vendorId,
-          restaurant: {
-            name: data.name,
-            address: data.address,
-            phone: data.phoneNumber,
-            image: data.image,
-            logo: data.logo,
-            deliveryTime: data.deliveryTime,
-            minimumOrder: data.minOrder,
-            username: data.username,
-            password: data.password,
-            shopType: data.shopType?.code,
-            salesTax: data.salesTax,
-            cuisines: data.cuisines.map(
-              (cuisin: IDropdownSelectItem) => cuisin.code
+         variables: {
+    owner: vendorId,
+    restaurant: {
+      name: data.name,
+      address: data.address,
+      image: data.image,
+      deliveryTime: data.deliveryTime,
+      minimumOrder: data.minOrder,
+      username: data.username,
+      shopType: data.shopType?.code,
+      salesTax: data.salesTax,
+      cuisines: data.cuisines.map(
+        (cuisin: IDropdownSelectItem) => cuisin.code
             ),
           },
         },
