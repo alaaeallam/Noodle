@@ -1,8 +1,9 @@
+//apps/admin/lib/ui/screen-components/protected/restaurant/profile/restaurant/add-form/update-profile-detail.tsx
 import React, { useContext, useMemo } from 'react';
-import { Form, Formik } from 'formik';
+
 import { useMutation } from '@apollo/client';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
-
+import { Formik } from 'formik';
 import { ProfileContext } from '@/lib/context/restaurant/profile.context';
 import { ToastContext } from '@/lib/context/global/toast.context';
 
@@ -198,7 +199,7 @@ export default function UpdateRestaurantDetails({
               setFieldValue,
             }) => {
               return (
-                <Form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>
                   <div className="space-y-3 mb-2">
                     <CustomIconTextField
                       type="email"
@@ -508,7 +509,7 @@ export default function UpdateRestaurantDetails({
                       />
                     </div>
                   </div>
-                </Form>
+                </form>
               );
             }}
           </Formik>
