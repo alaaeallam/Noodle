@@ -132,52 +132,29 @@ export const GET_RESTAURANT_PROFILE = gql`
   query Restaurant($id: String) {
     restaurant(id: $id) {
       _id
-      orderId
-      orderPrefix
-      slug
       name
       image
-      phone
-      logo
       address
+      username
+      deliveryTime
+      minimumOrder
+      tax
+      shopType
+      cuisines
+      orderPrefix
+      orderId
+      isActive
+      isAvailable
       location {
         coordinates
       }
       deliveryBounds {
         coordinates
       }
-      username
-      password
-      deliveryTime
-      minimumOrder
-      tax
-      isAvailable
-      stripeDetailsSubmitted
-      openingTimes {
-        day
-        times {
-          startTime
-          endTime
-        }
-      }
       owner {
         _id
         email
       }
-      shopType
-      cuisines
-      bussinessDetails {
-        bankName
-        accountName
-        accountCode
-        accountNumber
-        bussinessRegNo
-        companyRegNo
-        taxRate
-      }
-      currentWalletAmount
-      totalWalletAmount
-      withdrawnWalletAmount
     }
   }
 `;

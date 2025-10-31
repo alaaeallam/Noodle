@@ -1,10 +1,10 @@
+//apps/admin/lib/ui/screen-components/protected/restaurant/profile/restaurant/main/index.tsx
 import React, { useContext } from 'react';
 import { ProfileLogoSVG } from '@/lib/utils/assets/svgs/profile';
 import { IInfoItemProps } from '@/lib/utils/interfaces/profile/restaurant.profile.interface';
 import { Avatar } from 'primereact/avatar';
 import { ProfileContext } from '@/lib/context/restaurant/profile.context';
 import RestaurantProfileSkeleton from '@/lib/ui/useable-components/custom-skeletons/restaurant.profile.skeleton';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faDollarSign } from '@fortawesome/free-solid-svg-icons';
@@ -56,23 +56,19 @@ const RestaurantMain: React.FC = () => {
             <p className="text-xs text-gray-500 mb-4">{t('Images')}</p>
             <div className="flex space-x-2">
               {restaurant?.image ? (
-                <Image
-                  src={restaurant?.image}
+                <img
+                  src={restaurant.image}
                   alt={t('Store logo')}
-                  className="object-cover rounded"
-                  width={96}
-                  height={96}
+                  className="object-cover rounded w-24 h-24"
                 />
               ) : (
                 <Avatar label="I" className="w-24 h-24" />
               )}
               {restaurant?.logo ? (
-                <Image
-                  src={restaurant?.logo}
+                <img
+                  src={restaurant.logo}
                   alt={t('Store logo')}
-                  className="object-cover rounded"
-                  width={96}
-                  height={96}
+                  className="object-cover rounded w-24 h-24"
                 />
               ) : (
                 <Avatar label="L" className="w-24 h-24" />

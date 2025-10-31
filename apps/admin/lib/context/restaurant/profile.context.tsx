@@ -1,3 +1,4 @@
+// apps/admin/lib/context/restaurant/profile.context.tsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { GET_RESTAURANT_PROFILE } from '@/lib/api/graphql';
 import { RestaurantLayoutContext } from '@/lib/context/restaurant/layout-restaurant.context';
@@ -14,9 +15,7 @@ export const ProfileContext = createContext<IProfileContextData>(
   {} as IProfileContextData
 );
 
-export const ProfileProvider: React.FC<IProfileProviderProps> = ({
-  children,
-}) => {
+export const ProfileProvider = ({ children }: { children: React.ReactNode }) => {
   const { showToast } = useContext(ToastContext);
   const { restaurantLayoutContextData } = useContext(RestaurantLayoutContext);
   const { restaurantId } = restaurantLayoutContextData;
@@ -24,25 +23,34 @@ export const ProfileProvider: React.FC<IProfileProviderProps> = ({
   const [isUpdateProfileVisible, setIsUpdateProfileVisible] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
-  const restaurantProfileResponse = useQueryGQL(
-    GET_RESTAURANT_PROFILE,
-    { id: restaurantId },
-    {
-      enabled: !!restaurantId,
-      fetchPolicy: 'network-only',
-      debounceMs: 300,
-      onCompleted: () => {
-        // You can perform any actions with the fetched data here
-      },
-      onError: () => {
-        showToast({
-          type: 'error',
-          title: 'Profile Fetch',
-          message: 'Failed to fetch profile',
-        });
-      },
-    }
-  ) as IQueryResult<IRestaurantProfileProps | undefined, undefined>;
+  // do we actually have a restaurant selected?
+  const shouldFetch = Boolean(restaurantId);
+
+  // --- call useQueryGQL differently based on shouldFetch ---
+  const restaurantProfileResponse = shouldFetch
+    ? (useQueryGQL(
+        GET_RESTAURANT_PROFILE,
+        { id: restaurantId },
+        {
+          enabled: true,
+          fetchPolicy: 'network-only',
+          debounceMs: 300,
+          onError: () => {
+            showToast({
+              type: 'error',
+              title: 'Profile Fetch',
+              message: 'Failed to fetch profile',
+            });
+          },
+        }
+      ) as IQueryResult<IRestaurantProfileProps | undefined, undefined>)
+    : ({
+        data: undefined,
+        loading: false,
+        error: undefined,
+        refetch: () => Promise.resolve(),
+      } as unknown as IQueryResult<IRestaurantProfileProps | undefined, undefined>);
+  // ----------------------------------------------------------
 
   const handleUpdateProfile = () => {
     setIsUpdateProfileVisible(true);
@@ -53,14 +61,17 @@ export const ProfileProvider: React.FC<IProfileProviderProps> = ({
   };
 
   const refetchRestaurantProfile = async (): Promise<void> => {
-    restaurantProfileResponse.refetch();
-  };
-
-  useEffect(() => {
-    if (restaurantId) {
+    if (shouldFetch) {
       restaurantProfileResponse.refetch();
     }
-  }, [restaurantId]);
+  };
+
+  // re-fetch when restaurant changes
+  useEffect(() => {
+    if (shouldFetch) {
+      restaurantProfileResponse.refetch();
+    }
+  }, [shouldFetch, restaurantId]);
 
   const value: IProfileContextData = {
     restaurantId,
@@ -71,10 +82,12 @@ export const ProfileProvider: React.FC<IProfileProviderProps> = ({
     activeIndex,
     onActiveStepChange,
     refetchRestaurantProfile,
-    loading: restaurantProfileResponse.loading,
+    loading: shouldFetch ? restaurantProfileResponse.loading : false,
   };
 
   return (
-    <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
+    <ProfileContext.Provider value={value}>
+      {children}
+    </ProfileContext.Provider>
   );
 };
