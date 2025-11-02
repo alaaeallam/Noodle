@@ -1,3 +1,4 @@
+//apps/admin/lib/ui/screen-components/protected/restaurant/timing/view/header/index.tsx
 // Components
 import HeaderText from '@/lib/ui/useable-components/header-text';
 import { useTranslations } from 'next-intl';

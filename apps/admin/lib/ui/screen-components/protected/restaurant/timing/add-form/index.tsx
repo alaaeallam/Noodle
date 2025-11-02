@@ -1,16 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-// Core
-import { ErrorMessage, Form, Formik, FormikErrors } from 'formik';
-import { useContext } from 'react';
 
-// Interface and Types
+import { ErrorMessage, Form, Formik, FormikErrors } from 'formik';
+import { useContext, useEffect } from 'react';
+
 import { TWeekDays } from '@/lib/utils/types/days';
 
-// Components
 import CustomButton from '@/lib/ui/useable-components/button';
 import CustomTimeInput from '@/lib/ui/useable-components/time-input';
 import Toggle from '@/lib/ui/useable-components/toggle';
+
 import {
   ITimeSlot,
   ITimeSlotResponseGQL,
@@ -18,44 +16,65 @@ import {
   ITimingResponseGQL,
 } from '@/lib/utils/interfaces/timing.interface';
 
-// Context
+// context
 import { RestaurantLayoutContext } from '@/lib/context/restaurant/layout-restaurant.context';
+// constants + helpers
+import { TIMING_INITIAL_VALUE, SELECTED_RESTAURANT } from '@/lib/utils/constants';
+import { onUseLocalStorage } from '@/lib/utils/methods';
 
-// Utilities and Constants
-import { TIMING_INITIAL_VALUE } from '@/lib/utils/constants';
 import { TimingSchema } from '@/lib/utils/schema/timing';
 
-// Toast
 import useToast from '@/lib/hooks/useToast';
 
-// GraphQL
 import { UPDATE_TIMINGS } from '@/lib/api/graphql/mutations/timing';
 import { useMutation, useQuery } from '@apollo/client';
 import { useTranslations } from 'next-intl';
 import { GET_RESTAURANT_PROFILE } from '@/lib/api/graphql';
 
-
-
 const TimingAddForm = () => {
-  const { restaurantLayoutContextData } = useContext(RestaurantLayoutContext);
-  const restaurantId = restaurantLayoutContextData?.restaurantId || '';
+  const {
+    restaurantLayoutContextData,
+    onSetRestaurantLayoutContextData,
+  } = useContext(RestaurantLayoutContext);
 
-  // Hooks
+  // 1) read LS
+  const lsRestaurantId =
+    typeof window !== 'undefined'
+      ? (onUseLocalStorage('get', SELECTED_RESTAURANT) as string)
+      : '';
+
+  // 2) preferred source = context, fallback = LS
+  const restaurantId =
+    restaurantLayoutContextData?.restaurantId || lsRestaurantId || '';
+
+  // 3) if context is empty but LS has id → push it into context (so component re-renders)
+  useEffect(() => {
+    if (
+      !restaurantLayoutContextData?.restaurantId &&
+      lsRestaurantId &&
+      onSetRestaurantLayoutContextData
+    ) {
+      onSetRestaurantLayoutContextData({ restaurantId: lsRestaurantId });
+    }
+  }, [restaurantLayoutContextData?.restaurantId, lsRestaurantId, onSetRestaurantLayoutContextData]);
+
   const t = useTranslations();
   const { showToast } = useToast();
+
+  const skip = !restaurantId;
 
   const { data, loading, refetch } = useQuery(GET_RESTAURANT_PROFILE, {
     fetchPolicy: 'cache-and-network',
     variables: { id: restaurantId },
+    skip,
   });
 
-  //for conversion from ["HH","MM"] to 'HH:MM' format
+  // map from ["HH","MM"] → "HH:MM"
   const openingTimes: ITimingForm[] =
     data?.restaurant?.openingTimes?.map((opening: ITimingResponseGQL) => {
       const times = opening?.times?.map((timing: ITimeSlotResponseGQL) => {
         const formatTime = (time: string[]) =>
           `${time[0].padStart(2, '0')}:${time[1].padStart(2, '0')}`;
-
         return {
           startTime: formatTime(timing.startTime),
           endTime: formatTime(timing.endTime),
@@ -68,23 +87,17 @@ const TimingAddForm = () => {
       };
     }) ?? [];
 
-
   const initialValues: ITimingForm[] =
     openingTimes.length > 0 ? openingTimes : TIMING_INITIAL_VALUE;
 
   const [mutate, { loading: mutationLoading }] = useMutation(UPDATE_TIMINGS);
 
-  // Form Submission
   const handleSubmit = (values: ITimingForm[]) => {
-    //conversion from 'HH:MM' to ["HH","MM"]
     const formattedData = [...values]?.map((v) => {
-      const tempTime = [...v.times];
-      const formattedTime = tempTime?.map((time) => {
-        return {
-          startTime: time.startTime?.split(':'),
-          endTime: time.endTime?.split(':'),
-        };
-      });
+      const formattedTime = v.times?.map((time) => ({
+        startTime: time.startTime?.split(':'),
+        endTime: time.endTime?.split(':'),
+      }));
       return {
         ...v,
         times: formattedTime,
