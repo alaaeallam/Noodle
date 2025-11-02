@@ -65,7 +65,7 @@ export default function UserStats() {
         total={dashboardUsers?.restaurantsCount ?? 0}
         description={t('analytics.down6_1')}
         icon={faUtensils}
-        route="/general/stores"
+        route="admin/vendor/stores"
         loading={loading}
       />
       <StatsCard

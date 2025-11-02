@@ -1,3 +1,4 @@
+//apps/admin/lib/api/graphql/queries/dashboard/index.ts
 import { gql } from '@apollo/client';
 
 // Super Admin
@@ -164,6 +165,7 @@ export const GET_VENDOR_DASHBOARD_STATS_CARD_DETAILS = gql`
       totalDeliveries
     }
   }
+    
 `;
 
 export const GET_VENDOR_LIVE_MONITOR = gql`
