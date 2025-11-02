@@ -1,22 +1,14 @@
 'use client';
 // Core
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 // Prime React
 import { Chart } from 'primereact/chart';
-import { useQueryGQL } from '@/lib/hooks/useQueryQL';
-import {
-  GET_STORE_DETAILS_BY_VENDOR_ID,
-  GET_VENDOR_DASHBOARD_GROWTH_DETAILS_BY_YEAR,
-} from '@/lib/api/graphql';
 import {
   IDashboardGrowthOverviewComponentsProps,
   IDashboardVendorGrowthOverViewTabularComponentsProps,
-  IGetVendorDashboardGrowthDetailsByYearResponseGraphQL,
-  IQueryResult,
   IVendorStoreDetails,
-  IVendorStoreDetailsResponseGraphQL,
 } from '@/lib/utils/interfaces';
 import DashboardUsersByYearStatsSkeleton from '@/lib/ui/useable-components/custom-skeletons/dasboard.user.year.stats.skeleton';
 import { VendorLayoutContext } from '@/lib/context/vendor/layout-vendor.context';
@@ -27,56 +19,18 @@ import { generateVendorStoreDetails } from '@/lib/utils/dummy';
 import { useTranslations } from 'next-intl';
 import { VENDOR_STORE_DETAILS_COLUMN } from '@/lib/ui/useable-components/table/columns/store-details-by-vendor-columns';
 
-// Dummy
-
+// ── Graph (kept static for now) ─────────────────────────────
 const VendorGrowthOverViewGraph = () => {
-  // Hooks
   const t = useTranslations();
-
-  // Context
-  const {
-    vendorLayoutContextData: { vendorId },
-  } = useContext(VendorLayoutContext);
-
-  // States
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
 
-  // Query
-  const { data, loading } = useQueryGQL(
-    GET_VENDOR_DASHBOARD_GROWTH_DETAILS_BY_YEAR,
-    {
-      vendorId,
-      year: new Date().getFullYear(),
-    },
-    {
-      fetchPolicy: 'network-only',
-      debounceMs: 300,
-    }
-  ) as IQueryResult<
-    IGetVendorDashboardGrowthDetailsByYearResponseGraphQL | undefined,
-    undefined
-  >;
-
-  const dashboardVendorDetailsByYear = useMemo(() => {
-    if (!data) return null;
-    return {
-      totalRestaurants:
-        data?.getVendorDashboardGrowthDetailsByYear.totalRestaurants ?? [],
-      totalOrders:
-        data?.getVendorDashboardGrowthDetailsByYear?.totalOrders ?? [],
-      totalSales: data?.getVendorDashboardGrowthDetailsByYear?.totalSales ?? [],
-    };
-  }, [data]);
-
-  // Handlers
   const onChartDataChange = () => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
-    const textColorSecondary = documentStyle.getPropertyValue(
-      '--text-color-secondary'
-    );
+    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
     const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
     const data = {
       labels: [
         t('January'),
@@ -95,7 +49,7 @@ const VendorGrowthOverViewGraph = () => {
       datasets: [
         {
           label: t('Stores'),
-          data: dashboardVendorDetailsByYear?.totalRestaurants ?? [],
+          data: Array(12).fill(0),
           fill: false,
           borderColor: documentStyle.getPropertyValue('--pink-500'),
           backgroundColor: documentStyle.getPropertyValue('--pink-100'),
@@ -103,7 +57,7 @@ const VendorGrowthOverViewGraph = () => {
         },
         {
           label: t('Orders'),
-          data: dashboardVendorDetailsByYear?.totalOrders ?? [],
+          data: Array(12).fill(0),
           fill: false,
           borderColor: documentStyle.getPropertyValue('--blue-500'),
           backgroundColor: documentStyle.getPropertyValue('--blue-100'),
@@ -111,7 +65,7 @@ const VendorGrowthOverViewGraph = () => {
         },
         {
           label: t('Sales'),
-          data: dashboardVendorDetailsByYear?.totalSales ?? [],
+          data: Array(12).fill(0),
           fill: false,
           borderColor: documentStyle.getPropertyValue('--yellow-500'),
           backgroundColor: documentStyle.getPropertyValue('--yellow-100'),
@@ -119,10 +73,10 @@ const VendorGrowthOverViewGraph = () => {
         },
       ],
     };
+
     const options = {
       maintainAspectRatio: false,
       aspectRatio: 0.6,
-
       plugins: {
         legend: {
           marginBottom: '20px',
@@ -136,20 +90,12 @@ const VendorGrowthOverViewGraph = () => {
       },
       scales: {
         x: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-          },
+          ticks: { color: textColorSecondary },
+          grid: { color: surfaceBorder },
         },
         y: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-          },
+          ticks: { color: textColorSecondary },
+          grid: { color: surfaceBorder },
         },
       },
     };
@@ -157,28 +103,25 @@ const VendorGrowthOverViewGraph = () => {
     setChartData(data);
     setChartOptions(options);
   };
-  // Use Effect
+
   useEffect(() => {
     onChartDataChange();
-  }, [dashboardVendorDetailsByYear]);
+  }, []);
 
   return (
-    <div className={`w-full p-3`}>
+    <div className="w-full p-3">
       <h2 className="text-lg font-semibold">{t('Growth Overview')}</h2>
       <p className="text-gray-500">
         {t('Tracking Vendor Growth Over the Year')} ({new Date().getFullYear()})
       </p>
       <div className="mt-4">
-        {loading ? (
-          <DashboardUsersByYearStatsSkeleton />
-        ) : (
-          <Chart type="line" data={chartData} options={chartOptions} />
-        )}
+        <Chart type="line" data={chartData} options={chartOptions} />
       </div>
     </div>
   );
 };
 
+// ── Tabular (now dummy-only, no GraphQL) ───────────────────
 const VendorGrowthOverViewTabular = ({
   dateFilter,
 }: IDashboardVendorGrowthOverViewTabularComponentsProps) => {
@@ -186,37 +129,22 @@ const VendorGrowthOverViewTabular = ({
     vendorLayoutContextData: { vendorId },
   } = useContext(VendorLayoutContext);
 
-  // Hooks
   const router = useRouter();
 
-  const { data, loading } = useQueryGQL(
-    GET_STORE_DETAILS_BY_VENDOR_ID,
-    {
-      id: vendorId,
-      dateKeyword: dateFilter?.dateKeyword,
-      starting_date: dateFilter?.startDate ?? '',
-      ending_date: dateFilter?.endDate ?? '',
-    },
-    {
-      fetchPolicy: 'network-only',
-      enabled: !!vendorId,
-    }
-  ) as IQueryResult<IVendorStoreDetailsResponseGraphQL | undefined, undefined>;
+  // dummy for now because backend doesn’t expose the query
+  const tableData = generateVendorStoreDetails();
+  const loading = false;
 
-  // Handler
   const handleRowClick = (event: DataTableRowClickEvent) => {
     const details = event.data as IVendorStoreDetails;
     onUseLocalStorage('save', 'restaurantId', details._id);
-    router.push(`/admin/store/`);
+    router.push('/admin/store/');
   };
 
   return (
     <div className="p-3">
       <Table
-        data={
-          data?.getStoreDetailsByVendorId ||
-          (loading ? generateVendorStoreDetails() : [])
-        }
+        data={tableData}
         setSelectedData={() => {}}
         selectedData={[]}
         columns={VENDOR_STORE_DETAILS_COLUMN()}
@@ -231,7 +159,6 @@ export default function VendorGrowthOverView({
   isStoreView,
   dateFilter,
 }: IDashboardGrowthOverviewComponentsProps) {
-  // Add keyword filter to the VendorGrowthOverViewGraphq
   return isStoreView ? (
     <VendorGrowthOverViewTabular dateFilter={dateFilter} />
   ) : (

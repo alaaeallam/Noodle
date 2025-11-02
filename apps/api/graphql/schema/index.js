@@ -90,6 +90,7 @@ const typeDefs = gql`
     owner: Owner
     deliveryBounds: Polygon
     tax: Float
+    salesTax: Float
     notificationToken: String
     enableNotification: Boolean
     shopType: String
@@ -1008,6 +1009,35 @@ input VendorInput {
     riderPassword: String
   }
 
+  type VendorStoreDetails {
+    _id: ID
+    restaurantName: String
+    totalOrders: Int
+    totalSales: Float
+    pickUpCount: Int
+    deliveryCount: Int
+  }
+
+  type VendorDashboardStatsCardDetails {
+    totalRestaurants: Int
+    totalOrders: Int
+    totalSales: Float
+    totalDeliveries: Int
+  }
+
+  type VendorDashboardGrowthDetailsByYear {
+    totalRestaurants: [Int]
+    totalOrders: [Int]
+    totalSales: [Float]
+  }
+
+  type VendorLiveMonitorData {
+    online_stores: Int
+    cancelled_orders: Int
+    delayed_orders: Int
+    ratings: Float
+  }
+
   type Query {
     withdrawRequests: [WithdrawRequest!]!
     earnings: [Earnings!]!
@@ -1092,6 +1122,31 @@ input VendorInput {
     sections: [Section]
     vendors: [OwnerData]
     getVendor(id: String!): OwnerData
+    getStoreDetailsByVendorId(
+      id: String!
+      dateKeyword: String
+      starting_date: String
+      ending_date: String
+    ): [VendorStoreDetails]
+
+    getVendorDashboardStatsCardDetails(
+      vendorId: String!
+      dateKeyword: String
+      starting_date: String
+      ending_date: String
+    ): VendorDashboardStatsCardDetails
+
+    getVendorDashboardGrowthDetailsByYear(
+      vendorId: String!
+      year: Int!
+    ): VendorDashboardGrowthDetailsByYear
+
+    getLiveMonitorData(
+      id: String!
+      dateKeyword: String
+      starting_date: String
+      ending_date: String
+    ): VendorLiveMonitorData
     orderCount(restaurant: String!): Int
     restaurantOrders: [Order!]!
     zones: [Zone!]

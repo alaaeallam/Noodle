@@ -1,3 +1,4 @@
+//apps/admin/lib/hooks/useQueryQL.tsx
 import {
   ApolloError,
   DocumentNode,
@@ -11,11 +12,11 @@ import { useCallback, useState } from 'react';
 import { retryQuery } from '../utils/methods';
 
 export const useQueryGQL = <
-  T extends DocumentNode,
-  V extends OperationVariables | QueryHookOptions,
+  TData = any,
+  TVariables extends OperationVariables = OperationVariables,
 >(
   query: DocumentNode,
-  variables: V,
+  variables: TVariables,
   options: {
     enabled?: boolean;
     debounceMs?: number;
@@ -23,7 +24,7 @@ export const useQueryGQL = <
     fetchPolicy?: WatchQueryFetchPolicy;
     retry?: number;
     retryDelayMs?: number;
-    onCompleted?: (data: NoInfer<T>) => void;
+    onCompleted?: (data: TData) => void;
     onError?: (error: ApolloError) => void;
   } = {}
 ) => {
@@ -38,23 +39,46 @@ export const useQueryGQL = <
     onError,
   } = options;
 
-  const { data, error, loading, refetch } = useQuery<T, V>(query, {
+  // ✅ Apollo-safe wrapper for callbacks (delays side-effects)
+  const safeOnCompleted = (data: TData) => {
+    if (!onCompleted) return;
+    queueMicrotask(() => {
+      try {
+        onCompleted(data);
+      } catch (err) {
+        console.error('[useQueryGQL:onCompleted]', err);
+      }
+    });
+  };
+
+  const safeOnError = (error: ApolloError) => {
+    if (!onError) return;
+    queueMicrotask(() => {
+      try {
+        onError(error);
+      } catch (err) {
+        console.error('[useQueryGQL:onError]', err);
+      }
+    });
+  };
+
+  const { data, error, loading, refetch } = useQuery<TData, TVariables>(query, {
     variables,
     skip: !enabled,
     fetchPolicy,
     pollInterval,
-    onCompleted,
-    onError,
+    onCompleted: safeOnCompleted,
+    onError: safeOnError,
   });
 
   const [isRefetching, setIsRefetching] = useState(false);
 
   const debouncedRefetch = useCallback(
-    debounce(async (variables?: Partial<V>) => {
+    debounce(async (vars?: Partial<TVariables>) => {
       setIsRefetching(true);
       try {
         const result = await retryQuery(
-          () => refetch(variables),
+          () => refetch(vars as TVariables | undefined),
           retry,
           retryDelayMs
         );

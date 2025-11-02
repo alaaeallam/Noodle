@@ -19,7 +19,7 @@ export default function VendorDashboardMain({
         />
       </div>
       <div className="w-full lg:w-[30%] bg-white border-l p-2 lg:p-4">
-        <VendorLiveMonitor dateFilter={dateFilter} />
+        <VendorLiveMonitor />
       </div>
     </div>
   );

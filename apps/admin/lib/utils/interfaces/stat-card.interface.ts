@@ -3,12 +3,13 @@ import { IGlobalComponentProps } from './global.interface';
 
 export interface IStatsCardProps extends IGlobalComponentProps {
   label: string;
-  total: number;
+  total: number;  
   description?: string;
-  route: string;
+  route?: string;
   icon?: IconDefinition;
   loading?: boolean;
   isClickable?: boolean;
+  onClick?: () => void;
   amountConfig?: {
     format: 'currency' | 'number';
     currency: string;

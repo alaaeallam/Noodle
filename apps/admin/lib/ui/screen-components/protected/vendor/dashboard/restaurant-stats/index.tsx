@@ -1,106 +1,102 @@
+// apps/admin/lib/ui/screen-components/protected/vendor/dashboard/restaurant-stats/index.tsx
+
+'use client';
+
 import { useContext, useMemo } from 'react';
-// Component
-import { GET_VENDOR_DASHBOARD_STATS_CARD_DETAILS } from '@/lib/api/graphql/queries/dashboard';
-import StatsCard from '@/lib/ui/useable-components/stats-card';
+import { useTranslations } from 'next-intl';
 
-// Hooks
-import { useQueryGQL } from '@/lib/hooks/useQueryQL';
+import { VendorLayoutContext } from '@/lib/context/vendor/layout-vendor.context';
 import { useConfiguration } from '@/lib/hooks/useConfiguration';
+import { useQueryGQL } from '@/lib/hooks/useQueryQL';
 
-// Interface & Types
-import {
+import { GET_STORE_DETAILS_BY_VENDOR_ID } from '@/lib/api/graphql/queries/dashboard';
+
+import StatsCard from '@/lib/ui/useable-components/stats-card';
+import { faShop } from '@fortawesome/free-solid-svg-icons'; // ✅ added
+
+import type {
   IDashboardOrderStatsComponentsProps,
   IQueryResult,
-  IVendorDashboardStatsCardDetailsResponseGraphQL,
+  IVendorStoreDetailsResponseGraphQL,
 } from '@/lib/utils/interfaces';
-
-// Icons
-import {
-  faShoppingCart,
-  faShop,
-  faTruck,
-} from '@fortawesome/free-solid-svg-icons';
-
-// Context
-import { VendorLayoutContext } from '@/lib/context/vendor/layout-vendor.context';
-import { useTranslations } from 'next-intl';
 
 export default function RestaurantStats({
   dateFilter,
 }: IDashboardOrderStatsComponentsProps) {
-  // Hooks
   const t = useTranslations();
-
-  // Context
   const {
     vendorLayoutContextData: { vendorId },
   } = useContext(VendorLayoutContext);
+
   const { CURRENCY_CODE } = useConfiguration();
 
+  const shouldSkip = !vendorId;
+
   const { data, loading } = useQueryGQL(
-    GET_VENDOR_DASHBOARD_STATS_CARD_DETAILS,
+    GET_STORE_DETAILS_BY_VENDOR_ID,
     {
-      vendorId,
-      dateKeyword: dateFilter.dateKeyword,
-      starting_date: dateFilter?.startDate,
-      ending_date: dateFilter?.endDate,
+      id: vendorId ?? '',
+      dateKeyword: dateFilter?.dateKeyword,
+      starting_date: dateFilter?.startDate ?? '',
+      ending_date: dateFilter?.endDate ?? '',
     },
     {
       fetchPolicy: 'network-only',
       debounceMs: 300,
+      enabled: !shouldSkip,
     }
-  ) as IQueryResult<
-    IVendorDashboardStatsCardDetailsResponseGraphQL | undefined,
-    undefined
-  >;
+  ) as IQueryResult<IVendorStoreDetailsResponseGraphQL | undefined, undefined>;
 
   const dashboardStats = useMemo(() => {
-    if (!data) return null;
+    const stores = data?.getStoreDetailsByVendorId ?? [];
+
     return {
-      totalOrders: data?.getVendorDashboardStatsCardDetails?.totalOrders ?? 0,
-      totalSales: data?.getVendorDashboardStatsCardDetails?.totalSales ?? 0,
-      totalDeliveries:
-        data?.getVendorDashboardStatsCardDetails?.totalDeliveries ?? 0,
-      totalRestaurants:
-        data?.getVendorDashboardStatsCardDetails?.totalRestaurants ?? 0,
+      totalRestaurants: stores.length,
+      totalOrders: stores.reduce((sum, s) => sum + (s.totalOrders ?? 0), 0),
+      totalSales: stores.reduce((sum, s) => sum + (s.totalSales ?? 0), 0),
+      totalDeliveries: stores.reduce(
+        (sum, s) => sum + (s.deliveryCount ?? 0),
+        0
+      ),
     };
   }, [data]);
 
   return (
     <div className="grid grid-cols-1 items-center gap-6 p-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {/* ✅ this is the one you wanted to navigate */}
       <StatsCard
         label={t('Total Stores')}
-        total={dashboardStats?.totalRestaurants ?? 0}
+        total={dashboardStats.totalRestaurants}
         icon={faShop}
-        route=""
-        loading={loading}
+        route="/admin/vendor/stores"  
+        loading={loading || shouldSkip}
         amountConfig={{ format: 'number', currency: 'USD' }}
       />
 
       <StatsCard
         label={t('Total Sales')}
-        total={dashboardStats?.totalSales ?? 0}
-        icon={faShop}
+        total={dashboardStats.totalSales}
         route=""
-        loading={loading}
-        amountConfig={{ format: 'currency', currency: CURRENCY_CODE ?? 'USD' }}
+        loading={loading || shouldSkip}
+        amountConfig={{
+          format: 'currency',
+          currency: CURRENCY_CODE ?? 'USD',
+        }}
       />
 
       <StatsCard
         label={t('Total Orders')}
-        total={dashboardStats?.totalOrders ?? 0}
-        icon={faShoppingCart}
+        total={dashboardStats.totalOrders}
         route=""
-        loading={loading}
+        loading={loading || shouldSkip}
         amountConfig={{ format: 'number', currency: 'USD' }}
       />
 
       <StatsCard
         label={t('Total Deliveries')}
-        total={dashboardStats?.totalDeliveries ?? 0}
-        icon={faTruck}
+        total={dashboardStats.totalDeliveries}
         route=""
-        loading={loading}
+        loading={loading || shouldSkip}
         amountConfig={{ format: 'number', currency: 'USD' }}
       />
     </div>
