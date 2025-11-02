@@ -1,13 +1,13 @@
 'use client';
-
+//apps/admin/lib/context/restaurant/layout-restaurant.context.tsx
 // Core
 import { createContext, useState } from 'react';
+import type { ReactNode } from 'react';
 
 // Interface
 import {
   ICategory,
   IOptions,
-  IProvider,
   ISubCategory,
   RestaurantLayoutContextData,
   RestaurantLayoutContextProps,
@@ -23,7 +23,7 @@ export const RestaurantLayoutContext =
     {} as RestaurantLayoutContextProps
   );
 
-export const RestaurantLayoutProvider = ({ children }: IProvider) => {
+export const RestaurantLayoutProvider = ({ children }: { children: ReactNode }) => {
   // States
   const [isAddOptionsVisible, setIsAddOptionsVisible] = useState(false);
   const [option, setOption] = useState<IOptions | null>(null);

@@ -1,4 +1,5 @@
 "use client"
+//apps/admin/lib/ui/screens/admin/restaurant/general/timing/index.tsx
 import TimingAddForm from '@/lib/ui/screen-components/protected/restaurant/timing/add-form';
 import TimingHeader from '@/lib/ui/screen-components/protected/restaurant/timing/view/header';
 

@@ -1,4 +1,6 @@
 'use client';
+import type { ReactNode } from 'react';
+//apps/admin/app/(localized)/(protected)/(other-users)/admin/store/layout.tsx
 // HOC
 import RESTAURANT_GUARD from '@/lib/hoc/RESTAURANT_GUARD';
 // Layout
@@ -9,10 +11,10 @@ import { ProfileProvider } from '@/lib/context/restaurant/profile.context';
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   const ProtectedLayout = RESTAURANT_GUARD(
-    ({ children }: { children: React.ReactNode }) => {
+    ({ children }: { children: ReactNode }) => {
       return <RestaurantLayout>{children}</RestaurantLayout>;
     }
   );

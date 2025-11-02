@@ -151,6 +151,13 @@ export const GET_RESTAURANT_PROFILE = gql`
       deliveryBounds {
         coordinates
       }
+      openingTimes {
+        day
+        times {
+          startTime
+          endTime
+        }
+      }
       owner {
         _id
         email
