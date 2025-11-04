@@ -65,7 +65,10 @@ import { useTranslations } from 'next-intl';
 const autocompleteService: {
   current: google.maps.places.AutocompleteService | null;
 } = { current: null };
-
+const GoogleMapAny = GoogleMap as unknown as React.ComponentType<any>;
+const MarkerAny = Marker as unknown as React.ComponentType<any>;
+const CircleAny = Circle as unknown as React.ComponentType<any>;
+const PolygonAny = Polygon as unknown as React.ComponentType<any>;
 const CustomGoogleMapsLocationBounds: React.FC<
   ICustomGoogleMapsLocationBoundsComponentProps
 > = ({ onStepChange, hideControls, height }) => {
@@ -582,10 +585,10 @@ const CustomGoogleMapsLocationBounds: React.FC<
 
   return (
     <div>
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-transparent">
         <div
           style={{ height: height }}
-          className="h-[600px] w-full object-cover"
+          className="h-[600px] w-full relative bg-transparent"
         >
           {!hideControls && (
             <div className="absolute left-0 right-0 top-0 z-10">
@@ -594,7 +597,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
               >
                 <div className="relative">
                   <AutoComplete
-                    id="google-map"
+                    id="google-autocomplete"
                     disabled={
                       isFetchingRestaurantDeliveryZoneInfo ||
                       isFetchingRestaurantProfile
@@ -684,7 +687,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
             </div>
           )}
 
-          <GoogleMap
+          <GoogleMapAny
             mapContainerStyle={{
               height: '100%',
               width: '100%',
@@ -706,7 +709,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
               deliveryZoneType === 'point' ? onClickGoogleMaps : undefined
             }
           >
-            <Polygon
+            <PolygonAny
               editable={!hideControls}
               draggable={!hideControls}
               visible={
@@ -726,7 +729,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
               onUnmount={onUnmount}
             />
 
-            <Circle
+            <CircleAny
               center={center}
               radius={radiusInMeter}
               visible={deliveryZoneType === 'radius'}
@@ -740,14 +743,14 @@ const CustomGoogleMapsLocationBounds: React.FC<
             />
 
             {marker && (
-              <Marker
+              <MarkerAny
                 position={marker}
                 draggable={!hideControls}
                 onRightClick={removeMarker}
                 onDragEnd={onDragEnd}
               />
             )}
-          </GoogleMap>
+          </GoogleMapAny>
         </div>
       </div>
 
@@ -762,6 +765,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
                 placeholder={t('Radius')}
                 maxLength={35}
                 min={0}
+                max={1000}
                 value={distance}
                 onChange={handleDistanceChange}
                 showLabel={true}

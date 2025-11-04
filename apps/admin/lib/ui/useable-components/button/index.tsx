@@ -1,24 +1,24 @@
-// Interfaces
-import { ICustomButtonProps } from '@/lib/utils/interfaces';
+import React from 'react';
 
 // Prime React
 import { Button } from 'primereact/button';
+import type { ButtonProps } from 'primereact/button';
 
 // Styles
 import classes from './button.module.css';
 
+export type CustomButtonProps = ButtonProps & {
+  className?: string;
+};
+
 export default function CustomButton({
-  className,
-  label,
-  type,
+  className = '',
   ...props
-}: ICustomButtonProps) {
+}: CustomButtonProps) {
   return (
     <Button
-      className={`${classes['btn-custom']} ${className}`}
-      label={label}
-      type={type}
       {...props}
-    ></Button>
+      className={`${classes['btn-custom']} ${className ?? ''}`}
+    />
   );
 }

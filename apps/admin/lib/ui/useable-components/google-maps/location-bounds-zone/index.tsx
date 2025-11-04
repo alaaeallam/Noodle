@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { GoogleMap, Polygon } from '@react-google-maps/api';
+import { Circle, GoogleMap, Marker, Polygon } from '@react-google-maps/api';
 import parse from 'autosuggest-highlight/parse';
 import { throttle } from 'lodash';
 
@@ -44,7 +44,10 @@ import { useTranslations } from 'next-intl';
 const autocompleteService: {
   current: google.maps.places.AutocompleteService | null;
 } = { current: null };
-
+const GoogleMapAny = GoogleMap as unknown as React.ComponentType<any>;
+const MarkerAny = Marker as unknown as React.ComponentType<any>;
+const CircleAny = Circle as unknown as React.ComponentType<any>;
+const PolygonAny = Polygon as unknown as React.ComponentType<any>;
 const CustomGoogleMapsLocationZoneBounds: React.FC<
   IZoneCustomGoogleMapsBoundComponentProps
 > = ({ _path, onSetZoneCoordinates }) => {
@@ -271,13 +274,13 @@ const CustomGoogleMapsLocationZoneBounds: React.FC<
 
   return (
     <div>
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-transparent">
         <div className="h-[600px] w-full object-cover">
           <div className="absolute left-0 right-0 top-0 z-10">
             <div className={`flex w-full flex-col justify-center gap-y-1 p-2`}>
               <div className="relative">
                 <AutoComplete
-                  id="google-map"
+                  id="google-autocomplete"
                   disabled={false}
                   className={`p h-11 w-full border border-gray-300 px-2 text-sm focus:shadow-none focus:outline-none`}
                   value={inputValue}
@@ -361,34 +364,34 @@ const CustomGoogleMapsLocationZoneBounds: React.FC<
             </div>
           </div>
 
-          {googleMapsContext?.isLoaded && (
-            <GoogleMap
-              key={deliveryZoneType}
-              mapContainerStyle={{
-                height: '100%',
-                width: '100%',
-                borderRadius: 10,
-                marginBottom: '20px',
-              }}
-              id="google-map"
-              zoom={14}
-              center={center}
-              options={{
-                disableDefaultUI: true,
-                zoomControl: true,
-                streetViewControl: false,
-                mapTypeControl: false,
-                fullscreenControl: false,
-              }}
-              onClick={onClickGoogleMaps}
-              onLoad={(map) => {
-                mapRef.current = map;
-              }}
-              
-              
-            >
+            {googleMapsContext?.isLoaded && (
+          <GoogleMapAny
+            key={deliveryZoneType}
+            mapContainerStyle={{
+              height: '100%',
+              width: '100%',
+              borderRadius: 10,
+              marginBottom: '20px',
+            }}
+            id="google-map"
+            zoom={14}
+            center={center}
+            options={{
+              disableDefaultUI: true,
+              zoomControl: true,
+              streetViewControl: false,
+              mapTypeControl: false,
+              fullscreenControl: false,
+            }}
+            onClick={onClickGoogleMaps}
+            onLoad={(map: google.maps.Map) => {
+              mapRef.current = map;
+            }}
+            
+            
+          >
               {path.length > 0 && (
-                <Polygon
+                <PolygonAny
                   key={'google-map-polygon'}
                   editable
                   draggable
@@ -406,7 +409,7 @@ const CustomGoogleMapsLocationZoneBounds: React.FC<
                   onUnmount={onUnmount}
                 />
               )}
-            </GoogleMap>
+            </GoogleMapAny>
           )}
         </div>
       </div>

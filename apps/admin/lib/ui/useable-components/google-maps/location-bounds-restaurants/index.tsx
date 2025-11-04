@@ -27,7 +27,8 @@ import {
 
 // Context
 import { ToastContext } from '@/lib/context/global/toast.context';
-
+import { onUseLocalStorage } from '@/lib/utils/methods';
+import { SELECTED_RESTAURANT } from '@/lib/utils/constants';
 // Interfaces
 import {
   ICustomGoogleMapsLocationBoundsComponentProps,
@@ -65,6 +66,10 @@ import { RestaurantsContext } from '@/lib/context/super-admin/restaurants.contex
 import calculateZoom from '@/lib/utils/methods/zoom-calculator';
 import { useTranslations } from 'next-intl';
 
+const GoogleMapAny = GoogleMap as unknown as React.ComponentType<any>;
+const MarkerAny = Marker as unknown as React.ComponentType<any>;
+const CircleAny = Circle as unknown as React.ComponentType<any>;
+const PolygonAny = Polygon as unknown as React.ComponentType<any>;
 const autocompleteService: {
   current: google.maps.places.AutocompleteService | null;
 } = { current: null };
@@ -110,23 +115,34 @@ const CustomGoogleMapsLocationBounds: React.FC<
   //Hooks
   const { getCurrentLocation } = useLocation();
 
-  // API
+  // API – resolve restaurantId once
+  const selectedRestaurantIdFromLS =
+    typeof window !== 'undefined'
+      ? (onUseLocalStorage('get', SELECTED_RESTAURANT) as string)
+      : '';
+
+  const restaurantId =
+    restaurantsContextData?.restaurant?._id?.code ||
+    selectedRestaurantIdFromLS ||
+    '';
+
   const { loading: isFetchingRestaurantProfile } = useQuery(
     GET_RESTAURANT_PROFILE,
     {
-      variables: { id: restaurantsContextData?.restaurant?._id?.code ?? '' },
+      variables: { id: restaurantId },
       fetchPolicy: 'network-only',
-      skip: !restaurantsContextData?.restaurant?._id?.code,
+      skip: !restaurantId,
       onCompleted: onRestaurantProfileFetchCompleted,
       onError: onErrorFetchRestaurantProfile,
     }
   );
+
   const { loading: isFetchingRestaurantDeliveryZoneInfo } = useQuery(
     GET_RESTAURANT_DELIVERY_ZONE_INFO,
     {
-      variables: { id: restaurantsContextData?.restaurant?._id?.code ?? '' },
+      variables: { id: restaurantId },
       fetchPolicy: 'network-only',
-      skip: !restaurantsContextData?.restaurant?._id?.code,
+      skip: !restaurantId,
       onCompleted: onRestaurantZoneInfoFetchCompleted,
       onError: onErrorFetchRestaurantZoneInfo,
     }
@@ -134,12 +150,9 @@ const CustomGoogleMapsLocationBounds: React.FC<
   const [updateRestaurantDeliveryZone, { loading: isSubmitting }] = useMutation(
     UPDATE_DELIVERY_BOUNDS_AND_LOCATION,
     {
-      update: (cache, { data }) => {
-        if (data) {
-          updateCache(cache, { data } as IRestaurantProfileResponse);
-        }
+      update: (cache, result) => {
+        updateCache(cache, result);
       },
-
       onCompleted: onRestaurantZoneUpdateCompleted,
       onError: onErrorLocationZoneUpdate,
     }
@@ -166,21 +179,22 @@ const CustomGoogleMapsLocationBounds: React.FC<
   );
 
   // API Handlers
-  function updateCache(
-    cache: ApolloCache<unknown>,
-    { data }: IRestaurantProfileResponse
-  ) {
-    const cachedData: IRestaurantProfileResponse | null = cache.readQuery({
+  function updateCache(cache: ApolloCache<unknown>, result: any) {
+    const updated = result?.data?.restaurant;
+    if (!updated) return;
+
+    const cached = cache.readQuery<{ restaurant?: IRestaurantProfile }>({
       query: GET_RESTAURANT_PROFILE,
-      variables: { id: restaurantsContextData?.restaurant?._id?.code ?? '' },
+      variables: { id: restaurantId },
     });
+
     cache.writeQuery({
       query: GET_RESTAURANT_PROFILE,
-      variables: { id: restaurantsContextData?.restaurant?._id?.code ?? '' },
+      variables: { id: restaurantId },
       data: {
         restaurant: {
-          ...cachedData?.data?.restaurant,
-          ...data?.restaurant,
+          ...(cached?.restaurant ?? {}),
+          ...updated,
         },
       },
     });
@@ -507,13 +521,12 @@ const CustomGoogleMapsLocationBounds: React.FC<
   // Submit Handler
   const onLocationSubmitHandler = () => {
     try {
-      if (!restaurantsContextData?.restaurant?._id?.code) {
+      if (!restaurantId) {
         showToast({
           type: 'error',
           title: t('Location & Zone'),
           message: t('No restaurnat is selected'),
         });
-
         return;
       }
 
@@ -528,7 +541,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
       }
 
       let variables: IUpdateRestaurantDeliveryZoneVariables = {
-        id: restaurantsContextData?.restaurant?._id?.code ?? '',
+        id: restaurantId,
         location,
         boundType: deliveryZoneType,
         address: restaurantsContextData?.restaurant?.autoCompleteAddress,
@@ -597,248 +610,200 @@ const CustomGoogleMapsLocationBounds: React.FC<
     setZoom(zoomVal);
   }, [distance, zoom]);
 
-  return (
-    <div>
-      <div className="relative overflow-hidden">
-        <div
-          style={{ height: height }}
-          className="h-[600px] w-full object-cover"
+return (
+  <div className="min-h-screen pb-10 space-y-4">
+    <div className="px-2">
+      <div className="relative w-full h-[520px] min-h-[520px] rounded">
+        {/* Address search overlay on top of the map */}
+        {!hideControls && (
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[min(90vw,680px)] pointer-events-none">
+            <div className="relative pointer-events-auto">
+              <AutoComplete
+                id="google-autocomplete"
+                disabled={isFetchingRestaurantDeliveryZoneInfo || isFetchingRestaurantProfile}
+                className="p h-11 w-full border border-gray-300 px-2 text-sm focus:shadow-none focus:outline-none bg-white rounded-md"
+                value={inputValue}
+                dropdownIcon={
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    style={{ fontSize: '1rem', color: 'gray' }}
+                  />
+                }
+                completeMethod={(event) => setSearch(event.query)}
+                onChange={(e) => {
+                  if (typeof e.value === 'string') setInputValue(e.value);
+                }}
+                onSelect={onHandlerAutoCompleteSelectionChange}
+                suggestions={options}
+                forceSelection={false}
+                dropdown
+                multiple={false}
+                loadingIcon={null}
+                placeholder={t('Search Address')}
+                style={{ width: '100%' }}
+                itemTemplate={(item) => {
+                  const matches = item.structured_formatting?.main_text_matched_substrings;
+                  let parts: any = null;
+                  if (matches) {
+                    parts = parse(
+                      item.structured_formatting.main_text,
+                      matches.map((m: { offset: number; length: number }) => [m.offset, m.offset + m.length])
+                    );
+                  }
+                  return (
+                    <div className="flex flex-col">
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faMapMarker} className="mr-2" />
+                        {parts &&
+                          parts.map((part: any, idx: number) => (
+                            <span
+                              key={idx}
+                              style={{
+                                fontWeight: part.highlight ? 700 : 400,
+                                color: 'black',
+                                marginRight: '2px',
+                              }}
+                            >
+                              {part.text}
+                            </span>
+                          ))}
+                      </div>
+                      <small>{item.structured_formatting?.secondary_text}</small>
+                    </div>
+                  );
+                }}
+              />
+              {inputValue && (
+                <button
+                  type="button"
+                  aria-label="Clear address"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  onClick={() => {
+                    setInputValue('');
+                    setSearch('');
+                  }}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        <GoogleMapAny
+          mapContainerStyle={{ height: '100%', width: '100%', borderRadius: 10, zIndex: 0 }}
+          id="google-map"
+          zoom={zoom}
+          center={center}
+          options={{
+            disableDefaultUI: true,
+            zoomControl: true,
+            streetViewControl: false,
+            mapTypeControl: !hideControls,
+            fullscreenControl: !hideControls,
+            draggable: !hideControls,
+            gestureHandling: 'cooperative',
+          }}
+          onClick={deliveryZoneType === 'point' ? onClickGoogleMaps : undefined}
         >
-          {!hideControls && (
-            <div className="absolute left-0 right-0 top-0 z-10">
-              <div
-                className={`flex w-full flex-col justify-center gap-y-1 p-2`}
-              >
-                <div className="relative">
-                  <AutoComplete
-                    id="google-map"
-                    disabled={
-                      isFetchingRestaurantDeliveryZoneInfo ||
-                      isFetchingRestaurantProfile
-                    }
-                    className={`p h-11 w-full border border-gray-300 px-2 text-sm focus:shadow-none focus:outline-none`}
-                    value={inputValue}
-                    dropdownIcon={
-                      <FontAwesomeIcon
-                        icon={faChevronDown}
-                        style={{ fontSize: '1rem', color: 'gray' }}
-                      />
-                    }
-                    completeMethod={(event) => {
-                      setSearch(event.query);
-                    }}
-                    onChange={(e) => {
-                      if (typeof e.value === 'string')
-                        handleInputChange(e.value);
-                    }}
-                    onSelect={onHandlerAutoCompleteSelectionChange}
-                    suggestions={options}
-                    forceSelection={false}
-                    dropdown={true}
-                    multiple={false}
-                    loadingIcon={null}
-                    placeholder={t('Search Address')}
-                    style={{ width: '100%' }}
-                    itemTemplate={(item) => {
-                      const matches =
-                        item.structured_formatting
-                          ?.main_text_matched_substrings;
-                      let parts = null;
-                      if (matches) {
-                        parts = parse(
-                          item.structured_formatting.main_text,
-                          matches.map(
-                            (match: { offset: number; length: number }) => [
-                              match.offset,
-                              match.offset + match.length,
-                            ]
-                          )
-                        );
-                      }
-
-                      return (
-                        <div className="flex flex-col">
-                          <div className="flex items-center">
-                            <FontAwesomeIcon
-                              icon={faMapMarker}
-                              className="mr-2"
-                            />
-                            {parts &&
-                              parts.map((part, index) => (
-                                <span
-                                  key={index}
-                                  style={{
-                                    fontWeight: part.highlight ? 700 : 400,
-                                    color: 'black',
-                                    marginRight: '2px',
-                                  }}
-                                >
-                                  {part.text}
-                                </span>
-                              ))}
-                          </div>
-                          <small>
-                            {item.structured_formatting?.secondary_text}
-                          </small>
-                        </div>
-                      );
-                    }}
-                  />
-                  <div className="absolute right-8 top-0 flex h-full items-center pr-2">
-                    {inputValue && (
-                      <FontAwesomeIcon
-                        icon={faTimes}
-                        className="mr-2 cursor-pointer text-gray-400"
-                        onClick={() => {
-                          setInputValue('');
-                          setSearch('');
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+          {zones.map(
+            (zone) =>
+              zone.location && (
+                <PolygonAny
+                  key={zone._id}
+                  // @ts-ignore guarded by server data shape
+                  paths={zone.location.coordinates[0].map((c: number[]) => ({ lat: c[1], lng: c[0] }))}
+                  options={{
+                    strokeColor: 'blue',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: 'lightblue',
+                    fillOpacity: 0.3,
+                  }}
+                />
+              )
           )}
 
-          <GoogleMap
-            mapContainerStyle={{
-              height: '100%',
-              width: '100%',
-              borderRadius: 10,
-              marginBottom: '20px',
-            }}
-            id="google-map"
-            zoom={zoom}
-            center={center}
+          <PolygonAny
+            editable={!hideControls}
+            draggable={!hideControls}
+            visible={deliveryZoneType === 'polygon'}
+            paths={path}
             options={{
-              disableDefaultUI: true,
-              zoomControl: true,
-              streetViewControl: false,
-              mapTypeControl: !hideControls,
-              fullscreenControl: !hideControls,
-              draggable: !hideControls,
+              strokeColor: 'black',
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+              fillColor: '#000000',
+              fillOpacity: 0.35,
             }}
-            onClick={
-              deliveryZoneType === 'point' ? onClickGoogleMaps : undefined
-            }
-          >
-            {zones.map(
-              (zone) =>
-                zone.location && (
-                  // Zone boundary polygon
-                  <Polygon
-                    key={zone._id}
-                    paths={zone.location.coordinates[0].map(
-                      (coords: number[]) => ({ lat: coords[1], lng: coords[0] })
-                    )}
-                    options={{
-                      strokeColor: 'blue',
-                      strokeOpacity: 0.8,
-                      strokeWeight: 2,
-                      fillColor: 'lightblue',
-                      fillOpacity: 0.3,
-                    }}
-                  />
-                )
-            )}
-            <Polygon
-              editable={!hideControls}
-              draggable={!hideControls}
-              visible={deliveryZoneType === 'polygon'}
-              paths={path}
-              options={{
-                strokeColor: 'black',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: '#000000',
-                fillOpacity: 0.35,
-              }}
-              onMouseUp={onEdit}
-              onDragEnd={onEdit}
-              onLoad={onLoadPolygon}
-              onUnmount={onUnmount}
-            />
-
-            <Circle
-              center={center}
-              radius={radiusInMeter}
-              visible={
-                deliveryZoneType === 'radius' || deliveryZoneType === 'point'
-              }
-              options={{
-                fillColor: 'black',
-                fillOpacity: 0.2,
-                strokeColor: 'black',
-                strokeOpacity: 1,
-                strokeWeight: 2,
-              }}
-            />
-
-            {marker && (
-              <Marker
-                position={marker}
-                draggable={!hideControls}
-                onRightClick={removeMarker}
-                onDragEnd={onDragEnd}
-              />
-            )}
-          </GoogleMap>
-        </div>
-      </div>
-
-      {!hideControls && (
-        <>
-          {/* Radius Input */}
-          {deliveryZoneType === 'radius' && (
-            <div className="mt-2 w-[8rem]">
-              <CustomRadiusInputField
-                type="number"
-                name="radius"
-                placeholder={t('Radius')}
-                maxLength={35}
-                min={0}
-                max={100}
-                value={distance}
-                onChange={handleDistanceChange}
-                showLabel={true}
-                loading={false}
-              />
-            </div>
-          )}
-
-          {/* Shapes */}
-          <CustomShape
-            selected={deliveryZoneType}
-            onClick={(val: string) => {
-              switch (val) {
-                case 'polygon':
-                  setPath(getPolygonPathFromCircle(center, radiusInMeter));
-                  break;
-                case 'point':
-                  setPath([]);
-                  break;
-                default:
-                  break;
-              }
-
-              setDeliveryZoneType(val);
-            }}
+            onMouseUp={onEdit}
+            onDragEnd={onEdit}
+            onLoad={onLoadPolygon}
+            onUnmount={onUnmount}
           />
 
-          <div className="mt-4 flex justify-end">
-            <CustomButton
-              className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
-              label={t('Save')}
-              type="button"
-              loading={isSubmitting}
-              onClick={onLocationSubmitHandler}
-            />
-          </div>
-        </>
-      )}
+          <CircleAny
+            center={center}
+            radius={radiusInMeter}
+            visible={deliveryZoneType === 'radius' || deliveryZoneType === 'point'}
+            options={{ fillColor: 'black', fillOpacity: 0.2, strokeColor: 'black', strokeOpacity: 1, strokeWeight: 2 }}
+          />
+
+          {marker && <MarkerAny position={marker} draggable={!hideControls} onRightClick={removeMarker} onDragEnd={onDragEnd} />}
+        </GoogleMapAny>
+      </div>
     </div>
-  );
+    {/* Controls BELOW the map (single source of truth) */}
+    {!hideControls && (
+      <div className="px-2">
+        <div className="w-full rounded-xl border bg-white px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            {deliveryZoneType === 'radius' && (
+              <div className="w-32">
+                <CustomRadiusInputField
+                  type="number"
+                  name="radius"
+                  placeholder={t('Radius')}
+                  maxLength={35}
+                  min={0}
+                  max={1000}
+                  value={distance}
+                  onChange={handleDistanceChange}
+                  showLabel
+                  loading={false}
+                />
+              </div>
+            )}
+            <div className="scale-95 sm:scale-100">
+              <CustomShape
+                selected={deliveryZoneType}
+                onClick={(val: string) => {
+                  switch (val) {
+                    case 'polygon':
+                      setPath(getPolygonPathFromCircle(center, radiusInMeter));
+                      break;
+                    case 'point':
+                      setPath([]);
+                      break;
+                    default:
+                      break;
+                  }
+                  setDeliveryZoneType(val);
+                }}
+              />
+            </div>
+          </div>
+          <CustomButton
+            className="h-10 w-fit border-gray-300 bg-black px-6 text-white"
+            label={t('Save')}
+            type="button"
+            loading={isSubmitting}
+            onClick={onLocationSubmitHandler}
+          />
+        </div>
+      </div>
+    )}
+  </div>
+);
 };
 
 export default CustomGoogleMapsLocationBounds;
