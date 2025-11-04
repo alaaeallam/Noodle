@@ -70,11 +70,11 @@ body {
 }
 
 .layout-main-container {
-  height: 92%;
   display: flex;
-  overflow: hidden;
+  overflow-y: auto;    /* allow scroll within main column */
+  overflow-x: clip;    /* avoid horizontal scroll bleed */
+  min-height: calc(100dvh - 64px);
 }
-
 .layout-main {
   height: 100%;
 }

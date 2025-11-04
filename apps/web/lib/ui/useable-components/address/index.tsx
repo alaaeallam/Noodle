@@ -622,7 +622,7 @@ export default function UserAddressComponent(
           />
 
           <AutoComplete
-            id="google-map"
+            id="google-autocomplete"
             disabled={!selectedCity}
             className={`mr-4 h-11 w-full border border-gray-300 px-2 text-sm focus:shadow-none focus:outline-none`}
             value={inputValue}
@@ -810,7 +810,7 @@ export default function UserAddressComponent(
           />
 
           <AutoComplete
-            id="google-map"
+            id="google-autocomplete"
             disabled={false}
             className={`mr-4 h-11 w-full border border-gray-300 dark:text-white px-2 text-sm focus:shadow-none focus:outline-none`}
             value={inputValue}
