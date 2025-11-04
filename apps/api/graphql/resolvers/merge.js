@@ -266,11 +266,36 @@ const transformRestaurants = async restaurants => {
 const transformRestaurant = async restaurant => {
   return {
     ...restaurant._doc,
+    // Ensure plain JS objects for nested geometry so GraphQL can serialize coordinates
+    location: restaurant.location
+      ? {
+          type: restaurant.location.type,
+          coordinates: Array.isArray(restaurant.location.coordinates)
+            ? restaurant.location.coordinates.map(Number)
+            : []
+        }
+      : null,
+    deliveryBounds: restaurant.deliveryBounds
+      ? {
+          type: restaurant.deliveryBounds.type,
+          coordinates: Array.isArray(restaurant.deliveryBounds.coordinates)
+            ? // enforce [[[lng,lat],...]] shape
+              [Array.isArray(restaurant.deliveryBounds.coordinates[0][0])
+                ? restaurant.deliveryBounds.coordinates[0].map(pair =>
+                    Array.isArray(pair) ? pair.map(Number) : pair
+                  )
+                : restaurant.deliveryBounds.coordinates.map(pair =>
+                    Array.isArray(pair) ? pair.map(Number) : pair
+                  )]
+            : []
+        }
+      : null,
     categories: populateCategories.bind(this, restaurant.categories),
     options: populateOptions.bind(this, restaurant.options),
     addons: populateAddons.bind(this, restaurant.addons),
     reviewData: populateReviewsDetail.bind(this, restaurant.id),
-    zone: null, // remove this when zone revamp is done all the queries in apps, web are updated
+    // keep zone resolver-less (legacy)
+    zone: null,
     owner: restaurant.owner ? populateOwner.bind(this, restaurant.owner) : null,
     shopType: restaurant.shopType || SHOP_TYPE.RESTAURANT,
     _id: restaurant.id

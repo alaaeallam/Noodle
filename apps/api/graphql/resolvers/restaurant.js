@@ -141,6 +141,67 @@ module.exports = {
         throw e
       }
     },
+    /**
+     * Returns delivery zone info for a single restaurant (used by Admin > Store > Location)
+     * Shape aligns with frontend query: address, deliveryBounds{coordinates}, circleBounds{radius}, location{coordinates}, boundType
+     */
+    getRestaurantDeliveryZoneInfo: async (_, { id }) => {
+      console.log('getRestaurantDeliveryZoneInfo', id);
+      try {
+        // Explicitly select the geo fields (in case schema uses select:false) and use lean() for a plain object
+        const restaurant = await Restaurant
+          .findById(id)
+          .select('address deliveryBounds location circleBounds boundType')
+          .lean();
+
+        if (!restaurant) throw new Error('Restaurant not found');
+
+        // Extra debug to verify what we actually read from DB
+        console.log('[ZoneInfo:raw] deliveryBounds=', restaurant?.deliveryBounds, ' location=', restaurant?.location);
+
+        // Normalize polygon coordinates if present (GeoJSON { type: 'Polygon', coordinates: [ [ [lng,lat], ... ] ] })
+        const rawPoly = restaurant?.deliveryBounds?.coordinates;
+        const poly = Array.isArray(rawPoly)
+          ? rawPoly.map((ring) =>
+              Array.isArray(ring)
+                ? ring
+                    .map((pt) => (Array.isArray(pt) && pt.length >= 2
+                      ? [Number(pt[0]), Number(pt[1])] : null))
+                    .filter(Boolean)
+                : []
+            )
+          : null;
+
+        // Normalize point coordinates if present (GeoJSON Point { type: 'Point', coordinates: [lng,lat] })
+        const rawPoint = restaurant?.location?.coordinates;
+        const point = Array.isArray(rawPoint)
+          ? rawPoint.map((n) => Number(n))
+          : null;
+
+        // Optional circle radius if your DB stores it
+        const radius = (restaurant?.circleBounds && restaurant.circleBounds.radius != null)
+          ? Number(restaurant.circleBounds.radius)
+          : null;
+
+        const boundTypeGuess = restaurant?.boundType
+          ? restaurant.boundType
+          : (poly ? 'polygon' : (radius ? 'radius' : 'point'));
+
+        // Helpful concise debug
+        console.log('[ZoneInfo] poly?', !!poly, 'point?', point, 'radius?', radius);
+
+        return {
+          address: restaurant.address || '',
+          deliveryBounds: poly ? { coordinates: poly } : null,
+          circleBounds: radius != null ? { radius } : null,
+          location: point ? { coordinates: point } : null,
+          boundType: boundTypeGuess,
+        };
+      } catch (error) {
+        console.log('getRestaurantDeliveryZoneInfo error', error);
+        throw error;
+      }
+    },
     restaurantOrders: async(_, args, { req }) => {
       console.log('restaurantOrders', req.restaurantId)
       const date = new Date()
@@ -647,48 +708,99 @@ module.exports = {
         throw err
       }
     },
-    updateDeliveryBoundsAndLocation: async(_, args) => {
-      console.log('updateDeliveryBoundsAndLocation')
-      const { id, bounds: newBounds, location: newLocation } = args
+    updateDeliveryBoundsAndLocation: async (_, args) => {
+      console.log('updateDeliveryBoundsAndLocation');
+      const { id, bounds: newBounds, location: newLocation } = args;
       try {
-        const restaurant = await Restaurant.findById(id)
-        if (!restaurant) throw new Error('Restaurant does not exists')
+        const restaurant = await Restaurant.findById(id);
+        if (!restaurant) throw new Error('Restaurant does not exists');
+
+        // --- Build GeoJSON Point for the restaurant location
+        const locLng = Number(newLocation.longitude);
+        const locLat = Number(newLocation.latitude);
         const location = new Point({
           type: 'Point',
-          coordinates: [newLocation.longitude, newLocation.latitude]
-        })
-        console.log('Location: ', location)
+          coordinates: [locLng, locLat]
+        });
+        console.log('Location: ', location);
+
+        // --- Try to resolve an active zone that contains this point
         const zone = await Zone.findOne({
           location: { $geoIntersects: { $geometry: location } },
           isActive: true
-        })
-        console.log('Zone: ', zone)
-        if (!zone) {
+        });
+        console.log('Zone: ', zone ? zone._id : 'NONE');
+
+        // --- Helper: ensure a valid polygon ring (Lng/Lat pairs)
+        const normalizePolygonRing = (ring) => {
+          if (!Array.isArray(ring)) return [];
+          // coerce values to numbers and filter bad pairs
+          const cleaned = ring
+            .map(p => Array.isArray(p) && p.length >= 2 ? [Number(p[0]), Number(p[1])] : null)
+            .filter(Boolean);
+          if (cleaned.length < 3) return [];
+          // close ring if not closed
+          const first = cleaned[0];
+          const last = cleaned[cleaned.length - 1];
+          if (first[0] !== last[0] || first[1] !== last[1]) {
+            cleaned.push([first[0], first[1]]);
+          }
+          return cleaned;
+        };
+
+        // Accept either a full [[[lng,lat]]] polygon or a single outer ring [[lng,lat],...]
+        let polygonCoordinates = null;
+        if (newBounds && Array.isArray(newBounds)) {
+          // If first element is a number pair, treat as a single ring
+          if (Array.isArray(newBounds[0]) && typeof newBounds[0][0] === 'number') {
+            const ring = normalizePolygonRing(newBounds);
+            if (ring.length) polygonCoordinates = [ring];
+          } else if (Array.isArray(newBounds[0])) {
+            // Already looks like a polygon [ [ [lng,lat], ... ] ]
+            const ring = normalizePolygonRing(newBounds[0]);
+            if (ring.length) polygonCoordinates = [ring];
+          }
+        }
+
+        // --- Guard: either the location must be inside a Zone OR the client must provide a polygon
+        if (!zone && !polygonCoordinates) {
           return {
             success: false,
             message: "restaurant's location doesn't lie in any delivery zone"
-          }
+          };
         }
+
+        // --- Build update doc
+        const updateDoc = {
+          location
+        };
+        if (polygonCoordinates) {
+          updateDoc.deliveryBounds = { type: 'Polygon', coordinates: polygonCoordinates };
+          updateDoc.boundType = 'polygon';
+        }
+        if (zone) {
+          // persist the zone reference when available
+          updateDoc.zone = zone._id;
+        }
+
         const updated = await Restaurant.findByIdAndUpdate(
           id,
-          {
-            deliveryBounds: { type: 'Polygon', coordinates: newBounds },
-            location
-          },
+          updateDoc,
           { new: true }
-        )
+        );
 
         return {
           success: true,
           data: transformRestaurant(updated)
-        }
+        };
       } catch (error) {
-        console.log('updateDeliveryBoundsAndLocation', error)
+        console.log('updateDeliveryBoundsAndLocation', error);
         return {
           success: false,
           message: error.message
-        }
+        };
       }
     }
   }
 }
+  
