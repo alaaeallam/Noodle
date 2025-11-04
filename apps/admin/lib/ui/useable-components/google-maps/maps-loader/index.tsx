@@ -1,42 +1,19 @@
-// React and Hooks
+// apps/admin/lib/ui/useable-components/google-maps/maps-loader/index.tsx
+'use client';
 
-// Interfaces
-import { IGoogleMapsLoaderComponentProps } from '@/lib/utils/interfaces';
-
-// Components
-import { GoogleMapsContext } from '@/lib/context/global/google-maps.context';
 import { useContext } from 'react';
+import { GoogleMapsContext } from '@/lib/context/global/google-maps.context';
 import CustomLoader from '../../custom-progress-indicator';
-import { useEffect } from 'react';
 
-export const GoogleMapsLoader = ({
-  children,
-}: IGoogleMapsLoaderComponentProps) => {
-  const context = useContext(GoogleMapsContext);
+export const GoogleMapsLoader: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { isLoaded } = useContext(GoogleMapsContext);
 
-  console.log('GoogleMapsLoader - Context:', context);
-  console.log('GoogleMapsLoader - isLoaded:', context?.isLoaded);
-
-  useEffect(() => {
-    console.log('GoogleMapsLoader - Context changed:', context);
-  }, [context]);
-
-  if (!context?.isLoaded) {
-    console.warn('Google Maps not loaded, showing loader');
+  if (!isLoaded) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          width: '100%',
-        }}
-      >
+      <div className="flex h-full w-full items-center justify-center">
         <CustomLoader />
       </div>
     );
   }
-
   return <>{children}</>;
 };

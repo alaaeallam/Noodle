@@ -50,7 +50,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.enatega.multirider",
       "config": {
-        "googleMapsApiKey": "AIzaSyCcm7_Wd7uvmC9YnYLu2JHGWPt6z1MaL1E"
+        "googleMapsApiKey": "YOUR_IOS_GOOGLE_MAPS_API_KEY"
       },
       "icon": "./lib/assets/images/icon.png",
       "infoPlist": {
@@ -72,7 +72,7 @@
       ],
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCcm7_Wd7uvmC9YnYLu2JHGWPt6z1MaL1E"
+          "apiKey": "YOUR_ANDROID_GOOGLE_MAPS_API_KEY"
         }
       },
       "package": "com.enatega.multirider",

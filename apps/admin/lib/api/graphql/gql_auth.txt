@@ -1,0 +1,16 @@
+./mutations/authentication/index.ts:export const OWNER_LOGIN = gql`
+./mutations/user.ts:export const UPDATE_USER_STATUS = gql`
+./mutations/user.ts:export const UPDATE_USER_NOTES = gql`
+./mutations/user.ts:export const DELETE_USER = gql`
+./mutations/user.ts:export const RESET_USER_SESSION = gql`
+./mutations/notifications/index.ts:export const SEND_NOTIFICATION_USER = gql`
+./queries/supportTickets/index.ts:export const GET_TICKET_USERS_WITH_LATEST = gql`
+./queries/supportTickets/index.ts:export const GET_TICKET_USERS = gql`
+./queries/supportTickets/index.ts:export const GET_USER_SUPPORT_TICKETS = gql`
+./queries/restaurants/index.ts:export const GET_RESTAURANTS_BY_OWNER = gql`
+./queries/user/index.ts:export const GET_USERS = gql`
+./queries/user/index.ts:export const GET_USERS_L = gql`
+./queries/user/index.ts:export const GET_USER_BY_ID = gql`
+./queries/dashboard/index.ts:export const GET_DASHBOARD_USERS = gql`
+./queries/dashboard/index.ts:export const GET_DASHBOARD_USERS_BY_YEAR = gql`
+./queries/order.ts:export const GET_ORDERS_BY_USER = gql`
