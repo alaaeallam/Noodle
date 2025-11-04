@@ -1,0 +1,12 @@
+./queries/dashboard/index.ts:export const GET_DASHBOARD_ORDERS_BY_TYPE = gql`
+./queries/dashboard/index.ts:export const GET_DASHBOARD_RESTAURANT_ORDERS = gql`
+./queries/dashboard/index.ts:export const GET_DASHBOARD_RESTAURANT_SALES_ORDER_COUNT_DETAILS_BY_YEAR = gql`
+./queries/dashboard/index.ts:export const GET_DASHBOARD_ORDER_SALES_DETAILS_BY_PAYMENT_METHOD = gql`
+./queries/order.ts:export const GET_ORDERS_BY_USER = gql`
+./queries/orders/index.ts:export const GET_ACTIVE_ORDERS = gql`
+./queries/orders/index.ts:export const GET_ORDER_BY_RESTAURANT = gql`
+./queries/orders/index.ts:export const GET_ORDER_BY_RESTAURANT_WITHOUT_PAGINATION = gql`
+./queries/orders/index.ts:export const GET_ORDERS = gql`
+./queries/orders/index.ts:export const GET_ORDERS_WITHOUT_PAGINATION = gql`
+./subscription/order-subscription/index.ts:export const SUBSCRIPTION_PLACE_ORDER = gql`
+./subscription/order-subscription/index.ts:export const SUBSCRIPTION_ORDER = gql`

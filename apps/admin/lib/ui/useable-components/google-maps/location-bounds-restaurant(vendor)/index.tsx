@@ -61,7 +61,10 @@ import CustomShape from '../shapes';
 import useLocation from '@/lib/hooks/useLocation';
 import calculateZoom from '@/lib/utils/methods/zoom-calculator';
 import { useTranslations } from 'next-intl';
-
+const GoogleMapAny = GoogleMap as unknown as React.ComponentType<any>;
+const MarkerAny = Marker as unknown as React.ComponentType<any>;
+const CircleAny = Circle as unknown as React.ComponentType<any>;
+const PolygonAny = Polygon as unknown as React.ComponentType<any>;
 const autocompleteService: {
   current: google.maps.places.AutocompleteService | null;
 } = { current: null };
@@ -590,7 +593,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
 
   return (
     <div>
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-transparent">
         <div
           style={{ height: height }}
           className="h-[600px] w-full object-cover"
@@ -602,7 +605,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
               >
                 <div className="relative">
                   <AutoComplete
-                    id="google-map"
+                    id="google-autocomplete"
                     disabled={
                       isFetchingRestaurantDeliveryZoneInfo ||
                       isFetchingRestaurantProfile
@@ -692,70 +695,67 @@ const CustomGoogleMapsLocationBounds: React.FC<
             </div>
           )}
 
-          <GoogleMap
-            mapContainerStyle={{
-              height: '100%',
-              width: '100%',
-              borderRadius: 10,
-              marginBottom: '20px',
-            }}
-            id="google-map"
-            zoom={zoom}
-            center={center}
-            options={{
-              disableDefaultUI: true,
-              zoomControl: true,
-              streetViewControl: false,
-              mapTypeControl: !hideControls,
-              fullscreenControl: !hideControls,
-              draggable: !hideControls,
-            }}
-            onClick={
-              deliveryZoneType === 'point' ? onClickGoogleMaps : undefined
-            }
-          >
-            <Polygon
-              editable={!hideControls}
-              draggable={!hideControls}
-              visible={
-                deliveryZoneType === 'polygon' || deliveryZoneType === 'point'
-              }
-              paths={path}
-              options={{
-                strokeColor: 'black',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: '#000000',
-                fillOpacity: 0.35,
-              }}
-              onMouseUp={onEdit}
-              onDragEnd={onEdit}
-              onLoad={onLoadPolygon}
-              onUnmount={onUnmount}
-            />
+         <GoogleMapAny
+  mapContainerStyle={{
+    height: '100%',
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: '20px',
+  }}
+  id="google-map"
+  zoom={zoom}
+  center={center}
+  options={{
+    disableDefaultUI: true,
+    zoomControl: true,
+    streetViewControl: false,
+    mapTypeControl: !hideControls,
+    fullscreenControl: !hideControls,
+    draggable: !hideControls,
+  }}
+  onClick={deliveryZoneType === 'point' ? onClickGoogleMaps : undefined}
+>
+  
+              <PolygonAny
+    editable={!hideControls}
+    draggable={!hideControls}
+    visible={deliveryZoneType === 'polygon' || deliveryZoneType === 'point'}
+    paths={path}
+    options={{
+      strokeColor: 'black',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#000000',
+      fillOpacity: 0.35,
+    }}
+    onMouseUp={onEdit}
+    onDragEnd={onEdit}
+    onLoad={onLoadPolygon}
+    onUnmount={onUnmount}
+  />
 
-            <Circle
-              center={center}
-              radius={radiusInMeter}
-              visible={deliveryZoneType === 'radius'}
-              options={{
-                fillColor: 'black',
-                fillOpacity: 0.2,
-                strokeColor: 'black',
-                strokeOpacity: 1,
-                strokeWeight: 2,
-              }}
-            />
+              <CircleAny
+    center={center}
+    radius={radiusInMeter}
+    visible={deliveryZoneType === 'radius'}
+    options={{
+      fillColor: 'black',
+      fillOpacity: 0.2,
+      strokeColor: 'black',
+      strokeOpacity: 1,
+      strokeWeight: 2,
+    }}
+  />
 
             {marker && (
-              <Marker
-                position={marker}
-                draggable={!hideControls}
-                onRightClick={removeMarker}
-                onDragEnd={onDragEnd}
-              />
+              <MarkerAny
+      position={marker}
+      draggable={!hideControls}
+      onRightClick={removeMarker}
+      onDragEnd={onDragEnd}
+    />
             )}
-          </GoogleMap>
+          </GoogleMapAny>
         </div>
       </div>
 

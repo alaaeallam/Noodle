@@ -7,3 +7,5 @@ node_modules
 *.pem
 *.key
 apps/**/config/*.json
+# dev scratch
+*_map.txt
