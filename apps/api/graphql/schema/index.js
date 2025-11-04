@@ -1,6 +1,19 @@
 const { gql } = require('apollo-server-express')
 
 const typeDefs = gql`
+  type CircleBounds {
+    radius: Float
+  }
+
+  type RestaurantDeliveryZoneInfo {
+  address: String
+  city: String
+  postCode: String
+  deliveryBounds: Polygon
+  circleBounds: CircleBounds
+  location: Point
+  boundType: String
+}
   type Location {
     location: Point
     deliveryAddress: String
@@ -526,7 +539,7 @@ const typeDefs = gql`
   }
 
   type Point {
-    coordinates: [String!]
+    coordinates: [Float!]
   }
 
   type Zone {
@@ -744,7 +757,7 @@ input VendorInput {
   }
 
   input PointInput {
-    coordinates: [String!]
+    coordinates: [Float!]
   }
 
   input LocationInput {
@@ -1116,6 +1129,7 @@ input VendorInput {
 
     riderCompletedOrders: [Order!]
     restaurant(id: String, slug: String): Restaurant!
+    getRestaurantDeliveryZoneInfo(id: ID!): RestaurantDeliveryZoneInfo
     restaurants: [Restaurant!]
     restaurantByOwner(id: String): OwnerData!
     offers: [Offer]

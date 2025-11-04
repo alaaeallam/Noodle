@@ -77,6 +77,16 @@ const autocompleteService: {
 // Default coordinate for Cairo, Egypt
 const DEFAULT_CAIRO = { lat: 30.0444, lng: 31.2357 };
 
+// Ensure a polygon ring is valid: closed and with at least 3 distinct points
+function isValidRing(ring: number[][]): boolean {
+  if (!Array.isArray(ring) || ring.length < 4) return false; // needs first==last
+  const [firstLng, firstLat] = ring[0] ?? [];
+  const [lastLng, lastLat] = ring[ring.length - 1] ?? [];
+  if (!Number.isFinite(firstLng) || !Number.isFinite(firstLat)) return false;
+  if (!Number.isFinite(lastLng) || !Number.isFinite(lastLat)) return false;
+  return firstLng === lastLng && firstLat === lastLat;
+}
+
 const CustomGoogleMapsLocationBounds: React.FC<
   ICustomGoogleMapsLocationBoundsComponentProps
 > = ({ onStepChange, hideControls, height }) => {
@@ -104,7 +114,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
     useState<IPlaceSelectedOption | null>(null);
   const [search, setSearch] = useState<string>('');
   const [zones, setZones] = useState<IZoneResponse[]>([]);
-
+  const [isPlacesReady, setIsPlacesReady] = useState(false);
   // Ref
   const polygonRef = useRef<google.maps.Polygon | null>(null);
   const listenersRef = useRef<google.maps.MapsEventListener[]>([]);
@@ -144,16 +154,19 @@ const CustomGoogleMapsLocationBounds: React.FC<
       onError: onErrorFetchRestaurantZoneInfo,
     }
   );
-  const [updateRestaurantDeliveryZone, { loading: isSubmitting }] = useMutation(
-    UPDATE_DELIVERY_BOUNDS_AND_LOCATION,
-    {
-      update: (cache, result) => {
-        updateCache(cache, result);
-      },
-      onCompleted: onRestaurantZoneUpdateCompleted,
-      onError: onErrorLocationZoneUpdate,
-    }
-  );
+const [updateRestaurantDeliveryZone, { loading: isSubmitting }] = useMutation(
+  UPDATE_DELIVERY_BOUNDS_AND_LOCATION,
+  {
+    update: (cache, result) => updateCache(cache, result),
+    onCompleted: onRestaurantZoneUpdateCompleted,
+    onError: onErrorLocationZoneUpdate,
+    refetchQueries: [
+      { query: GET_RESTAURANT_PROFILE, variables: { id: restaurantId } },
+      { query: GET_RESTAURANT_DELIVERY_ZONE_INFO, variables: { id: restaurantId } },
+    ],
+    awaitRefetchQueries: true,
+  }
+);
 
   useQuery<IZonesResponse>(GET_ZONES, {
     onCompleted: (data) => {
@@ -167,35 +180,64 @@ const CustomGoogleMapsLocationBounds: React.FC<
   const radiusInMeter = useMemo(() => {
     return distance * 1000;
   }, [distance]);
-  const fetch = React.useMemo(
-    () =>
-      throttle((request, callback) => {
-        autocompleteService?.current?.getPlacePredictions(request, callback);
-      }, 1500),
-    []
-  );
+  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
+
+const fetch = React.useMemo(
+  () =>
+    throttle(
+      (
+        request: google.maps.places.AutocompletionRequest,
+        callback: (results: IPlaceSelectedOption[]) => void
+      ) => {
+        if (!autocompleteService.current || !window.google?.maps?.places) {
+          callback([]);
+          return;
+        }
+
+        // Bias to Egypt (remove if you want global)
+        const req: google.maps.places.AutocompletionRequest = {
+          ...request,
+          componentRestrictions: { country: ['eg'] },
+          sessionToken: sessionTokenRef.current ?? undefined,
+        };
+
+        autocompleteService.current.getPlacePredictions(
+          req,
+          (preds, status) => {
+            if (status !== window.google.maps.places.PlacesServiceStatus.OK || !preds) {
+              callback([]);
+              return;
+            }
+            callback(preds as unknown as IPlaceSelectedOption[]);
+          }
+        );
+      },
+      600
+    ),
+  []
+);
 
   // API Handlers
   function updateCache(cache: ApolloCache<unknown>, result: any) {
-    const updated = result?.data?.restaurant;
-    if (!updated) return;
+  const updated = result?.data?.result?.data as IRestaurantProfile | undefined;
+  if (!updated) return;
 
-    const cached = cache.readQuery<{ restaurant?: IRestaurantProfile }>({
-      query: GET_RESTAURANT_PROFILE,
-      variables: { id: restaurantId },
-    });
+  const cached = cache.readQuery<{ restaurant?: IRestaurantProfile }>({
+    query: GET_RESTAURANT_PROFILE,
+    variables: { id: restaurantId },
+  });
 
-    cache.writeQuery({
-      query: GET_RESTAURANT_PROFILE,
-      variables: { id: restaurantId },
-      data: {
-        restaurant: {
-          ...(cached?.restaurant ?? {}),
-          ...updated,
-        },
+  cache.writeQuery({
+    query: GET_RESTAURANT_PROFILE,
+    variables: { id: restaurantId },
+    data: {
+      restaurant: {
+        ...(cached?.restaurant ?? {}),
+        ...updated,
       },
-    });
-  }
+    },
+  });
+}
   // Profile Error
   function onErrorFetchRestaurantProfile({
     graphQLErrors,
@@ -290,53 +332,78 @@ const CustomGoogleMapsLocationBounds: React.FC<
     );
   }
   // Zone Update Error
-  function onErrorLocationZoneUpdate({
-    graphQLErrors,
-    networkError,
-  }: ApolloError) {
-    showToast({
-      type: 'error',
-      title: t('Store Location & Zone'),
-      message:
-        graphQLErrors[0].message ??
-        networkError?.message ??
-        t('Store Location & Zone update failed'),
-      duration: 2500,
-    });
-  }
+function onErrorLocationZoneUpdate(err: ApolloError) {
+  // Collect all plausible error messages from ApolloError safely
+  const gqlMsgs: string[] =
+    Array.isArray((err as any)?.graphQLErrors)
+      ? (err as any).graphQLErrors.map((e: any) => e?.message).filter(Boolean)
+      : [];
+
+  const net: any = (err as any)?.networkError;
+  const netMsgs: string[] = [
+    net?.message,
+    ...(Array.isArray(net?.result?.errors)
+      ? net.result.errors.map((e: any) => e?.message)
+      : []),
+  ].filter(Boolean);
+
+  const fallback = (err as any)?.message;
+
+  // Merge, de-duplicate and cap size to avoid very long GraphQL traces in the toast
+  const merged = Array.from(new Set([...(gqlMsgs || []), ...(netMsgs || []), ...(fallback ? [fallback] : [])]));
+  const finalMessage =
+    (merged.join(' | ').trim() || t('Store Location & Zone update failed')).slice(0, 280);
+
+  // Log full error for debugging
+  // eslint-disable-next-line no-console
+  console.error('[Update Zone Error]', err);
+
+  showToast({
+    type: 'error',
+    title: t('Store Location & Zone'),
+    message: finalMessage,
+    duration: 3000,
+  });
+}
   // Zone Update Complete
-  function onRestaurantZoneUpdateCompleted({
-    restaurant,
-  }: {
-    restaurant: IRestaurantProfile;
-  }) {
-    if (restaurant) {
-      setCenter({
-        lat: +restaurant?.location?.coordinates[1],
-        lng: +restaurant?.location?.coordinates[0],
-      });
-      setMarker({
-        lat: +restaurant?.location?.coordinates[1],
-        lng: +restaurant?.location?.coordinates[0],
-      });
-      setPath(
-        restaurant?.deliveryBounds
-          ? transformPolygon(restaurant?.deliveryBounds?.coordinates[0])
-          : path
-      );
-    }
+function onRestaurantZoneUpdateCompleted({
+  result,
+}: {
+  result?: { success?: boolean; message?: string; data?: IRestaurantProfile };
+}) {
+  const restaurant = result?.data;
+
+  if (result?.success && restaurant) {
+    setCenter({
+      lat: Number(restaurant?.location?.coordinates?.[1] ?? 0),
+      lng: Number(restaurant?.location?.coordinates?.[0] ?? 0),
+    });
+    setMarker({
+      lat: Number(restaurant?.location?.coordinates?.[1] ?? 0),
+      lng: Number(restaurant?.location?.coordinates?.[0] ?? 0),
+    });
+    setPath(
+      restaurant?.deliveryBounds
+        ? transformPolygon(restaurant.deliveryBounds.coordinates?.[0])
+        : path
+    );
 
     showToast({
       type: 'success',
       title: t('Zone Update'),
-      message: `${t('Store Zone has been updated successfully')}.`,
+      message: t('Store Zone has been updated successfully.'),
     });
 
     if (onStepChange) onStepChange(3);
-    // onSetRestaurantsContextData({} as IRestaurantsContextPropData);
-    // onSetRestaurantFormVisible(false);
+  } else {
+    showToast({
+      type: 'error',
+      title: t('Store Location & Zone'),
+      message: result?.message || t('Store Location & Zone update failed'),
+      duration: 2500,
+    });
   }
-
+}
   // Other Handlers
   const handleInputChange = (value: string) => {
     setInputValue(value);
@@ -358,14 +425,22 @@ const CustomGoogleMapsLocationBounds: React.FC<
           ) {
             const location = results[0]?.geometry?.location;
 
-            onSetRestaurantsContextData({
-              ...restaurantsContextData,
-              restaurant: {
-                ...restaurantsContextData?.restaurant,
-                _id: restaurantsContextData?.restaurant?._id ?? null,
-                autoCompleteAddress: selectedOption.description,
-              },
-            });
+            // Some layouts may not provide the RestaurantsContext setter.
+            // Guard it so selecting an address doesn't crash the page.
+            try {
+              if (typeof onSetRestaurantsContextData === 'function') {
+                onSetRestaurantsContextData({
+                  ...restaurantsContextData,
+                  restaurant: {
+                    ...restaurantsContextData?.restaurant,
+                    _id: restaurantsContextData?.restaurant?._id ?? null,
+                    autoCompleteAddress: selectedOption.description,
+                  },
+                });
+              }
+            } catch {
+              // no-op
+            }
 
             setCenter({
               lat: location?.lat() ?? 0,
@@ -381,6 +456,10 @@ const CustomGoogleMapsLocationBounds: React.FC<
         }
       );
       setSelectedPlaceObject(selectedOption);
+      if (window.google?.maps?.places) {
+  sessionTokenRef.current =
+    new window.google.maps.places.AutocompleteSessionToken();
+}
     }
   };
   const onClickGoogleMaps = (e: google.maps.MapMouseEvent) => {
@@ -527,33 +606,86 @@ const CustomGoogleMapsLocationBounds: React.FC<
         return;
       }
 
-      const location = {
-        latitude: marker?.lat ?? 0,
-        longitude: marker?.lng ?? 0,
-      };
-
+      // Validation: block save if missing required payload for selected type
       let bounds = transformPath(path);
       if (deliveryZoneType === 'radius') {
         bounds = getPolygonPath(center, radiusInMeter);
       }
 
-      let variables: IUpdateRestaurantDeliveryZoneVariables = {
-        id: restaurantId,
-        location,
-        boundType: deliveryZoneType,
-        address: restaurantsContextData?.restaurant?.autoCompleteAddress,
-        bounds: [[[]]],
-      };
+      // --- Validation based on type ---
+      if (deliveryZoneType === 'point') {
+        showToast({
+          type: 'error',
+          title: t('Location & Zone'),
+          message: t('Please draw a valid delivery area before saving.'),
+          duration: 2500,
+        });
+        return;
+      }
 
-      variables = {
-        ...variables,
-        bounds,
-        circleBounds: {
-          radius: distance, // Convert kilometers to meters
+      if (deliveryZoneType === 'polygon') {
+        const ring = (bounds?.[0] ?? []) as unknown as number[][];
+        if (!isValidRing(ring)) {
+          showToast({
+            type: 'error',
+            title: t('Location & Zone'),
+            message: t('Please draw a valid polygon (closed shape with at least 3 points).'),
+            duration: 2500,
+          });
+          return;
+        }
+      }
+
+      if (deliveryZoneType === 'radius') {
+        if (!Number.isFinite(distance) || Number(distance) <= 0) {
+          showToast({
+            type: 'error',
+            title: t('Location & Zone'),
+            message: t('Please set a valid radius greater than 0.'),
+            duration: 2500,
+          });
+          return;
+        }
+      }
+
+      // Only send the field the backend expects for the selected type
+      const sendBounds =
+        deliveryZoneType === 'polygon' ? bounds : undefined;
+
+      const sendCircle =
+        deliveryZoneType === 'radius'
+          ? { radius: Number(distance) }
+          : undefined;
+
+      // Debug: ensure ring is closed when sending polygon
+      if (sendBounds?.[0]) {
+        const ring = sendBounds[0] as unknown as number[][];
+        const first = ring[0];
+        const last = ring[ring.length - 1];
+        // eslint-disable-next-line no-console
+        console.log('[Bounds ring]', { count: ring.length, first, last, closed: first && last && first[0] === last[0] && first[1] === last[1] });
+      }
+
+      const variablesPartial: Partial<IUpdateRestaurantDeliveryZoneVariables> = {
+        id: String(restaurantId),
+        location: {
+          latitude: Number(marker?.lat ?? 0),
+          longitude: Number(marker?.lng ?? 0),
         },
+        boundType: deliveryZoneType, // change to 'circle' here if your backend uses that naming
+        address:
+          restaurantsContextData?.restaurant?.autoCompleteAddress ??
+          inputValue ??
+          '',
+        ...(sendBounds ? { bounds: sendBounds as unknown as number[][][] } : {}),
+        ...(sendCircle ? { circleBounds: sendCircle } : {}),
       };
 
-      updateRestaurantDeliveryZone({ variables: variables });
+      const variables = variablesPartial as IUpdateRestaurantDeliveryZoneVariables;
+
+      // eslint-disable-next-line no-console
+      console.log('[Submitting Location/Zone]', variables);
+      updateRestaurantDeliveryZone({ variables });
     } catch (error) {
       showToast({
         type: 'error',
@@ -564,39 +696,64 @@ const CustomGoogleMapsLocationBounds: React.FC<
   };
 
   // Use Effects
-  useEffect(() => {
-    let active = true;
+useEffect(() => {
+  let active = true;
+  let intervalId: number | undefined;
 
-    if (!autocompleteService.current && window.google) {
+  const initService = () => {
+    if (!autocompleteService.current && (window as any)?.google?.maps?.places) {
       autocompleteService.current =
-        new window.google.maps.places.AutocompleteService();
+        new (window as any).google.maps.places.AutocompleteService();
+      sessionTokenRef.current =
+        new (window as any).google.maps.places.AutocompleteSessionToken();
+      setIsPlacesReady(true);
     }
-    if (!autocompleteService.current) {
-      return undefined;
-    }
+  };
 
-    if (search === '') {
-      setOptions(selectedPlaceObject ? [selectedPlaceObject] : []);
-      return undefined;
-    }
+  // try immediately
+  initService();
 
-    fetch({ input: search }, (results: IPlaceSelectedOption[]) => {
-      if (active) {
-        let newOptions: IPlaceSelectedOption[] = [];
-        if (selectedPlaceObject) {
-          newOptions = [selectedPlaceObject];
-        }
-        if (results) {
-          newOptions = [...newOptions, ...results];
-        }
-        setOptions(newOptions);
+  // poll briefly until Places attaches
+  if (!autocompleteService.current) {
+    intervalId = window.setInterval(() => {
+      initService();
+      if (autocompleteService.current && intervalId) {
+        window.clearInterval(intervalId);
       }
-    });
+    }, 250);
+  }
 
+  // if still not ready, don’t query—just clear suggestions
+  if (!autocompleteService.current) {
+    setOptions(selectedPlaceObject ? [selectedPlaceObject] : []);
     return () => {
       active = false;
+      if (intervalId) window.clearInterval(intervalId);
     };
-  }, [selectedPlaceObject, search, fetch]);
+  }
+
+  if (search === '') {
+    setOptions(selectedPlaceObject ? [selectedPlaceObject] : []);
+    return () => {
+      active = false;
+      if (intervalId) window.clearInterval(intervalId);
+    };
+  }
+
+  // fetch predictions
+  fetch({ input: search }, (results) => {
+    if (!active) return;
+    let newOptions: IPlaceSelectedOption[] = [];
+    if (selectedPlaceObject) newOptions = [selectedPlaceObject];
+    if (results) newOptions = [...newOptions, ...results];
+    setOptions(newOptions);
+  });
+
+  return () => {
+    active = false;
+    if (intervalId) window.clearInterval(intervalId);
+  };
+}, [selectedPlaceObject, search, fetch]);
 
   useEffect(() => {
     if (!hideControls) getCurrentLocation(locationCallback);
@@ -605,7 +762,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
   useEffect(() => {
     const zoomVal = calculateZoom(distance);
     setZoom(zoomVal);
-  }, [distance, zoom]);
+  }, [distance]);
 
 return (
   <div className="min-h-screen pb-10 space-y-4">
@@ -617,7 +774,8 @@ return (
             <div className="relative pointer-events-auto">
               <AutoComplete
                 id="google-autocomplete"
-                disabled={isFetchingRestaurantDeliveryZoneInfo || isFetchingRestaurantProfile}
+                panelClassName="z-50"
+                disabled={!isPlacesReady || isFetchingRestaurantDeliveryZoneInfo || isFetchingRestaurantProfile}
                 className="p h-11 w-full border border-gray-300 px-2 text-sm focus:shadow-none focus:outline-none bg-white rounded-md"
                 value={inputValue}
                 dropdownIcon={
@@ -628,8 +786,11 @@ return (
                 }
                 completeMethod={(event) => setSearch(event.query)}
                 onChange={(e) => {
-                  if (typeof e.value === 'string') setInputValue(e.value);
-                }}
+  if (typeof e.value === 'string') {
+    setInputValue(e.value);
+    setSearch(e.value);
+  }
+}}
                 onSelect={onHandlerAutoCompleteSelectionChange}
                 suggestions={options}
                 forceSelection={false}
@@ -637,6 +798,7 @@ return (
                 multiple={false}
                 loadingIcon={null}
                 placeholder={t('Search Address')}
+                minLength={1}
                 style={{ width: '100%' }}
                 itemTemplate={(item) => {
                   const matches = item.structured_formatting?.main_text_matched_substrings;
