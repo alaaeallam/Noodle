@@ -74,6 +74,9 @@ const autocompleteService: {
   current: google.maps.places.AutocompleteService | null;
 } = { current: null };
 
+// Default coordinate for Cairo, Egypt
+const DEFAULT_CAIRO = { lat: 30.0444, lng: 31.2357 };
+
 const CustomGoogleMapsLocationBounds: React.FC<
   ICustomGoogleMapsLocationBoundsComponentProps
 > = ({ onStepChange, hideControls, height }) => {
@@ -88,15 +91,9 @@ const CustomGoogleMapsLocationBounds: React.FC<
   // States
   const [zoom, setZoom] = useState(14);
   const [deliveryZoneType, setDeliveryZoneType] = useState('radius');
-  const [center, setCenter] = useState({
-    lat: -25.2744, // Central latitude of Australia
-    lng: 133.7751, // Central longitude of Australia
-  });
+  const [center, setCenter] = useState(DEFAULT_CAIRO);
 
-  const [marker, setMarker] = useState({
-    lat: -25.2744, // Marker at the same central point
-    lng: 133.7751, // Marker at the same central point
-  });
+  const [marker, setMarker] = useState(DEFAULT_CAIRO);
   const [path, setPath] = useState<ILocationPoint[]>([]);
   const [distance, setDistance] = useState(1);
   // const [isLoading, setLoading] = useState(false);
@@ -443,17 +440,17 @@ const CustomGoogleMapsLocationBounds: React.FC<
   };
   const locationCallback = (error: string | null, data?: ILocation) => {
     if (error) {
+      // Fallback to Cairo if browser geolocation is denied/unavailable
+      setCenter(DEFAULT_CAIRO);
+      setMarker(DEFAULT_CAIRO);
       return;
     }
 
-    setCenter({
-      lat: data?.latitude ?? 0,
-      lng: data?.longitude ?? 0,
-    });
-    setMarker({
-      lat: data?.latitude ?? 0,
-      lng: data?.longitude ?? 0,
-    });
+    const lat = data?.latitude ?? DEFAULT_CAIRO.lat;
+    const lng = data?.longitude ?? DEFAULT_CAIRO.lng;
+
+    setCenter({ lat, lng });
+    setMarker({ lat, lng });
 
     setInputValue(data?.deliveryAddress ?? '');
     setSearch(data?.deliveryAddress ?? '');
