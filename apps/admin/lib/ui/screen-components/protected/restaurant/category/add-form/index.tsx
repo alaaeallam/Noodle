@@ -45,7 +45,6 @@ import { faAdd, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { useContext, useEffect } from 'react';
 import {
-  GET_SUBCATEGORIES,
   GET_SUBCATEGORIES_BY_PARENT_ID,
 } from '@/lib/api/graphql/queries/sub-categories';
 import CustomLoader from '@/lib/ui/useable-components/custom-progress-indicator';
@@ -65,12 +64,19 @@ export default function CategoryAddForm({
   const {
     data: subCategories,
     loading: subCategoriesLoading,
+    error: subCatErr,
     refetch: refetchSubCatrgories,
   } = useQuery<ISubCategoryByParentIdResponse>(GET_SUBCATEGORIES_BY_PARENT_ID, {
-    variables: {
-      parentCategoryId: category?._id,
-    },
+    variables: { parentCategoryId: category?._id || '' },
+    skip: !category?._id,
+    fetchPolicy: 'cache-first',
   });
+  useEffect(() => {
+    if (subCatErr) {
+      // Older API may not have subCategoriesByParentId; ignore quietly
+      // console.debug('subCategories query error (ignored):', subCatErr);
+    }
+  }, [subCatErr]);
    const { restaurantLayoutContextData } = useContext(RestaurantLayoutContext);
   const restaurantId = restaurantLayoutContextData?.restaurantId || '';
 
@@ -91,8 +97,8 @@ export default function CategoryAddForm({
     _id: '',
     title: '',
     subCategories:
-      subCategories?.subCategoriesByParentId.length && !subCategoriesLoading
-        ? subCategories?.subCategoriesByParentId
+      category?._id && !subCategoriesLoading && subCategories?.subCategoriesByParentId?.length
+        ? subCategories.subCategoriesByParentId
         : [{ _id: '', title: '', parentCategoryId: '' }],
     image: '',
     ...category,
@@ -143,9 +149,6 @@ export default function CategoryAddForm({
         {
           query: GET_CATEGORY_BY_RESTAURANT_ID,
           variables: { id: restaurantId },
-        },
-        {
-          query: GET_SUBCATEGORIES,
         },
       ],
       onCompleted: () => {
@@ -200,15 +203,26 @@ export default function CategoryAddForm({
       return subCategory;
     });
     try {
+      // Do NOT send subCategories here; some API versions don't define it in CategoryInput (BAD_USER_INPUT).
+      // Build payload compatible with legacy schemas (no subCategories in CategoryInput)
+      const categoryInput: Record<string, any> = {
+        restaurant: restaurantId,
+        title: values.title,
+      };
+
+      // Only include _id when editing
+      if (category && category._id) {
+        categoryInput._id = category._id;
+      }
+
+      // Only attach image for grocery
+      if (shopType === 'grocery') {
+        categoryInput.image = values?.image ?? '';
+      }
+
       await createCategory({
         variables: {
-          category: {
-            restaurant: restaurantId,
-            _id: category ? category?._id : '',
-            title: values.title,
-            subCategories: transformedSubCategories,
-            image: shopType == 'grocery' ? (values?.image ?? '') : '',
-          },
+          category: categoryInput,
         },
       });
     } catch (error) {
@@ -221,17 +235,29 @@ export default function CategoryAddForm({
     }
   };
   useEffect(() => {
-    refetchSubCatrgories();
-  }, [isAddCategoryVisible]);
+    if (category?._id) {
+      refetchSubCatrgories();
+    }
+  }, [isAddCategoryVisible, category?._id, refetchSubCatrgories]);
   if (subCategoriesLoading) return <CustomLoader />;
   if (!subCategoriesLoading)
     return (
       <Sidebar
-        visible={isAddCategoryVisible}
-        position={position}
-        onHide={onHide}
-        className="w-full sm:w-[450px]"
-      >
+  visible={!!isAddCategoryVisible}
+  position={position}
+  onHide={onHide}
+  className="w-full sm:w-[450px]"
+  appendTo={typeof window !== 'undefined' ? document.body : undefined}
+  baseZIndex={100000}
+  blockScroll={true}
+  dismissable={true}
+  // 👇 override any stale PrimeReact translate that keeps it off-screen
+  style={{
+    right: 0,
+    left: 'auto',
+    transform: isAddCategoryVisible ? 'translateX(0)' : undefined,
+  }}
+>
         <div className="flex h-full w-full items-center justify-start">
           <div className="h-full w-full">
             <div className="flex flex-col gap-2">
@@ -242,6 +268,7 @@ export default function CategoryAddForm({
               </div>
               <div>
                 <Formik
+                  key={category?._id ?? 'new'}
                   initialValues={initialValues}
                   validationSchema={CategorySchema}
                   onSubmit={handleSubmit}
@@ -308,7 +335,7 @@ export default function CategoryAddForm({
                                         setTimeout(
                                           () =>
                                             setFieldValue(
-                                              `subCategorites[${index}].parentCategoryId`,
+                                              `subCategories[${index}].parentCategoryId`,
                                               values._id
                                             ),
                                           300
@@ -360,9 +387,7 @@ export default function CategoryAddForm({
                                             </div>
                                           </Fieldset>
                                           {/* Add More Button */}
-                                          {index ===
-                                            (values.subCategories.length - 1 &&
-                                              !category) && (
+                                         {(index === values.subCategories.length - 1 && !category) && (
                                             <div className="mt-4">
                                               <TextIconClickable
                                                 icon={faAdd}

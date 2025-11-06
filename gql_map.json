@@ -1,0 +1,41 @@
+{
+  "api": {
+    "apps/api": {
+      "typeDefs": [
+        "",
+      ],
+      "resolvers": [
+        "",
+      ],
+      "models": [
+        "",
+      ]
+    }
+  },
+  "admin": {
+    "apps/admin": {
+      "clientGql": [
+        "",
+      ],
+      "pages": [
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/app/(localized)/(protected)/(other-users)/admin/store/product-management/category/page.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/app/(localized)/(protected)/(other-users)/admin/store/product-management/add-ons/page.tsx",
+      ],
+      "components": [
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/app/(localized)/(protected)/(other-users)/admin/store/product-management/category/page.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/app/(localized)/(protected)/(other-users)/admin/store/product-management/add-ons/page.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/ui/screens/admin/restaurant/food-management/category/index.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/ui/screen-components/protected/restaurant/category/add-form/index.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/ui/screen-components/protected/restaurant/category/view/modal/index.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/ui/screen-components/protected/restaurant/category/view/main/index.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/ui/screen-components/protected/restaurant/category/view/header/table-header/index.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/ui/screen-components/protected/restaurant/category/view/header/screen-header/index.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/ui/screen-components/protected/restaurant/category/add-subcategories/index.tsx",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/api/graphql/mutations/category/index.ts",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/api/graphql/mutations/sub-category/index.ts",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/api/graphql/queries/category/index.ts",
+        "/Users/alaaeallam/Documents/enatega/Noodles/apps/admin/lib/api/graphql/queries/addon/index.ts",
+      ]
+    }
+  },
+}

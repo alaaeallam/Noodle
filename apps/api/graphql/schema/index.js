@@ -55,6 +55,8 @@ const typeDefs = gql`
   type Category {
     _id: ID!
     title: String!
+    image: String
+    isActive: Boolean
     foods: [Food!]
     createdAt: String!
     updatedAt: String!
@@ -773,6 +775,8 @@ input VendorInput {
     _id: String
     title: String!
     restaurant: String!
+    image: String
+    isActive: Boolean
   }
 
   input RestaurantInput {

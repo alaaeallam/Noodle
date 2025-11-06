@@ -3,7 +3,6 @@ import {
   ApolloError,
   DocumentNode,
   OperationVariables,
-  QueryHookOptions,
   useQuery,
 } from '@apollo/client';
 import { WatchQueryFetchPolicy } from '@apollo/client/core/watchQueryOptions';
