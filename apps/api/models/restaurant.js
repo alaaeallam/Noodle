@@ -107,6 +107,11 @@ const restaurantSchema = new Schema(
       ref: 'Owner'
     },
     deliveryBounds: polygonSchema,
+    // Store how delivery area is defined (polygon, circle, or point)
+    boundType: { type: String, enum: ['polygon', 'circle', 'point'], default: 'polygon' },
+    circleBounds: {
+      radius: { type: Number, default: null }
+    },
     tax: { type: Number, default: 10 },
     shopType: { type: String, default: SHOP_TYPE.RESTAURANT }
   },

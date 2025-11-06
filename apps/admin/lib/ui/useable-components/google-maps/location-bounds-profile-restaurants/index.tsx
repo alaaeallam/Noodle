@@ -6,6 +6,7 @@ import {
   ApolloError,
   useMutation,
   useQuery,
+  useApolloClient,
 } from '@apollo/client';
 import { throttle } from 'lodash';
 import React, {
@@ -109,6 +110,8 @@ const CustomGoogleMapsLocationBounds: React.FC<
   const listenersRef = useRef<google.maps.MapsEventListener[]>([]);
 
   // API
+  const client = useApolloClient();
+
   const { loading: isFetchingRestaurantProfile } = useQuery(
     GET_RESTAURANT_PROFILE,
     {
@@ -119,16 +122,20 @@ const CustomGoogleMapsLocationBounds: React.FC<
       onError: onErrorFetchRestaurantProfile,
     }
   );
-  const { loading: isFetchingRestaurantDeliveryZoneInfo } = useQuery(
-    GET_RESTAURANT_DELIVERY_ZONE_INFO,
-    {
-      variables: { id: restaurantId ?? '' },
-      fetchPolicy: 'network-only',
-      skip: !restaurantId,
-      onCompleted: onRestaurantZoneInfoFetchCompleted,
-      onError: onErrorFetchRestaurantZoneInfo,
-    }
-  );
+  const {
+    loading: isFetchingRestaurantDeliveryZoneInfo,
+    refetch: refetchRestaurantDeliveryZoneInfo,
+  } = useQuery(GET_RESTAURANT_DELIVERY_ZONE_INFO, {
+    variables: { id: restaurantId ?? '' },
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
+    notifyOnNetworkStatusChange: true,
+    returnPartialData: false,
+    errorPolicy: 'all',
+    skip: !restaurantId,
+    onCompleted: onRestaurantZoneInfoFetchCompleted,
+    onError: onErrorFetchRestaurantZoneInfo,
+  });
   const [updateRestaurantDeliveryZone, { loading: isSubmitting }] = useMutation(
     UPDATE_DELIVERY_BOUNDS_AND_LOCATION,
     {
@@ -136,19 +143,42 @@ const CustomGoogleMapsLocationBounds: React.FC<
         if (data) {
           updateCache(cache, { data } as IRestaurantProfileResponse);
         }
-      },  
-
+      },
+      refetchQueries: restaurantId
+        ? [
+            {
+              query: GET_RESTAURANT_DELIVERY_ZONE_INFO,
+              variables: { id: String(restaurantId) },
+            },
+          ]
+        : [],
+      awaitRefetchQueries: true,
       onCompleted: onRestaurantZoneUpdateCompleted,
       onError: onErrorLocationZoneUpdate,
     }
   );
-  useQuery<IZonesResponse>(GET_ZONES, {
-    onCompleted: (data) => {
-      if (data) {
-        setZones(data.zones);
-      }
-    },
-  });
+  useEffect(() => {
+    if (!restaurantId) return;
+    // Evict potential stale field before refetch
+    client.cache.evict({
+      id: 'ROOT_QUERY',
+      fieldName: 'getRestaurantDeliveryZoneInfo',
+      args: { id: String(restaurantId) },
+    });
+    client.cache.gc();
+    // Best-effort: fire and forget
+    refetchRestaurantDeliveryZoneInfo({ id: String(restaurantId) }).catch(() => {});
+  }, [restaurantId, client, refetchRestaurantDeliveryZoneInfo]);
+ useQuery<IZonesResponse>(GET_ZONES, {
+  fetchPolicy: 'network-only',
+  nextFetchPolicy: 'network-only',
+  notifyOnNetworkStatusChange: true,
+  onCompleted: (data) => {
+    if (data) {
+      setZones(data.zones);
+    }
+  },
+});
   
 
   // Memos
@@ -264,9 +294,11 @@ const CustomGoogleMapsLocationBounds: React.FC<
       setCenter(coordinates);
       setMarker(coordinates);
     }
-
     if (boundType) setDeliveryZoneType(boundType);
-    if (circleBounds?.radius) setDistance(circleBounds?.radius);
+// BE stores radius in METERS; UI `distance` is in KILOMETERS
+if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
+  setDistance(circleBounds.radius / 1000);
+}
 
     setPath(
       polygonBounds?.coordinates[0].map((coordinate: number[]) => {
@@ -275,17 +307,22 @@ const CustomGoogleMapsLocationBounds: React.FC<
     );
   }
   // Zone Update Error
-  function onErrorLocationZoneUpdate({
-    graphQLErrors,
-    networkError,
-  }: ApolloError) {
+  function onErrorLocationZoneUpdate(err: ApolloError) {
+    const graphMsg = (err as any)?.graphQLErrors?.[0]?.message;
+    const netMsg =
+      (err as any)?.networkError?.message ||
+      (err as any)?.networkError?.result?.errors?.[0]?.message;
+    const fallbackMsg = (err as any)?.message;
+
+    const message = graphMsg || netMsg || fallbackMsg || t('Store Location & Zone update failed');
+
+    // eslint-disable-next-line no-console
+    console.error('[Update Zone Error]', err);
+
     showToast({
       type: 'error',
-      title: t('Store Location & Zone'),
-      message:
-        graphQLErrors[0].message ??
-        networkError?.message ??
-        t('Store Location & Zone update failed'),
+      title: t('Store Location &amp; Zone'),
+      message,
       duration: 2500,
     });
   }
@@ -295,6 +332,17 @@ const CustomGoogleMapsLocationBounds: React.FC<
   }: {
     restaurant: IRestaurantProfile;
   }) {
+    // Evict and refetch the zone info to avoid stale UI
+    if (restaurantId) {
+      client.cache.evict({
+        id: 'ROOT_QUERY',
+        fieldName: 'getRestaurantDeliveryZoneInfo',
+        args: { id: String(restaurantId) },
+      });
+      client.cache.gc();
+      // Best-effort; ignore errors in UI thread
+      refetchRestaurantDeliveryZoneInfo({ id: String(restaurantId) }).catch(() => {});
+    }
     if (restaurant) {
       setCenter({
         lat: +restaurant?.location?.coordinates[1],
@@ -511,7 +559,7 @@ const CustomGoogleMapsLocationBounds: React.FC<
         ...variables,
         bounds,
         circleBounds: {
-          radius: distance, // Convert kilometers to meters
+          radius: radiusInMeter,
         },
       };
 

@@ -110,20 +110,10 @@ export const GET_RESTAURANT_DELIVERY_ZONE_INFO = gql`
   query RestaurantDeliveryZoneInfo($id: ID!) {
     getRestaurantDeliveryZoneInfo(id: $id) {
       boundType
-      deliveryBounds {
-        coordinates
-      }
-      location {
-        coordinates
-      }
-
-      circleBounds {
-        radius
-      }
-
+      deliveryBounds { coordinates }
+      location { coordinates }
+      circleBounds { radius }
       address
-      city
-      postCode
     }
   }
 `;
