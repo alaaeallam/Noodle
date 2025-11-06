@@ -119,16 +119,18 @@ const CustomGoogleMapsLocationBounds: React.FC<
       onError: onErrorFetchRestaurantProfile,
     }
   );
-  const { loading: isFetchingRestaurantDeliveryZoneInfo } = useQuery(
-    GET_RESTAURANT_DELIVERY_ZONE_INFO,
-    {
-      variables: { id: restaurantContextData?.id ?? '' },
-      fetchPolicy: 'network-only',
-      skip: !restaurantContextData?.id,
-      onCompleted: onRestaurantZoneInfoFetchCompleted,
-      onError: onErrorFetchRestaurantZoneInfo,
-    }
-  );
+const { loading: isFetchingRestaurantDeliveryZoneInfo } = useQuery(
+  GET_RESTAURANT_DELIVERY_ZONE_INFO,
+  {
+    variables: { id: restaurantContextData?.id ?? '' },
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+    skip: !restaurantContextData?.id,
+    onCompleted: onRestaurantZoneInfoFetchCompleted,
+    onError: onErrorFetchRestaurantZoneInfo,
+  }
+);
   const [updateRestaurantDeliveryZone, { loading: isSubmitting }] = useMutation(
     UPDATE_DELIVERY_BOUNDS_AND_LOCATION,
     {
@@ -260,8 +262,10 @@ const CustomGoogleMapsLocationBounds: React.FC<
     }
 
     if (boundType) setDeliveryZoneType(boundType);
-    if (circleBounds?.radius) setDistance(circleBounds?.radius);
-
+// BE stores radius in METERS; UI `distance` is in KILOMETERS
+if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
+  setDistance(circleBounds.radius / 1000);
+}
     setPath(
       polygonBounds?.coordinates[0].map((coordinate: number[]) => {
         return { lat: coordinate[1], lng: coordinate[0] };
@@ -491,53 +495,50 @@ const CustomGoogleMapsLocationBounds: React.FC<
     }
   };
   // Submit Handler
-  const onLocationSubmitHandler = () => {
-    try {
-      if (!restaurantContextData?.id) {
-        showToast({
-          type: 'error',
-          title: t('Location & Zone'),
-          message: t('No restaurnat is selected'),
-        });
-
-        return;
-      }
-
-      const location = {
-        latitude: marker?.lat ?? 0,
-        longitude: marker?.lng ?? 0,
-      };
-
-      let bounds = transformPath(path);
-      if (deliveryZoneType === 'radius') {
-        bounds = getPolygonPath(center, radiusInMeter);
-      }
-
-      let variables: IUpdateRestaurantDeliveryZoneVariables = {
-        id: restaurantContextData?.id ?? '',
-        location,
-        boundType: deliveryZoneType,
-        // address: restaurantContextData?.autoCompleteAddress ?? '',
-        bounds: [[[]]],
-      };
-
-      variables = {
-        ...variables,
-        bounds,
-        circleBounds: {
-          radius: distance, // Convert kilometers to meters
-        },
-      };
-
-      updateRestaurantDeliveryZone({ variables: variables });
-    } catch (error) {
+const onLocationSubmitHandler = () => {
+  try {
+    if (!restaurantContextData?.id) {
       showToast({
         type: 'error',
         title: t('Location & Zone'),
-        message: t('Location & Zone update failed'),
+        message: t('No restaurnat is selected'),
       });
+      return;
     }
-  };
+
+    const location = {
+      latitude: marker?.lat ?? 0,
+      longitude: marker?.lng ?? 0,
+    };
+
+    const isRadius = deliveryZoneType === 'radius';
+    const computedBounds = isRadius
+      ? getPolygonPath(center, radiusInMeter)
+      : transformPath(path);
+
+    // ✅ Build API variables exactly matching backend signature
+    const variables: any = {
+      id: restaurantContextData?.id ?? '',
+      location,
+      bounds: computedBounds,
+      boundType: deliveryZoneType,
+    };
+
+    // ✅ Add circleRadius (in meters) when radius is selected
+    if (isRadius) {
+      variables.circleRadius = radiusInMeter;
+    }
+
+    console.log('[Submitting Location/Zone]', variables);
+    updateRestaurantDeliveryZone({ variables });
+  } catch (error) {
+    showToast({
+      type: 'error',
+      title: t('Location & Zone'),
+      message: t('Location & Zone update failed'),
+    });
+  }
+};
 
   // Use Effects
   useEffect(() => {

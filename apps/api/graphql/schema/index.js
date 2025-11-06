@@ -4,7 +4,9 @@ const typeDefs = gql`
   type CircleBounds {
     radius: Float
   }
-
+  input CircleBoundsInput {
+  radius: Float
+}
   type RestaurantDeliveryZoneInfo {
   address: String
   city: String
@@ -102,6 +104,8 @@ const typeDefs = gql`
     commissionRate: Float
     owner: Owner
     deliveryBounds: Polygon
+    boundType: String
+    circleBounds: CircleBounds
     tax: Float
     salesTax: Float
     notificationToken: String
@@ -1362,6 +1366,8 @@ input VendorInput {
     updateDeliveryBoundsAndLocation(
       id: ID!
       bounds: [[[Float!]]]
+      circleRadius: Float
+      boundType: String
       location: CoordinatesInput!
     ): RestaurantResponse!
     saveNotificationTokenWeb(token: String!): SaveNotificationTokenWebResponse!

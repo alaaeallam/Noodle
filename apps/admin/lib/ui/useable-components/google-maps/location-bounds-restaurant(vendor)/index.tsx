@@ -261,7 +261,10 @@ const CustomGoogleMapsLocationBounds: React.FC<
     }
 
     if (boundType) setDeliveryZoneType(boundType);
-    if (circleBounds?.radius) setDistance(circleBounds?.radius);
+    // BE stores radius in METERS; UI `distance` is in KILOMETERS
+if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
+  setDistance(circleBounds.radius / 1000);
+}
 
     setPath(
       polygonBounds?.coordinates[0].map((coordinate: number[]) => {

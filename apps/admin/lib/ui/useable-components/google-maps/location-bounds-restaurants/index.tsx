@@ -144,23 +144,28 @@ const CustomGoogleMapsLocationBounds: React.FC<
     }
   );
 
-  const { loading: isFetchingRestaurantDeliveryZoneInfo } = useQuery(
-    GET_RESTAURANT_DELIVERY_ZONE_INFO,
-    {
-      variables: { id: restaurantId },
-      fetchPolicy: 'network-only',
-      skip: !restaurantId,
-      onCompleted: onRestaurantZoneInfoFetchCompleted,
-      onError: onErrorFetchRestaurantZoneInfo,
-    }
-  );
+  const {
+    loading: isFetchingRestaurantDeliveryZoneInfo,
+    refetch: refetchRestaurantDeliveryZoneInfo,
+    networkStatus: deliveryZoneNetworkStatus,
+  } = useQuery(GET_RESTAURANT_DELIVERY_ZONE_INFO, {
+    variables: { id: restaurantId },
+    // Hard bypass Apollo cache for this query
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
+    notifyOnNetworkStatusChange: true,
+    returnPartialData: false,
+    skip: !restaurantId,
+    onCompleted: onRestaurantZoneInfoFetchCompleted,
+    onError: onErrorFetchRestaurantZoneInfo,
+  });
 const [updateRestaurantDeliveryZone, { loading: isSubmitting }] = useMutation(
   UPDATE_DELIVERY_BOUNDS_AND_LOCATION,
   {
     update: (cache, result) => updateCache(cache, result),
     onCompleted: onRestaurantZoneUpdateCompleted,
     onError: onErrorLocationZoneUpdate,
-    refetchQueries: [
+    refetchQueries: () => [
       { query: GET_RESTAURANT_PROFILE, variables: { id: restaurantId } },
       { query: GET_RESTAURANT_DELIVERY_ZONE_INFO, variables: { id: restaurantId } },
     ],
@@ -323,7 +328,9 @@ const fetch = React.useMemo(
     }
 
     if (boundType) setDeliveryZoneType(boundType);
-    if (circleBounds?.radius) setDistance(circleBounds?.radius);
+    if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
+  setDistance(circleBounds.radius / 1000);
+}
 
     setPath(
       polygonBounds?.coordinates[0].map((coordinate: number[]) => {
@@ -366,7 +373,7 @@ function onErrorLocationZoneUpdate(err: ApolloError) {
   });
 }
   // Zone Update Complete
-function onRestaurantZoneUpdateCompleted({
+async function onRestaurantZoneUpdateCompleted({
   result,
 }: {
   result?: { success?: boolean; message?: string; data?: IRestaurantProfile };
@@ -393,6 +400,13 @@ function onRestaurantZoneUpdateCompleted({
       title: t('Zone Update'),
       message: t('Store Zone has been updated successfully.'),
     });
+
+    // Force a fresh re-fetch of the delivery zone info (cache bypassed above)
+    try {
+      await refetchRestaurantDeliveryZoneInfo({ id: String(restaurantId) });
+    } catch (_) {
+      // no-op: toast already shown above; this is just a belt-and-suspenders refetch
+    }
 
     if (onStepChange) onStepChange(3);
   } else {
@@ -652,11 +666,6 @@ function onRestaurantZoneUpdateCompleted({
       const sendBounds =
         deliveryZoneType === 'polygon' ? bounds : undefined;
 
-      const sendCircle =
-        deliveryZoneType === 'radius'
-          ? { radius: Number(distance) }
-          : undefined;
-
       // Debug: ensure ring is closed when sending polygon
       if (sendBounds?.[0]) {
         const ring = sendBounds[0] as unknown as number[][];
@@ -672,13 +681,13 @@ function onRestaurantZoneUpdateCompleted({
           latitude: Number(marker?.lat ?? 0),
           longitude: Number(marker?.lng ?? 0),
         },
-        boundType: deliveryZoneType, // change to 'circle' here if your backend uses that naming
+        boundType: deliveryZoneType,
         address:
           restaurantsContextData?.restaurant?.autoCompleteAddress ??
           inputValue ??
           '',
         ...(sendBounds ? { bounds: sendBounds as unknown as number[][][] } : {}),
-        ...(sendCircle ? { circleBounds: sendCircle } : {}),
+        ...(deliveryZoneType === 'radius' ? { circleRadius: radiusInMeter } : {}),
       };
 
       const variables = variablesPartial as IUpdateRestaurantDeliveryZoneVariables;

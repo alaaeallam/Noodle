@@ -48,28 +48,29 @@ export const UPDATE_DELIVERY_BOUNDS_AND_LOCATION = gql`
   mutation updateDeliveryBoundsAndLocation(
     $id: ID!
     $bounds: [[[Float!]]]
+    $circleRadius: Float
+    $boundType: String
     $location: CoordinatesInput!
   ) {
     result: updateDeliveryBoundsAndLocation(
       id: $id
       bounds: $bounds
+      circleRadius: $circleRadius
+      boundType: $boundType
       location: $location
     ) {
       success
       message
       data {
         _id
-        deliveryBounds {
-          coordinates
-        }
-        location {
-          coordinates
-        }
+        deliveryBounds { coordinates }
+        location { coordinates }
+        boundType
+        circleBounds { radius }
       }
     }
   }
 `;
-
 export const EDIT_RESTAURANT = gql`
   mutation EditRestaurant($restaurantInput: RestaurantProfileInput!) {
     editRestaurant(restaurant: $restaurantInput) {

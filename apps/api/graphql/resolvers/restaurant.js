@@ -710,7 +710,7 @@ module.exports = {
     },
     updateDeliveryBoundsAndLocation: async (_, args) => {
       console.log('updateDeliveryBoundsAndLocation');
-      const { id, bounds: newBounds, location: newLocation } = args;
+      const { id, bounds: newBounds, location: newLocation, circleRadius, boundType } = args;
       try {
         const restaurant = await Restaurant.findById(id);
         if (!restaurant) throw new Error('Restaurant does not exists');
@@ -722,24 +722,22 @@ module.exports = {
           type: 'Point',
           coordinates: [locLng, locLat]
         });
-        console.log('Location: ', location);
+        console.log('[Update] Location:', location);
 
-        // --- Try to resolve an active zone that contains this point
+        // --- Try to resolve an active zone that contains this point (optional for circle mode)
         const zone = await Zone.findOne({
           location: { $geoIntersects: { $geometry: location } },
           isActive: true
         });
-        console.log('Zone: ', zone ? zone._id : 'NONE');
+        console.log('[Update] Zone:', zone ? zone._id : 'NONE');
 
         // --- Helper: ensure a valid polygon ring (Lng/Lat pairs)
         const normalizePolygonRing = (ring) => {
           if (!Array.isArray(ring)) return [];
-          // coerce values to numbers and filter bad pairs
           const cleaned = ring
             .map(p => Array.isArray(p) && p.length >= 2 ? [Number(p[0]), Number(p[1])] : null)
             .filter(Boolean);
           if (cleaned.length < 3) return [];
-          // close ring if not closed
           const first = cleaned[0];
           const last = cleaned[cleaned.length - 1];
           if (first[0] !== last[0] || first[1] !== last[1]) {
@@ -751,41 +749,47 @@ module.exports = {
         // Accept either a full [[[lng,lat]]] polygon or a single outer ring [[lng,lat],...]
         let polygonCoordinates = null;
         if (newBounds && Array.isArray(newBounds)) {
-          // If first element is a number pair, treat as a single ring
           if (Array.isArray(newBounds[0]) && typeof newBounds[0][0] === 'number') {
             const ring = normalizePolygonRing(newBounds);
             if (ring.length) polygonCoordinates = [ring];
           } else if (Array.isArray(newBounds[0])) {
-            // Already looks like a polygon [ [ [lng,lat], ... ] ]
             const ring = normalizePolygonRing(newBounds[0]);
             if (ring.length) polygonCoordinates = [ring];
           }
         }
 
-        // --- Guard: either the location must be inside a Zone OR the client must provide a polygon
-        if (!zone && !polygonCoordinates) {
+        const isCircle = (boundType === 'circle' || boundType === 'radius') && circleRadius != null;
+
+        // --- Guard: require at least one method of defining bounds (zone, polygon, or circle)
+        if (!zone && !polygonCoordinates && !isCircle) {
           return {
             success: false,
             message: "restaurant's location doesn't lie in any delivery zone"
           };
         }
 
-        // --- Build update doc
-        const updateDoc = {
-          location
-        };
+        // --- Build update operations using $set/$unset to correctly switch between modes
+        const updateOps = { $set: { location }, $unset: {} };
+
         if (polygonCoordinates) {
-          updateDoc.deliveryBounds = { type: 'Polygon', coordinates: polygonCoordinates };
-          updateDoc.boundType = 'polygon';
+          updateOps.$set.deliveryBounds = { type: 'Polygon', coordinates: polygonCoordinates };
+          updateOps.$set.boundType = 'polygon';
+          updateOps.$unset.circleBounds = '';
         }
+
+        if (isCircle) {
+          updateOps.$set.boundType = 'circle';
+          updateOps.$set.circleBounds = { radius: Number(circleRadius) };
+          updateOps.$unset.deliveryBounds = '';
+        }
+
         if (zone) {
-          // persist the zone reference when available
-          updateDoc.zone = zone._id;
+          updateOps.$set.zone = zone._id;
         }
 
         const updated = await Restaurant.findByIdAndUpdate(
           id,
-          updateDoc,
+          updateOps,
           { new: true }
         );
 
