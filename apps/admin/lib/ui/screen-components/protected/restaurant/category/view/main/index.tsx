@@ -32,7 +32,7 @@ import {
 } from '@/lib/api/graphql';
 import { RestaurantLayoutContext } from '@/lib/context/restaurant/layout-restaurant.context';
 import { generateDummyCategories } from '@/lib/utils/dummy';
-import { useMutation } from '@apollo/client';
+import { useMutation, type ApolloError } from '@apollo/client';
 import CategoryTableHeader from '../header/table-header';
 import { GET_SUBCATEGORIES } from '@/lib/api/graphql/queries/sub-categories';
 import SubCategoriesPreiwModal from '../modal';
@@ -86,14 +86,18 @@ export default function CategoryMain({
   const { data: subCategoriesData, loading: loadingSubCategories } =
     useQueryGQL(GET_SUBCATEGORIES, {
       fetchPolicy: 'network-only',
-      onError: (error) => {
+      onError: (error: ApolloError) => {
+        const message =
+          error?.message ||
+          (error?.graphQLErrors?.[0]?.message ?? '') ||
+         
+          (error?.networkError?.message ?? '') ||
+          t('An error occured while fetching the sub-categories');
+
         showToast({
           type: 'error',
           title: t('Sub-Categories'),
-          message:
-            error.clientErrors[0].message ||
-            error.graphQLErrors[0].message ||
-            t('An error occured while fetching the sub-categories'),
+          message,
         });
       },
     }) as IQueryResult<ISubCategoryResponse | undefined, undefined>;

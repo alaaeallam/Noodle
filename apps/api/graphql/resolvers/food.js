@@ -5,6 +5,29 @@ const Variation = require('../../models/variation')
 const { transformRestaurant } = require('./merge')
 
 module.exports = {
+  Query: {
+    // Returns all foods for the authenticated restaurant by flattening embedded categories[].foods
+    foods: async (_, __, { req }) => {
+      try {
+        const restaurantId =
+          req?.restaurantId ||
+          req?.headers?.['x-restaurant-id'] ||
+          req?.headers?.['X-Restaurant-Id'];
+        if (!restaurantId) {
+          throw new Error('Missing restaurant context for foods query');
+        }
+        const restaurant = await Restaurant.findOne({ _id: restaurantId }).lean();
+        if (!restaurant) {
+          throw new Error('Restaurant not found');
+        }
+        const categories = restaurant.categories || [];
+        const foods = categories.flatMap(c => c.foods || []);
+        return foods;
+      } catch (err) {
+        throw err;
+      }
+    },
+  },
   Mutation: {
     createFood: async(_, args, context) => {
       console.log('createFood')

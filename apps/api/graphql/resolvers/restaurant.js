@@ -33,6 +33,7 @@ const {
   sendNotificationToUser,
   sendNotificationToRider
 } = require('../../helpers/notifications')
+const bcrypt = require('bcryptjs')
 
 module.exports = {
   Query: {
@@ -539,12 +540,37 @@ module.exports = {
         throw err
       }
     },
-    restaurantLogin: async(_, args) => {
+    restaurantLogin: async (_, args) => {
       console.log('restaurantLogin')
-      const restaurant = await Restaurant.findOne({ ...args })
-      if (!restaurant) throw new Error('Invalid credentials')
-      const token = sign({ restaurantId: restaurant.id, userType: 'RESTAURANT' })
-      return { token, restaurantId: restaurant.id }
+      try {
+        const rawUser = (args?.username || '').trim()
+        const rawPass = args?.password || ''
+        if (!rawUser || !rawPass) throw new Error('Invalid credentials')
+
+        // Look up by username or email (case-insensitive), but DO NOT include password in the query
+        const userQuery = {
+          $or: [
+            { username: { $regex: new RegExp('^' + rawUser.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } },
+            { email:    { $regex: new RegExp('^' + rawUser.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } }
+          ]
+        }
+
+        const restaurant = await Restaurant.findOne(userQuery)
+        if (!restaurant) throw new Error('Invalid credentials')
+
+        // Compare bcrypt hash
+        const ok = await bcrypt.compare(rawPass, restaurant.password || '')
+        if (!ok) throw new Error('Invalid credentials')
+
+        // Optional gate: inactive restaurants cannot login
+        if (restaurant.isActive === false) throw new Error('Invalid credentials')
+
+        const token = sign({ restaurantId: restaurant.id, userType: 'RESTAURANT' })
+        return { token, restaurantId: restaurant.id }
+      } catch (err) {
+        // Keep error message generic to avoid leaking which check failed
+        throw new Error('Invalid credentials')
+      }
     },
     acceptOrder: async(_, args, { req }) => {
       var newDateObj = await new Date(

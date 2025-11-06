@@ -13,7 +13,6 @@ import CustomNotification from '@/lib/ui/useable-components/notification';
 import {
   IToast,
   IToastContext,
-  IToastProviderProps,
 } from '@/lib/utils/interfaces/toast.interface';
 
 type ToastProviderProps = { children?: ReactNode };

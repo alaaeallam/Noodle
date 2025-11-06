@@ -33,18 +33,18 @@ async function startApolloServer() {
     resolvers
   })
 
-    const server = new ApolloServer({
+  const server = new ApolloServer({
     schema,
     introspection: config.NODE_ENV !== 'production',
     context: ({ req, res }) => {
-  if (!req) return {};
-  const { isAuth, userId, userType, restaurantId } = isAuthenticated(req);
-  req.isAuth = isAuth;
-  req.userId = userId;
-  req.userType = userType;
-  req.restaurantId = restaurantId;
-  return { req, res };
-},
+      if (!req) return {};
+      const { isAuth, userId, userType, restaurantId } = isAuthenticated(req);
+      req.isAuth = isAuth;
+      req.userId = userId;
+      req.userType = userType;
+      req.restaurantId = restaurantId;
+      return { req, res };
+    },
   });
   const subscriptionServer = httpServer => {
     return subscriptionTransportWs.SubscriptionServer.create(
