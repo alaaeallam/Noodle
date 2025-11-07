@@ -220,3 +220,37 @@ export const GET_CLONED_RESTAURANTS_PAGINATED = gql`
     }
   }
 `;
+
+
+export const GET_RESTAURANT_FOODS_LIST = gql`
+  query Restaurant($id: String) {
+    restaurant(id: $id) {
+      _id
+      categories {
+        _id
+        title
+        foods {
+          _id
+          title
+          description
+          subCategory
+          image
+          isActive
+          isOutOfStock
+          variations {
+            _id
+            title
+            price
+            discounted
+            addons
+            isOutOfStock
+          }
+          createdAt
+          updatedAt
+        } 
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;

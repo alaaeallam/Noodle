@@ -14,6 +14,10 @@ const variationSchema = new Schema(
       type: Number,
       default: 0
     },
+    isOutOfStock: {
+      type: Boolean,
+      default: false
+    },
     addons: [String]
   },
   { timestamps: true }

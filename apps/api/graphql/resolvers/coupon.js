@@ -17,6 +17,24 @@ module.exports = {
         throw err
       }
     }
+    ,
+    /**
+     * Alias for restaurant-scoped coupons.
+     * TODO: When coupons become restaurant-scoped in the model, filter with { restaurant: restaurantId }.
+     */
+    restaurantCoupons: async (_,{ restaurantId }) => {
+      console.log('restaurantCoupons', { restaurantId });
+      try {
+        const coupons = await Coupon.find({ isActive: true }).sort({ createdAt: -1 });
+        return coupons.map(coupon => ({
+          ...coupon._doc,
+          _id: coupon.id
+        }));
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
+    }
   },
   Mutation: {
     createCoupon: async(_, args, context) => {
@@ -74,6 +92,70 @@ module.exports = {
       } catch (err) {
         console.log(err)
         throw err
+      }
+    },
+    /**
+     * Aliases for restaurant-scoped coupon CRUD.
+     * TODO: When coupons are restaurant-scoped in DB, persist/fetch using restaurantId.
+     */
+    createRestaurantCoupon: async (_, { restaurantId, couponInput }, context) => {
+      console.log('createRestaurantCoupon', { restaurantId });
+      try {
+        const count = await Coupon.countDocuments({
+          title: couponInput.title,
+          isActive: true
+        });
+        if (count > 0) throw new Error('Coupon Code already exists');
+        const coupon = new Coupon({
+          title: couponInput.title,
+          discount: couponInput.discount,
+          enabled: couponInput.enabled
+        });
+        const result = await coupon.save();
+        return {
+          ...result._doc,
+          _id: result.id
+        };
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
+    },
+    editRestaurantCoupon: async (_, { restaurantId, couponInput }, context) => {
+      console.log('editRestaurantCoupon', { restaurantId });
+      try {
+        const count = await Coupon.countDocuments({ _id: couponInput._id });
+        if (count > 1) throw new Error('Coupon code already used');
+        const coupon = await Coupon.findById(couponInput._id);
+        if (!coupon) {
+          throw new Error('Coupon does not exist');
+        }
+        coupon.title = couponInput.title;
+        coupon.discount = couponInput.discount;
+        coupon.enabled = couponInput.enabled;
+        const result = await coupon.save();
+        return {
+          ...result._doc,
+          _id: result.id
+        };
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
+    },
+    deleteRestaurantCoupon: async (_, { restaurantId, couponId }, context) => {
+      console.log('deleteRestaurantCoupon', { restaurantId, couponId });
+      try {
+        const coupon = await Coupon.findById(couponId);
+        if (!coupon) {
+          throw new Error('Coupon does not exist');
+        }
+        coupon.isActive = false;
+        const result = await coupon.save();
+        return result.id;
+      } catch (err) {
+        console.log(err);
+        throw err;
       }
     },
     coupon: async(_, args, context) => {
