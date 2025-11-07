@@ -204,6 +204,41 @@ module.exports = {
         throw err
       }
     },
+
+    ordersByRestIdWithoutPagination: async (_, args, context) => {
+      try {
+        const filter = { restaurant: args.restaurant };
+        if (args.search) {
+          const searchRegex = new RegExp(args.search, 'i');
+          filter.orderId = searchRegex;
+        }
+        const orders = await Order.find(filter).sort({ createdAt: -1 });
+        return orders.map(order => transformOrder(order));
+      } catch (err) {
+        console.error('ordersByRestIdWithoutPagination error:', err);
+        return [];
+      }
+    },
+
+    ordersByUser: async (_, { userId, page = 1, limit = 10 }, context) => {
+      try {
+        const skip = (page - 1) * limit;
+        const [orders, totalCount] = await Promise.all([
+          Order.find({ user: userId })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+          Order.countDocuments({ user: userId })
+        ]);
+        return {
+          orders: orders.map(order => transformOrder(order)),
+          totalCount
+        };
+      } catch (err) {
+        console.error('ordersByUser error:', err);
+        return { orders: [], totalCount: 0 };
+      }
+    },
     undeliveredOrders: async(_, args, { req, res }) => {
       console.log('undeliveredOrders')
       if (!req.isAuth) {

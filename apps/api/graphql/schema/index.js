@@ -62,6 +62,15 @@ const typeDefs = gql`
     updatedAt: String!
   }
 
+  type SubCategory {
+    _id: ID!
+    title: String!
+    parentCategoryId: String!
+    isActive: Boolean
+    createdAt: String
+    updatedAt: String
+  }
+
   type ReviewData {
     reviews: [Review]
     ratings: Float
@@ -132,6 +141,7 @@ const typeDefs = gql`
     price: Float!
     discounted: Float
     addons: [String!]
+    isOutOfStock: Boolean
   }
 
   type CartVariation {
@@ -158,6 +168,8 @@ const typeDefs = gql`
     isActive: Boolean!
     createdAt: String!
     updatedAt: String!
+    isOutOfStock: Boolean
+    subCategory: String
   }
 
   type CartFood {
@@ -320,6 +332,11 @@ const typeDefs = gql`
   type RiderOrders {
     riderId: String!
     orders: [Order!]
+  }
+
+  type OrdersByUserResponse {
+    orders: [Order!]!
+    totalCount: Int!
   }
 
   type RestaurantDetail {
@@ -706,6 +723,7 @@ const typeDefs = gql`
     price: Float!
     discounted: Float
     addons: [String!]
+    isOutOfStock: Boolean
   }
 
   input FoodInput {
@@ -716,6 +734,9 @@ const typeDefs = gql`
     description: String
     image: String
     variations: [VariationInput!]!
+    subCategory: String
+    isOutOfStock: Boolean
+    isActive: Boolean
   }
 
   input RiderInput {
@@ -776,6 +797,12 @@ input VendorInput {
     title: String!
     restaurant: String!
     image: String
+    isActive: Boolean
+  }
+
+  input SubCategoryInput {
+    title: String!
+    parentCategoryId: String!
     isActive: Boolean
   }
 
@@ -1114,6 +1141,7 @@ input VendorInput {
       restaurant: String!
     ): DashboardSales!
     coupons: [Coupon!]!
+    restaurantCoupons(restaurantId: String!): [Coupon!]!
     cuisines: [Cuisine!]!
     taxes: Taxation!
     tips: Tipping!
@@ -1129,6 +1157,17 @@ input VendorInput {
       rows: Int
       search: String
     ): [Order!]
+
+    ordersByRestIdWithoutPagination(
+      restaurant: String!
+      search: String
+    ): [Order!]
+
+    ordersByUser(
+      userId: ID!,
+      page: Int,
+      limit: Int
+    ): OrdersByUserResponse!
     getOrdersByDateRange(
       startingDate: String!
       endingDate: String!
@@ -1189,6 +1228,9 @@ input VendorInput {
     topRatedVendors(latitude: Float!, longitude: Float!): [Restaurant!]
     lastOrderCreds: DemoCredentails
     cuisine(cuisine: String!): Cuisine
+    subCategoriesByParentId(parentCategoryId: String!): [SubCategory!]!
+    subCategories: [SubCategory!]!
+    subCategory(_id: String): SubCategory
   }
 
   type Mutation {
@@ -1222,8 +1264,11 @@ input VendorInput {
     ): User!
     createCategory(category: CategoryInput): Restaurant!
     editCategory(category: CategoryInput): Restaurant!
+    createSubCategories(subCategories: [SubCategoryInput!]!): Boolean!
+    deleteSubCategory(_id: String!): Boolean!
     createFood(foodInput: FoodInput): Restaurant!
     editFood(foodInput: FoodInput): Restaurant!
+    updateFoodOutOfStock(id: String!, restaurant: String!, categoryId: String!): Boolean!
     placeOrder(
       restaurant: String!
       orderInput: [OrderInput!]!
@@ -1324,8 +1369,11 @@ input VendorInput {
     editAddon(addonInput: editAddonInput): Restaurant!
     deleteAddon(id: String!, restaurant: String!): Restaurant!
     createCoupon(couponInput: CouponInput!): Coupon!
+    createRestaurantCoupon(restaurantId: ID!, couponInput: CouponInput!): Coupon!
     editCoupon(couponInput: CouponInput!): Coupon!
+    editRestaurantCoupon(restaurantId: ID!, couponInput: CouponInput!): Coupon!
     deleteCoupon(id: String!): String!
+    deleteRestaurantCoupon(restaurantId: ID!, couponId: ID!): String!
     coupon(coupon: String!): Coupon!
     createCuisine(cuisineInput: CuisineInput!): Cuisine!
     editCuisine(cuisineInput: CuisineInput!): Cuisine!

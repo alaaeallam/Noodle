@@ -2,6 +2,7 @@ const authResolver = require('./auth')
 const foodResolver = require('./food')
 const orderResolver = require('./order')
 const categoryResolver = require('./category')
+const subCategoryResolver = require('./sub-category');
 const configurationResolver = require('./configuration')
 const riderResolver = require('./rider')
 const optionResolver = require('./option')
@@ -31,6 +32,7 @@ const rootResolver = {
   Query: {
     ...categoryResolver.Query,
     ...foodResolver.Query,
+    ...subCategoryResolver.Query,
     ...dashboardResolver.Query,
     ...orderResolver.Query,
     ...configurationResolver.Query,
@@ -59,6 +61,7 @@ const rootResolver = {
     ...dashboardResolver.Mutation,
     ...authResolver.Mutation,
     ...foodResolver.Mutation,
+    ...subCategoryResolver.Mutation,
     ...orderResolver.Mutation,
     ...categoryResolver.Mutation,
     ...configurationResolver.Mutation,

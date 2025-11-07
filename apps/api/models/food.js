@@ -17,6 +17,15 @@ const foodSchema = new Schema(
     image: {
       type: String
     },
+    // optional link to a SubCategory (_id as string)
+    subCategory: {
+      type: String
+    },
+    // allow hiding a whole food item from sale without deleting it
+    isOutOfStock: {
+      type: Boolean,
+      default: false
+    },
     isActive: {
       type: Boolean,
       default: true

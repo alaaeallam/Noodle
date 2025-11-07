@@ -71,3 +71,9 @@ export const DELETE_FOOD = gql`
     }
   }
 `;
+
+export const UPDATE_FOOD_OUT_OF_STOCK = gql`
+  mutation UpdateFoodOutOfStock($id: String!, $restaurant: String!, $categoryId: String!) {
+    updateFoodOutOfStock(id: $id, restaurant: $restaurant, categoryId: $categoryId)
+  }
+`;

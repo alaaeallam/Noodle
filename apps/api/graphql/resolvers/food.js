@@ -29,98 +29,155 @@ module.exports = {
     },
   },
   Mutation: {
-    createFood: async(_, args, context) => {
-      console.log('createFood')
-      const restId = args.foodInput.restaurant
-      const categoryId = args.foodInput.category
-      const variations = await args.foodInput.variations.map(variation => {
-        return new Variation(variation)
-      })
-
-      const food = await new Food({
-        title: args.foodInput.title,
-        variations: variations,
-        description: args.foodInput.description,
-        image: args.foodInput.image
-      })
-
+    createFood: async (_, args, context) => {
+      console.log('createFood');
       try {
+        const {
+          restaurant: restId,
+          category: categoryId,
+          title,
+          description,
+          image,
+          subCategory,
+          isActive,
+          isOutOfStock,
+          variations: variationsInput = []
+        } = args.foodInput || {};
+
+        // Map incoming variations to the Variation subdocument
+        const variations = variationsInput.map(v => new Variation({
+          title: v.title,
+          price: v.price,
+          discounted: typeof v.discounted === 'number' ? v.discounted : 0,
+          addons: Array.isArray(v.addons) ? v.addons : [],
+          isOutOfStock: !!v.isOutOfStock
+        }));
+
+        // Construct the Food subdocument (embedded)
+        const food = new Food({
+          title,
+          description,
+          image,
+          variations,
+          subCategory: subCategory || null,
+          isActive: typeof isActive === 'boolean' ? isActive : true,
+          isOutOfStock: !!isOutOfStock
+        });
+
+        // Push into the selected category for the restaurant
         await Restaurant.updateOne(
           { _id: restId, 'categories._id': categoryId },
-          {
-            $push: {
-              'categories.$.foods': food
-            }
-          }
-        )
+          { $push: { 'categories.$.foods': food } }
+        );
 
-        const latestRest = await Restaurant.findOne({ _id: restId })
-        return await transformRestaurant(latestRest)
+        const latestRest = await Restaurant.findOne({ _id: restId });
+        return transformRestaurant(latestRest);
       } catch (err) {
-        console.log(err)
-        throw err
+        console.log(err);
+        throw err;
       }
     },
-    editFood: async(_, args, context) => {
-      // console.log('args: ', args)
-      const foodId = args.foodInput._id
-      const restId = args.foodInput.restaurant
-      const categoryId = args.foodInput.category
-      const variations = args.foodInput.variations.map(
-        variation => new Variation(variation)
-      )
-      try {
-        const restaurant = await Restaurant.findOne({ _id: restId })
-        const category = restaurant.categories.find(category =>
-          category.foods.find(food => food.id === foodId)
-        )
-        if (!category._id.equals(categoryId)) {
-          // const oldFood = category.foods.find(food => food.id === foodId)
+    editFood: async (_, args, context) => {
+      const {
+        _id: foodId,
+        restaurant: restId,
+        category: categoryId,
+        title,
+        description,
+        image,
+        subCategory,
+        isActive,
+        isOutOfStock,
+        variations: variationsInput = []
+      } = args.foodInput || {};
 
+      try {
+        const restaurant = await Restaurant.findOne({ _id: restId });
+
+        // Build variations array from input
+        const variations = variationsInput.map(v => new Variation({
+          title: v.title,
+          price: v.price,
+          discounted: typeof v.discounted === 'number' ? v.discounted : 0,
+          addons: Array.isArray(v.addons) ? v.addons : [],
+          isOutOfStock: !!v.isOutOfStock
+        }));
+
+        // Find the category that currently contains the food
+        const currentCategory = restaurant.categories.find(cat =>
+          cat.foods.id(foodId)
+        );
+
+        if (!currentCategory) {
+          throw new Error('Food not found for edit');
+        }
+
+        // If category changed, remove from old and push to new
+        if (!currentCategory._id.equals(categoryId)) {
           // remove from previous category
-          const categoryIndex = restaurant.categories.findIndex(category =>
-            category.foods.find(food => food.id === foodId)
-          )
-          restaurant.categories[categoryIndex].foods.id(foodId).remove()
-          // console.log('Cat: ', JSON.stringify(restaurant))
-          await restaurant.save()
-          // add to new category
+          currentCategory.foods.id(foodId).remove();
+          await restaurant.save();
+
+          // add to new category with updated payload
           const food = new Food({
-            title: args.foodInput.title,
-            variations: variations,
-            description: args.foodInput.description,
-            image: args.foodInput.image
-          })
+            title,
+            description,
+            image,
+            variations,
+            subCategory: subCategory || null,
+            isActive: typeof isActive === 'boolean' ? isActive : true,
+            isOutOfStock: !!isOutOfStock
+          });
+
           await Restaurant.updateOne(
             { _id: restId, 'categories._id': categoryId },
-            {
-              $push: {
-                'categories.$.foods': food
-              }
-            }
-          )
-          const latestRest = await Restaurant.findOne({ _id: restId })
-          return transformRestaurant(latestRest)
-        } else {
-          const categoryFood = await restaurant.categories
-            .id(categoryId)
-            .foods.id(foodId)
-          if (categoryFood) {
-            restaurant.categories.id(categoryId).foods.id(foodId).set({
-              title: args.foodInput.title,
-              description: args.foodInput.description,
-              image: args.foodInput.image,
-              variations: variations
-            })
-            const result = await restaurant.save()
-            return transformRestaurant(result)
-          } else {
-            throw Error('Category Food error')
-          }
+            { $push: { 'categories.$.foods': food } }
+          );
+
+          const latestRest = await Restaurant.findOne({ _id: restId });
+          return transformRestaurant(latestRest);
         }
+
+        // Category unchanged: update in place with only provided fields
+        const foodDoc = restaurant.categories.id(categoryId).foods.id(foodId);
+        if (!foodDoc) {
+          throw new Error('Category Food error');
+        }
+
+        const updatePayload = {};
+        if (typeof title !== 'undefined') updatePayload.title = title;
+        if (typeof description !== 'undefined') updatePayload.description = description;
+        if (typeof image !== 'undefined') updatePayload.image = image;
+        if (typeof subCategory !== 'undefined') updatePayload.subCategory = subCategory || null;
+        if (typeof isActive !== 'undefined') updatePayload.isActive = !!isActive;
+        if (typeof isOutOfStock !== 'undefined') updatePayload.isOutOfStock = !!isOutOfStock;
+        if (variationsInput && Array.isArray(variationsInput)) updatePayload.variations = variations;
+
+        foodDoc.set(updatePayload);
+        const result = await restaurant.save();
+        return transformRestaurant(result);
       } catch (err) {
-        console.log(err)
-        throw err
+        console.log(err);
+        throw err;
+      }
+    },
+    updateFoodOutOfStock: async (_, { id, restaurant, categoryId }) => {
+      try {
+        const rest = await Restaurant.findOne({ _id: restaurant });
+        if (!rest) throw new Error('Restaurant not found');
+
+        const cat = rest.categories.id(categoryId);
+        if (!cat) throw new Error('Category not found');
+
+        const foodDoc = cat.foods.id(id);
+        if (!foodDoc) throw new Error('Food not found');
+
+        foodDoc.isOutOfStock = !foodDoc.isOutOfStock;
+        await rest.save();
+        return true;
+      } catch (err) {
+        console.error('updateFoodOutOfStock error:', err);
+        throw err;
       }
     },
     deleteFood: async(_, { id, restaurant, categoryId }, context) => {

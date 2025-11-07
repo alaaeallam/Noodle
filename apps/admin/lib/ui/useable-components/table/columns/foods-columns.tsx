@@ -5,16 +5,14 @@ import Image from 'next/image';
 import { IActionMenuProps, IFoodNew } from '@/lib/utils/interfaces';
 
 import ActionMenu from '../../action-menu';
-import { ApolloError, useMutation } from '@apollo/client';
-import {
-  GET_FOODS_BY_RESTAURANT_ID,
-  UPDATE_FOOD_OUT_OF_STOCK,
-} from '@/lib/api/graphql';
+import { ApolloError, useMutation, useApolloClient } from '@apollo/client';
 import { useContext, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { UPDATE_FOOD_OUT_OF_STOCK } from '@/lib/api/graphql/mutations/food';
+import { GET_RESTAURANT_FOODS_LIST } from '@/lib/api/graphql/queries/restaurants';
 import { ToastContext } from '@/lib/context/global/toast.context';
 import CustomInputSwitch from '../../custom-input-switch';
 import { RestaurantLayoutContext } from '@/lib/context/restaurant/layout-restaurant.context';
-import { useTranslations } from 'next-intl';
 
 export const FOODS_TABLE_COLUMNS = ({
   menuItems,
@@ -23,6 +21,7 @@ export const FOODS_TABLE_COLUMNS = ({
 }) => {
   // Hooks
   const t = useTranslations();
+  const client = useApolloClient();
 
   // Context
   const { showToast } = useContext(ToastContext);
@@ -37,10 +36,37 @@ export const FOODS_TABLE_COLUMNS = ({
   const [updateFoodOutOfStock] = useMutation(UPDATE_FOOD_OUT_OF_STOCK, {
     refetchQueries: [
       {
-        query: GET_FOODS_BY_RESTAURANT_ID,
+        query: GET_RESTAURANT_FOODS_LIST,
         variables: { id: restaurantId },
       },
     ],
+    optimisticResponse: {
+      updateFoodOutOfStock: true,
+    },
+    update: (cache, { data }, { variables }) => {
+      if (!data?.updateFoodOutOfStock) return;
+      try {
+        cache.updateQuery(
+          {
+            query: GET_RESTAURANT_FOODS_LIST,
+            variables: { id: restaurantId },
+          },
+          (existing) => {
+            if (!existing?.restaurant) return existing;
+            const updatedCategories = existing.restaurant.categories.map((ctg: any) => ({
+              ...ctg,
+              foods: ctg.foods.map((fd: any) =>
+                fd._id === variables?.id ? { ...fd, isOutOfStock: !fd.isOutOfStock } : fd
+              ),
+            }));
+            return {
+              ...existing,
+              restaurant: { ...existing.restaurant, categories: updatedCategories },
+            };
+          }
+        );
+      } catch {}
+    },
     onCompleted: () => {
       showToast({
         type: 'success',
@@ -48,6 +74,10 @@ export const FOODS_TABLE_COLUMNS = ({
         message: t(`Food stock status has been changed`),
       });
       setIsFoodLoading('');
+      // Ensure the table reflects the latest toggle without manual refresh
+      client.refetchQueries({
+        include: [GET_RESTAURANT_FOODS_LIST],
+      });
     },
     onError: ({ networkError, graphQLErrors }: ApolloError) => {
       showToast({
