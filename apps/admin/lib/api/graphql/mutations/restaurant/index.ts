@@ -131,19 +131,19 @@ export const DUPLICATE_RESTAURANT = gql`
   }
 `;
 
-export const UPDATE_FOOD_OUT_OF_STOCK = gql`
-  mutation UpdateFoodOutOfStock(
-    $id: String!
-    $restaurant: String!
-    $categoryId: String!
-  ) {
-    updateFoodOutOfStock(
-      id: $id
-      restaurant: $restaurant
-      categoryId: $categoryId
-    )
-  }
-`;
+// export const UPDATE_FOOD_OUT_OF_STOCK = gql`
+//   mutation UpdateFoodOutOfStock(
+//     $id: String!
+//     $restaurant: String!
+//     $categoryId: String!
+//   ) {
+//     updateFoodOutOfStock(
+//       id: $id
+//       restaurant: $restaurant
+//       categoryId: $categoryId
+//     )
+//   }
+// `;
 
 export const UPDATE_RESTAURANT_DELIVERY = gql`
   mutation updateRestaurantDelivery(
