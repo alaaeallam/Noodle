@@ -96,13 +96,11 @@ async function startApolloServer() {
     useUnifiedTopology: true
   })
 
-  // populate countries data.
-  await populateCountries()
-
   // Use the PORT provided by the environment (Render/Heroku/etc.),
   // and fall back to the config or a sensible default for local dev.
   const PORT = process.env.PORT || config.PORT || 8001
 
+  // Start the HTTP server first so Render can detect the open port quickly.
   await new Promise(resolve => httpServer.listen(PORT, resolve))
   // start subscription server
   subscriptionServer(httpServer)
@@ -114,6 +112,9 @@ async function startApolloServer() {
     `🚀 Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`
   )
 
-  return { server, app, httpServer }
+  // Populate countries data in the background; don't block server startup.
+  populateCountries().catch(err => {
+    console.error('[populateCountries] failed:', err)
+  })
 }
 startApolloServer()
