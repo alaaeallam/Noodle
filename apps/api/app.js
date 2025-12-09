@@ -98,16 +98,20 @@ async function startApolloServer() {
 
   // populate countries data.
   await populateCountries()
-  //
-  await new Promise(resolve => httpServer.listen(config.PORT, resolve))
+
+  // Use the PORT provided by the environment (Render/Heroku/etc.),
+  // and fall back to the config or a sensible default for local dev.
+  const PORT = process.env.PORT || config.PORT || 8001
+
+  await new Promise(resolve => httpServer.listen(PORT, resolve))
   // start subscription server
   subscriptionServer(httpServer)
 
   console.log(
-    `🚀 Server ready at http://localhost:${config.PORT}${server.graphqlPath}`
+    `🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`
   )
   console.log(
-    `🚀 Subscriptions ready at ws://localhost:${config.PORT}${server.graphqlPath}`
+    `🚀 Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`
   )
 
   return { server, app, httpServer }
