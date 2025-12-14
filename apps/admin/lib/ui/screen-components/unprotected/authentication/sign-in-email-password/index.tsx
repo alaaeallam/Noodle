@@ -49,10 +49,7 @@ import { useUserContext } from '@/lib/hooks/useUser';
 import { DEFAULT_ROUTES } from '@/lib/utils/constants/routes';
 import { TOKEN_STORAGE_KEY } from '@/lib/config';
 import { OWNER_LOGIN } from '@/lib/api/graphql/mutations/authentication';
-const initialValues: ISignInForm = {
-  email: 'admin@gmail.com',
-  password: '123123',
-};
+const initialValues: ISignInForm = { email: '', password: '' };
 
 export default function LoginEmailPasswordMain() {
   // Context
@@ -70,14 +67,20 @@ export default function LoginEmailPasswordMain() {
     localStorage.setItem(TOKEN_STORAGE_KEY, ownerLogin.token);
     onUseLocalStorage('save', `user-${APP_NAME}`, JSON.stringify(ownerLogin));
     setUser(ownerLogin);
-    let redirect_url = DEFAULT_ROUTES[ownerLogin.userType];
+    const userType = String(ownerLogin?.userType ?? '').trim().toUpperCase();
 
-    if (ownerLogin?.userType === 'VENDOR') {
+    const normalizedUserType = (
+      userType === 'SUPER_ADMIN' || userType === 'OWNER' ? 'ADMIN' : userType
+    ) as keyof typeof DEFAULT_ROUTES;
+
+    const redirect_url = DEFAULT_ROUTES[normalizedUserType] ?? '/home';
+
+    if (normalizedUserType === 'VENDOR') {
       onUseLocalStorage('save', SELECTED_VENDOR, ownerLogin.userId);
       onUseLocalStorage('save', SELECTED_VENDOR_EMAIL, ownerLogin.email);
     }
 
-    if (ownerLogin?.userType === 'RESTAURANT') {
+    if (normalizedUserType === 'RESTAURANT') {
       onUseLocalStorage('save', SELECTED_RESTAURANT, ownerLogin.userTypeId);
       onUseLocalStorage('save', SELECTED_SHOPTYPE, ownerLogin?.shopType ?? '');
     }
