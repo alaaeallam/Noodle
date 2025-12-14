@@ -1,0 +1,43 @@
+name: Deploy API (Droplet)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "apps/api/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            cd /var/www/noodles-api
+
+            echo "==> Pull latest"
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "==> Install deps"
+            corepack enable || true
+            pnpm -v
+            pnpm install --frozen-lockfile
+
+            echo "==> Restart API"
+            pm2 restart noodles-api --update-env
+
+            echo "==> Health check"
+            curl -sS -X POST https://api.alaaeallam.com/graphql \
+              -H "Content-Type: application/json" \
+              --data '{"query":"query{__typename}"}' | head -c 200; echo
