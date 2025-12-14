@@ -79,3 +79,4 @@ docker compose up --build
 ```
 
 For any issues or further assistance, please refer to the project documentation or contact support.
+# deploy trigger Sun 14 Dec 2025 19:57:00 EET
