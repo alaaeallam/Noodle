@@ -14,7 +14,6 @@ const graphql = require('graphql')
 const subscriptionTransportWs = require('subscriptions-transport-ws')
 const config = require('./config.js')
 const graphqlTools = require('@graphql-tools/schema')
-const { InMemoryLRUCache } = require('apollo-server-caching')
 
 console.log('[boot] JWT_SECRET present?', !!process.env.JWT_SECRET, 'value:', process.env.JWT_SECRET?.slice(0, 10) + '...');
 const http = require('http')
@@ -41,11 +40,9 @@ async function startApolloServer() {
     // Apollo's default APQ cache can be unbounded and lead to memory-exhaustion DoS.
     persistedQueries: false,
 
-    // Apollo Server 3: provide a bounded cache implementation (prevents unbounded memory growth)
-    cache: new InMemoryLRUCache({
-      // ~50MB max cache size (adjust if needed)
-      maxSize: 50 * 1024 * 1024,
-    }),
+    // Security: use Apollo's built-in bounded cache to avoid unbounded memory growth.
+    // (No extra dependency needed on apollo-server-caching)
+    cache: 'bounded',
 
     introspection: config.NODE_ENV !== 'production',
     context: ({ req, res }) => {
