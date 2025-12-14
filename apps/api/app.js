@@ -14,7 +14,8 @@ const graphql = require('graphql')
 const subscriptionTransportWs = require('subscriptions-transport-ws')
 const config = require('./config.js')
 const graphqlTools = require('@graphql-tools/schema')
- 
+const { InMemoryLRUCache } = require('apollo-server-caching')
+
 console.log('[boot] JWT_SECRET present?', !!process.env.JWT_SECRET, 'value:', process.env.JWT_SECRET?.slice(0, 10) + '...');
 const http = require('http')
 const populateCountries = require('./helpers/populate-countries-data.js')
@@ -35,6 +36,17 @@ async function startApolloServer() {
 
   const server = new ApolloServer({
     schema,
+
+    // Security: disable APQ (persisted queries) unless you explicitly rely on it.
+    // Apollo's default APQ cache can be unbounded and lead to memory-exhaustion DoS.
+    persistedQueries: false,
+
+    // Apollo Server 3: provide a bounded cache implementation (prevents unbounded memory growth)
+    cache: new InMemoryLRUCache({
+      // ~50MB max cache size (adjust if needed)
+      maxSize: 50 * 1024 * 1024,
+    }),
+
     introspection: config.NODE_ENV !== 'production',
     context: ({ req, res }) => {
       if (!req) return {};
