@@ -209,12 +209,13 @@ const onVendorCreate = async (data: IVendorForm) => {
                                 title=""
                                 page="vendor-profile-edit"
                                 // onChange={memoizedCallback}
-                                fileTypes={['image/png', 'image/jpg']}
+                                fileTypes={['image/png', 'image/jpeg', 'image/webp']}
                                 maxFileHeight={512}
                                 maxFileWidth={512}
                                 maxFileSize={MAX_SQUARE_FILE_SIZE}
                                 orientation={'SQUARE'}
-                                onSetImageUrl={setFieldValue}
+                                onSetImageUrl={(field: string, url: string) => {setFieldValue(field, url);
+                                setprofileImage(url);}}
                                 showExistingImage={false}
                               />
                             </div>

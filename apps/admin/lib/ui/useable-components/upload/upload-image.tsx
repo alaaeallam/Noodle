@@ -186,15 +186,12 @@ function CustomUploadImageComponent({
                   <div
                     className={`flex h-auto w-full flex-col items-center justify-center pt-5 text-center`}
                   >
-                    {(page && page === 'vendor-profile-edit') ?? (
-                      <>
-                        <FontAwesomeIcon icon={faUpload} size="sm" />
-                        <p className="w-36 text-xs text-gray-600">
-                          {t('Drag & Drop Image Here')}
-                        </p>
-                      </>
-                    )}
-
+                   {!(page && page === 'vendor-profile-edit') && (
+  <>
+    <FontAwesomeIcon icon={faUpload} size="sm" />
+    <p className="w-36 text-xs text-gray-600">{t('Drag & Drop Image Here')}</p>
+  </>
+)}
                     <div className="flex w-12 flex-col items-center justify-center">
                       <div className="relative my-2 h-12 w-12 overflow-hidden rounded-md">
                         {existingImageUrl ? (

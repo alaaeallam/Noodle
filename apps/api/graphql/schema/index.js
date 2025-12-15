@@ -776,7 +776,12 @@ input VendorInput {
   phoneNumber: String
   image: String
 }
-
+input VendorProfileUpdateInput {
+firstName: String
+lastName: String
+phoneNumber: String
+image: String
+}
   input ReviewInput {
     order: String
     rating: Int
@@ -1256,6 +1261,7 @@ input VendorInput {
     createUser(userInput: UserInput): AuthData!
     createVendor(vendorInput: VendorInput): OwnerData!
     editVendor(vendorInput: VendorInput): OwnerData!
+    updateVendorProfile(vendorInput: VendorProfileUpdateInput!): OwnerData!
     deleteVendor(id: String!): Boolean
     updateUser(updateUserInput: UpdateUser!): User!
     updateNotificationStatus(
