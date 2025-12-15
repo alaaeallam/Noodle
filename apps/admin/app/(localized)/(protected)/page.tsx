@@ -20,17 +20,27 @@ export default function RootPage() {
   // Hooks
   const router = useRouter();
 
-  // Effects
   useEffect(() => {
     setSelectedItem({ screenName: 'Home' });
+
     const user = onUseLocalStorage('get', `user-${APP_NAME}`);
-    if (user) {
-      const userInfo: ILoginResponse = JSON.parse(user);
-      router.push(DEFAULT_ROUTES[userInfo.userType]);
-    } else {
+    if (!user) {
       router.replace('/authentication/login');
+      return;
     }
+
+    const userInfo: ILoginResponse = JSON.parse(user);
+
+    // Normalize backend roles to frontend route keys
+    const rawUserType = userInfo.userType as string;
+    const normalizedUserType =
+      rawUserType === 'SUPER_ADMIN' || rawUserType === 'OWNER'
+        ? 'ADMIN'
+        : rawUserType;
+
+    const redirectUrl = DEFAULT_ROUTES[normalizedUserType as keyof typeof DEFAULT_ROUTES] ?? '/home';
+    router.replace(redirectUrl);
   }, []);
 
-  return <></>;
+  return null;
 }

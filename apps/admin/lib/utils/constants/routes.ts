@@ -58,4 +58,6 @@ export const DEFAULT_ROUTES = {
   STAFF: '/home',
   VENDOR: '/admin/vendor/dashboard',
   RESTAURANT: '/admin/store/dashboard',
+  SUPER_ADMIN: '/general/vendors',
+  OWNER: '/home',
 };
