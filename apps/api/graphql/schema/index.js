@@ -95,6 +95,7 @@ const typeDefs = gql`
     name: String!
     image: String
     address: String
+    phone: String
     location: Point
     categories: [Category!]
     options: [Option!]
@@ -831,7 +832,9 @@ image: String
     _id: String
     name: String!
     image: String
+    logo: String
     address: String
+    phone: String
     orderPrefix: String
     username: String
     password: String

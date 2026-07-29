@@ -124,7 +124,9 @@ export const GET_RESTAURANT_PROFILE = gql`
       _id
       name
       image
+      logo
       address
+      phone
       username
       deliveryTime
       minimumOrder

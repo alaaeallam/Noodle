@@ -28,6 +28,9 @@ const restaurantSchema = new Schema(
       type: String,
       default: 'Default Address'
     },
+    phone: {
+      type: String
+    },
     categories: {
       type: [categorySchema],
       default: defaultCategoryFood

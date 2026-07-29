@@ -446,7 +446,9 @@ module.exports = {
           orderPrefix: orderPrefix,
           slug: args.restaurant.name.toLowerCase().split(' ').join('-'),
           username: args.restaurant.username,
-          password: args.restaurant.password,
+          password: args.restaurant.password
+            ? await bcrypt.hash(args.restaurant.password, 12)
+            : args.restaurant.password,
           owner: args.owner,
           tax: args.salesTax,
           cuisines: args.restaurant.cuisines ?? [],
@@ -503,13 +505,17 @@ module.exports = {
         })
         restaurant.name = args.restaurant.name
         restaurant.address = args.restaurant.address
+        restaurant.phone = args.restaurant.phone
         restaurant.image = args.restaurant.image
+        restaurant.logo = args.restaurant.logo
         restaurant.orderPrefix = args.restaurant.orderPrefix
         restaurant.isActive = true
         restaurant.username = args.restaurant.username
         restaurant.deliveryTime = args.restaurant.deliveryTime
         restaurant.minimumOrder = args.restaurant.minimumOrder
-        restaurant.password = args.restaurant.password
+        if (args.restaurant.password) {
+          restaurant.password = await bcrypt.hash(args.restaurant.password, 12)
+        }
         restaurant.slug = args.restaurant.name
           .toLowerCase()
           .split(' ')
