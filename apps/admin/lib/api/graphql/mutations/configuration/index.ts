@@ -148,9 +148,13 @@ export const SAVE_APP_CONFIGURATION = gql`
 
 export const SAVE_DELIVERY_RATE_CONFIGURATION = gql`
   mutation SAVE_DELIVERY_RATE_CONFIGURATION(
-    $configurationInput: DeliveryCostConfigurationInput!
+    $deliveryRate: Float!
+    $costType: String
   ) {
-    saveDeliveryRateConfiguration(configurationInput: $configurationInput) {
+    saveDeliveryRateConfiguration(
+      deliveryRate: $deliveryRate
+      costType: $costType
+    ) {
       _id
       deliveryRate
       costType

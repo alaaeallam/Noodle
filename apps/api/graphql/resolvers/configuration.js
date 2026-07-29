@@ -98,11 +98,25 @@ module.exports = {
       }
     },
     saveDeliveryRateConfiguration: async(_, args, context) => {
-      console.log('saveDeliveryRateConfiguration', args.configurationInput)
+      requireRole(context.req, ADMIN_ROLES)
+      console.log('saveDeliveryRateConfiguration', args.deliveryRate, args.costType)
       let configuration = await Configuration.findOne()
       if (!configuration) configuration = new Configuration()
-      configuration.deliveryRate = args.configurationInput.deliveryRate
+      const oldDeliveryRate = configuration.deliveryRate
+      const oldCostType = configuration.costType
+      configuration.deliveryRate = args.deliveryRate
+      if (args.costType !== undefined) configuration.costType = args.costType
       const result = await configuration.save()
+      await recordAuditLog({
+        req: context.req,
+        action: 'SAVE_DELIVERY_RATE_CONFIGURATION',
+        targetType: 'Configuration',
+        targetId: result.id,
+        changes: {
+          oldData: { deliveryRate: oldDeliveryRate, costType: oldCostType },
+          newData: { deliveryRate: result.deliveryRate, costType: result.costType }
+        }
+      })
       return {
         ...result._doc,
         _id: result.id

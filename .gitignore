@@ -9,3 +9,5 @@ node_modules
 apps/**/config/*.json
 # dev scratch
 *_map.txt
+# claude code local settings
+.claude/settings.local.json

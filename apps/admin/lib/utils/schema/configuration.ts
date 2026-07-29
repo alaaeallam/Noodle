@@ -24,6 +24,7 @@ export const PayPalValidationSchema = Yup.object().shape({
 
 export const DeliverytRateValidationSchema = Yup.object().shape({
   deliveryRate: Yup.number().required('required'),
+  costType: Yup.object().nullable().required('required'),
 });
 
 export const TwilioValidationSchema = Yup.object().shape({

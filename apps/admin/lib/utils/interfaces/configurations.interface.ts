@@ -28,7 +28,7 @@ export interface IPaypalForm {
 
 export interface IDeliveryRateForm {
   deliveryRate: number | null;
-  costType: string;
+  costType: IDropdownSelectItem | null;
 }
 
 export interface ITwilioForm {

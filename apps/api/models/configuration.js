@@ -41,6 +41,11 @@ const configurationSchema = new Schema(
       type: Number,
       default: 5
     },
+    costType: {
+      type: String,
+      enum: ['perKM', 'fixed'],
+      default: 'perKM'
+    },
     twilioAccountSid: {
       type: String
     },

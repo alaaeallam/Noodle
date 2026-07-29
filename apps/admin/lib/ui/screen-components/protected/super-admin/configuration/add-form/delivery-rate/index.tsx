@@ -24,6 +24,12 @@ import {
 } from '@/lib/api/graphql';
 import { useMutation } from '@apollo/client';
 import CustomNumberField from '@/lib/ui/useable-components/number-input-field';
+import CustomDropdownComponent from '@/lib/ui/useable-components/custom-dropdown';
+
+const COST_TYPE_OPTIONS = [
+  { code: 'perKM', label: 'Per KM' },
+  { code: 'fixed', label: 'Fixed' },
+];
 
 const DeliveryRateAddForm = () => {
   // Hooks
@@ -32,7 +38,8 @@ const DeliveryRateAddForm = () => {
 
   const initialValues: IDeliveryRateForm = {
     deliveryRate: DELIVERY_RATE ?? null,
-    costType: COST_TYPE,
+    costType:
+      COST_TYPE_OPTIONS.find((option) => option.code === COST_TYPE) ?? null,
   };
 
   const [mutate, { loading: mutationLoading }] = useMutation(
@@ -45,10 +52,8 @@ const DeliveryRateAddForm = () => {
   const handleSubmit = (values: IDeliveryRateForm) => {
     mutate({
       variables: {
-        configurationInput: {
-          deliveryRate: values.deliveryRate,
-          costType: values.costType,
-        },
+        deliveryRate: values.deliveryRate,
+        costType: values.costType?.code,
       },
       onCompleted: () => {
         showToast({
@@ -90,7 +95,7 @@ const DeliveryRateAddForm = () => {
                 cardTitle={'Delivery Rate'}
                 buttonLoading={mutationLoading}
               >
-                <div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <CustomNumberField
                     min={0}
                     placeholder="Delivery Rate"
@@ -104,6 +109,18 @@ const DeliveryRateAddForm = () => {
                         errors.deliveryRate && touched.deliveryRate
                           ? 'red'
                           : '',
+                    }}
+                  />
+                  <CustomDropdownComponent
+                    placeholder="Choose Cost Type"
+                    options={COST_TYPE_OPTIONS}
+                    showLabel={true}
+                    name="costType"
+                    selectedItem={values.costType}
+                    setSelectedItem={setFieldValue}
+                    style={{
+                      borderColor:
+                        errors?.costType && touched.costType ? 'red' : '',
                     }}
                   />
                 </div>
