@@ -456,6 +456,7 @@ const typeDefs = gql`
   type ItemAddon {
     _id: String!
     options: [ItemOption!]
+    defaultOptions: [String]
     title: String!
     description: String
     quantityMinimum: Int!

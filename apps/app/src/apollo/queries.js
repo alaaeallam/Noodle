@@ -124,6 +124,7 @@ export const restaurantFragment = gql`
                 description
                 price
               }
+              defaultOptions
               title
               description
               quantityMinimum
@@ -391,7 +392,9 @@ export const order = `query Order($id:String!){
       }
       addons{
         title
+        defaultOptions
         options{
+          _id
           title
           description
           price
@@ -460,6 +463,7 @@ export const myOrders = `query Orders($offset:Int){
           description
           price
         }
+        defaultOptions
         title
         description
         quantityMinimum
@@ -906,6 +910,7 @@ export const orderFragment = `fragment NewOrder on Order {
         description
         price
       }
+      defaultOptions
       title
       description
       quantityMinimum

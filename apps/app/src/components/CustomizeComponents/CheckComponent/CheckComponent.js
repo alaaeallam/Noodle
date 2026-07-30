@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 function CheckComponent(props) {
   const { i18n } = useTranslation()
   const [options, setOptions] = useState(
-    props?.options?.map(option => ({ ...option, checked: !!option.isDefault }))
+    props?.options?.map(option => ({ ...option, checked: option.checked ?? !!option.isDefault }))
   )
   const configuration = useContext(ConfigurationContext)
   const themeContext = useContext(ThemeContext)

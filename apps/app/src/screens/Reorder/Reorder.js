@@ -107,17 +107,21 @@ function Reorder(props) {
     await setCartRestaurant(order.restaurant._id)
     selectedItems.forEach(async (index) => {
       const item = order.items[index]
-      const addons = item.addons.map((addon) => ({
-        _id: addon._id,
-        options: addon.options.map(({ _id }) => ({
-          _id
-        }))
-      }))
+      const cartAddons = item.addons.map((addon) => {
+        const liveAddon = addons?.find((a) => a._id === addon._id)
+        return {
+          _id: addon._id,
+          options: addon.options.map(({ _id }) => ({
+            _id,
+            isDefault: !!liveAddon?.defaultOptions?.includes(_id)
+          }))
+        }
+      })
       await addCartItem(
         item.food,
         item.variation._id,
         item.quantity,
-        addons,
+        cartAddons,
         index === 0
       )
     })
@@ -150,7 +154,7 @@ function Reorder(props) {
         addon.options.forEach(option => {
           const cartOption = options.find(opt => opt._id === option._id)
           if (!cartOption) return null
-          price += cartOption.price
+          if (!cartAddon?.defaultOptions?.includes(option._id)) price += cartOption.price
           optionsTitle.push(cartOption.title)
         })
       })

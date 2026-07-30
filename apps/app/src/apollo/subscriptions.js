@@ -56,6 +56,7 @@ export const orderStatusChanged = `subscription OrderStatusChanged($userId:Strin
             description
             price
           }
+          defaultOptions
           title
           description
           quantityMinimum

@@ -612,7 +612,7 @@ function Checkout(props) {
               addon.options.forEach((option) => {
                 const cartOption = options.find((opt) => opt._id === option._id)
                 if (!cartOption) return null
-                price += cartOption.price
+                if (!option?.isDefault) price += cartOption.price
                 optionsTitle.push(cartOption.title)
               })
             })

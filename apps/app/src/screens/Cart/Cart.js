@@ -341,7 +341,7 @@ function Cart(props) {
         addon.options.forEach((option) => {
           const cartOption = options.find((opt) => opt._id === option._id)
           if (!cartOption) return null
-          price += cartOption.price
+          if (!option?.isDefault) price += cartOption.price
           optionsTitle.push(cartOption.title)
         })
       })
@@ -404,6 +404,17 @@ function Cart(props) {
                           }}
                           removeQuantity={() => {
                             removeQuantity(food.key)
+                          }}
+                          onEdit={() => {
+                            const rawFood = foods?.find((f) => f._id === cartItem._id)
+                            if (!rawFood) return
+                            navigation.navigate('ItemDetail', {
+                              food: rawFood,
+                              addons: restaurant?.addons || [],
+                              options: restaurant?.options || [],
+                              restaurant: restaurant?._id,
+                              editCartItem: cartItem
+                            })
                           }}
                         />
                       </View>

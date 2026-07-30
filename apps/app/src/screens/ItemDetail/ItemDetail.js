@@ -38,16 +38,22 @@ const HEADER_MIN_HEIGHT = TOP_BAR_HEIGHT
 const SCROLL_RANGE = HEADER_MAX_HEIGHT
 
 function ItemDetail(props) {
-  const { food, addons, options, restaurant } = props?.route?.params
+  const { food, addons, options, restaurant, editCartItem } = props?.route?.params
 
   // States
   const [listZindex, setListZindex] = useState(0)
   const [isDescriptionVisible, setIsDescriptionVisible] = useState(false)
-  const initialAddons = food?.variations[0].addons?.map((fa) => {
+  const initialVariation = editCartItem
+    ? food?.variations?.find((v) => v._id === editCartItem?.variation?._id) ?? food?.variations[0]
+    : food?.variations[0]
+  const initialAddons = initialVariation?.addons?.map((fa) => {
     const addon = addons?.find((a) => a._id === fa)
+    const editAddon = editCartItem?.addons?.find((ea) => ea._id === fa)
     const addonOptions = addon?.options?.map((ao) => {
       const option = options?.find((o) => o._id === ao)
-      return option && { ...option, isDefault: !!addon?.defaultOptions?.includes(ao) }
+      const isDefault = !!addon?.defaultOptions?.includes(ao)
+      const checked = editCartItem ? !!editAddon?.options?.some((eo) => eo._id === ao) : isDefault
+      return option && { ...option, isDefault, checked }
     })
     return {
       ...addon,
@@ -55,23 +61,23 @@ function ItemDetail(props) {
     }
   })
   const [selectedVariation, setSelectedVariation] = useState({
-    ...food?.variations[0],
+    ...initialVariation,
     addons: initialAddons
   })
   const [selectedAddons, setSelectedAddons] = useState(
     initialAddons
       ?.map((addon) => ({
         _id: addon._id,
-        options: addon?.options?.filter((option) => option?.isDefault) ?? []
+        options: addon?.options?.filter((option) => option?.checked) ?? []
       }))
       .filter((addon) => addon.options.length > 0) ?? []
   )
-  const [specialInstructions, setSpecialInstructions] = useState('')
+  const [specialInstructions, setSpecialInstructions] = useState(editCartItem?.specialInstructions ?? '')
 
   const { t, i18n } = useTranslation()
   const navigation = useNavigation()
   const Analytics = analytics()
-  const { restaurant: restaurantCart, setCartRestaurant, cart, addQuantity, addCartItem } = useContext(UserContext)
+  const { restaurant: restaurantCart, setCartRestaurant, cart, addQuantity, addCartItem, updateCart } = useContext(UserContext)
   const themeContext = useContext(ThemeContext)
   const inset = useSafeAreaInsets()
   const { isConnected: connect, setIsConnected: setConnect } = useNetworkStatus()
@@ -185,7 +191,9 @@ function ItemDetail(props) {
         restaurantName: food?.restaurantName,
         variations: food?.variations
       })
-      if (!restaurantCart || restaurant === restaurantCart) {
+      if (editCartItem) {
+        await addToCart(quantity, false)
+      } else if (!restaurantCart || restaurant === restaurantCart) {
         await addToCart(quantity, restaurant !== restaurantCart)
       } else if (food?.restaurant !== restaurantCart) {
         Alert.alert(
@@ -214,10 +222,22 @@ function ItemDetail(props) {
   const addToCart = async (quantity, clearFlag) => {
     const addons = selectedAddons.map((addon) => ({
       ...addon,
-      options: addon?.options?.map(({ _id }) => ({
-        _id
+      options: addon?.options?.map(({ _id, isDefault }) => ({
+        _id,
+        isDefault
       }))
     }))
+
+    if (editCartItem) {
+      const updatedCart = cart.map((c) =>
+        c.key === editCartItem.key
+          ? { ...c, variation: { _id: selectedVariation?._id }, quantity, addons, specialInstructions }
+          : c
+      )
+      await updateCart(updatedCart)
+      navigation.goBack()
+      return
+    }
 
     const cartItem = clearFlag
       ? null
@@ -429,7 +449,7 @@ function ItemDetail(props) {
           <HeadingComponent title={food?.title} price={calculatePrice()} />
         </Animated.View>
         <View style={{ backgroundColor: currentTheme.themeBackground, zIndex: 10 }}>
-          <CartComponent onPress={onPressAddToCart} disabled={validateButton()} />
+          <CartComponent onPress={onPressAddToCart} disabled={validateButton()} initialQuantity={editCartItem?.quantity} />
         </View>
         <View
           style={{

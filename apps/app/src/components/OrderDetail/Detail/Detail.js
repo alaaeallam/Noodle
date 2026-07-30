@@ -43,7 +43,8 @@ export default function Detail({ theme, from, orderNo, deliveryAddress, items, c
           const basePrice = item.variation.price
           const addonPrice = item.addons.reduce((total, addon) => {
             return total + addon.options.reduce((addonTotal, option) => {
-              return addonTotal + (option.price || 0)
+              const isDefault = addon.defaultOptions?.includes(option._id)
+              return addonTotal + (isDefault ? 0 : (option.price || 0))
             }, 0)
           }, 0)
           const totalItemPrice = basePrice + addonPrice

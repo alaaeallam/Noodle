@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 
 function CartComponent(props) {
   const { t } = useTranslation()
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity] = useState(props?.initialQuantity ?? 1)
   const themeContext = useContext(ThemeContext)
   const currentTheme = theme[themeContext.ThemeValue]
   function onAdd() {

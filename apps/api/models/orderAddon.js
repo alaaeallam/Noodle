@@ -13,6 +13,10 @@ const orderAddonSchema = new Schema(
       type: String
     },
     options: [orderOptionSchema],
+    defaultOptions: {
+      type: [String],
+      default: []
+    },
     quantityMinimum: {
       type: Number,
       required: true

@@ -8,7 +8,6 @@ import { theme } from '../../utils/themeColors'
 import styles from './styles'
 import TextDefault from '../Text/TextDefault/TextDefault'
 import { alignment } from '../../utils/alignment'
-import { useNavigation } from '@react-navigation/native'
 import { useTranslation } from 'react-i18next'
 import { IMAGE_LINK } from '../../utils/constants'
 import Animated, {
@@ -33,11 +32,6 @@ const CartItem = (props) => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen)
   }
-  const navigation = useNavigation()
-  const navigateBack = () => {
-    navigation.goBack() // Navigate back function
-  }
-
   // Using useSharedValue for animated quantity
   const animatedQuantity = useSharedValue(1)
 
@@ -155,7 +149,7 @@ const CartItem = (props) => {
               {parseFloat(props?.dealPrice).toFixed(2)}
             </TextDefault>
             <View style={styles().divider} />
-            <TouchableOpacity onPress={navigateBack}>
+            <TouchableOpacity onPress={props?.onEdit}>
               <TextDefault
                 textColor={currentTheme.fontFourthColor}
                 bolder

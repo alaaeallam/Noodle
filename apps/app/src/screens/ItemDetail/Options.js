@@ -28,6 +28,7 @@ export default function Options({ addon, onSelectOption, addonRefs }) {
             >
                 <RadioComponent
                     options={addon?.options}
+                    selected={addon?.options?.find((option) => option?.checked)}
                     onPress={onSelectOption.bind(this, addon)}
                 />
                 {addon.error && (

@@ -442,11 +442,14 @@ module.exports = {
           let itemPrice = item.variation.price
           if (item.addons && item.addons.length > 0) {
             const addonDetails = []
-            item.addons.forEach(({ options }) => {
+            item.addons.forEach(({ options, defaultOptions }) => {
               options.forEach(option => {
-                itemPrice = itemPrice + option.price
+                const isDefault = defaultOptions?.includes(option._id.toString())
+                if (!isDefault) {
+                  itemPrice = itemPrice + option.price
+                }
                 addonDetails.push(
-                  `${option.title}	${configuration.currencySymbol}${option.price}`
+                  `${option.title}	${configuration.currencySymbol}${isDefault ? 0 : option.price}`
                 )
               })
             })
