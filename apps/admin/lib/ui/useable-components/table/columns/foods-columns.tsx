@@ -10,6 +10,7 @@ import { useContext, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { UPDATE_FOOD_OUT_OF_STOCK } from '@/lib/api/graphql/mutations/food';
 import { GET_RESTAURANT_FOODS_LIST } from '@/lib/api/graphql/queries/restaurants';
+import { GET_FOODS_BY_RESTAURANT_ID } from '@/lib/api/graphql/queries/food';
 import { ToastContext } from '@/lib/context/global/toast.context';
 import CustomInputSwitch from '../../custom-input-switch';
 import { RestaurantLayoutContext } from '@/lib/context/restaurant/layout-restaurant.context';
@@ -39,31 +40,39 @@ export const FOODS_TABLE_COLUMNS = ({
         query: GET_RESTAURANT_FOODS_LIST,
         variables: { id: restaurantId },
       },
+      {
+        query: GET_FOODS_BY_RESTAURANT_ID,
+        variables: { id: restaurantId },
+      },
     ],
     optimisticResponse: {
       updateFoodOutOfStock: true,
     },
     update: (cache, { data }, { variables }) => {
       if (!data?.updateFoodOutOfStock) return;
+      const flipOutOfStock = (existing: any) => {
+        if (!existing?.restaurant) return existing;
+        const updatedCategories = existing.restaurant.categories.map((ctg: any) => ({
+          ...ctg,
+          foods: ctg.foods.map((fd: any) =>
+            fd._id === variables?.id ? { ...fd, isOutOfStock: !fd.isOutOfStock } : fd
+          ),
+        }));
+        return {
+          ...existing,
+          restaurant: { ...existing.restaurant, categories: updatedCategories },
+        };
+      };
       try {
         cache.updateQuery(
-          {
-            query: GET_RESTAURANT_FOODS_LIST,
-            variables: { id: restaurantId },
-          },
-          (existing) => {
-            if (!existing?.restaurant) return existing;
-            const updatedCategories = existing.restaurant.categories.map((ctg: any) => ({
-              ...ctg,
-              foods: ctg.foods.map((fd: any) =>
-                fd._id === variables?.id ? { ...fd, isOutOfStock: !fd.isOutOfStock } : fd
-              ),
-            }));
-            return {
-              ...existing,
-              restaurant: { ...existing.restaurant, categories: updatedCategories },
-            };
-          }
+          { query: GET_RESTAURANT_FOODS_LIST, variables: { id: restaurantId } },
+          flipOutOfStock
+        );
+      } catch {}
+      try {
+        cache.updateQuery(
+          { query: GET_FOODS_BY_RESTAURANT_ID, variables: { id: restaurantId } },
+          flipOutOfStock
         );
       } catch {}
     },
@@ -76,7 +85,7 @@ export const FOODS_TABLE_COLUMNS = ({
       setIsFoodLoading('');
       // Ensure the table reflects the latest toggle without manual refresh
       client.refetchQueries({
-        include: [GET_RESTAURANT_FOODS_LIST],
+        include: [GET_RESTAURANT_FOODS_LIST, GET_FOODS_BY_RESTAURANT_ID],
       });
     },
     onError: ({ networkError, graphQLErrors }: ApolloError) => {
