@@ -75,11 +75,11 @@ export const restaurantFragment = gql`
       title
       description
       price
-      isDefault
     }
     addons {
       _id
       options
+      defaultOptions
       title
       description
       quantityMinimum
@@ -746,16 +746,16 @@ export const restaurant = `query Restaurant($id:String){
       title
       description
       price
-      isDefault
     }
     addons{
       _id
       options
+      defaultOptions
       title
       description
       quantityMinimum
       quantityMaximum
-      
+
     }
     zone{
       _id

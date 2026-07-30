@@ -15,10 +15,6 @@ const optionSchema = new Schema(
       type: Number,
       default: 0
     },
-    isDefault: {
-      type: Boolean,
-      default: false
-    },
     isActive: {
       type: Boolean,
       default: true

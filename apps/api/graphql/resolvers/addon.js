@@ -44,6 +44,7 @@ module.exports = {
           title: addons.title,
           description: addons.description,
           options: addons.options,
+          defaultOptions: addons.defaultOptions,
           quantityMinimum: addons.quantityMinimum,
           quantityMaximum: addons.quantityMaximum
         })

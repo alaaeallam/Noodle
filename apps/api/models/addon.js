@@ -14,6 +14,14 @@ const addonSchema = new Schema(
     // TODO: can this be changed to { type: [String], default:[] }
     // or look into other ways ho we can give it default value.
     options: [String],
+    // subset of `options` — which of this addon's own options should be
+    // pre-selected. Scoped to the addon, not the shared Option document,
+    // since the same option (e.g. "BTB Sauce") can be the default choice
+    // in one addon group and a paid extra in another.
+    defaultOptions: {
+      type: [String],
+      default: []
+    },
     quantityMinimum: {
       type: Number,
       required: true

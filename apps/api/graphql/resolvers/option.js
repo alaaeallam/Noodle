@@ -47,8 +47,7 @@ module.exports = {
         restaurant.options.id(options._id).set({
           title: options.title,
           description: options.description,
-          price: options.price,
-          isDefault: options.isDefault
+          price: options.price
         })
         const result = await restaurant.save()
         return transformRestaurant(result)

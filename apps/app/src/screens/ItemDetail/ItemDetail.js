@@ -46,7 +46,8 @@ function ItemDetail(props) {
   const initialAddons = food?.variations[0].addons?.map((fa) => {
     const addon = addons?.find((a) => a._id === fa)
     const addonOptions = addon?.options?.map((ao) => {
-      return options?.find((o) => o._id === ao)
+      const option = options?.find((o) => o._id === ao)
+      return option && { ...option, isDefault: !!addon?.defaultOptions?.includes(ao) }
     })
     return {
       ...addon,
@@ -260,7 +261,8 @@ function ItemDetail(props) {
         addons: variation?.addons?.map((fa) => {
           const addon = addons?.find((a) => a._id === fa)
           const addonOptions = addon?.options?.map((ao) => {
-            return options?.find((o) => o._id === ao)
+            const option = options?.find((o) => o._id === ao)
+            return option && { ...option, isDefault: !!addon?.defaultOptions?.includes(ao) }
           })
           return {
             ...addon,
@@ -298,7 +300,7 @@ function ItemDetail(props) {
     let addons = 0
     selectedAddons.forEach((addon) => {
       addons += addon?.options?.reduce((acc, option) => {
-        return acc + option?.price
+        return acc + (option?.isDefault ? 0 : option?.price)
       }, 0)
     })
     return (variation + addons).toFixed(2)
@@ -309,7 +311,7 @@ function ItemDetail(props) {
     let addons = 0
     selectedAddons.forEach((addon) => {
       addons += addon?.options?.reduce((acc, option) => {
-        return acc + option?.price
+        return acc + (option?.isDefault ? 0 : option?.price)
       }, 0)
     })
     return (variation + addons).toFixed(2)

@@ -58,6 +58,7 @@ const initialFormValuesTemplate: IAddonForm = {
   quantityMinimum: 1,
   quantityMaximum: 1,
   options: null,
+  defaultOptions: null,
 };
 const initialEditFormValuesTemplate: IAddonForm = {
   _id: '',
@@ -66,6 +67,7 @@ const initialEditFormValuesTemplate: IAddonForm = {
   quantityMinimum: 1,
   quantityMaximum: 1,
   options: null,
+  defaultOptions: null,
 };
 
 export default function AddonAddForm({
@@ -168,6 +170,9 @@ export default function AddonAddForm({
       options: addon?.options?.map(
         (option: IDropdownSelectItem) => option.code
       ),
+      defaultOptions: addon?.defaultOptions?.map(
+        (option: IDropdownSelectItem) => option.code
+      ),
     }));
   }
   // Form Submission
@@ -186,21 +191,33 @@ export default function AddonAddForm({
     });
   };
 
+  const matchOptionIds = (
+    optionIds: string[],
+    optionsData: { label: string; code: string }[]
+  ) =>
+    optionIds.map((id) => {
+      const matchedOption = optionsData.find((op) => op.code === id);
+      return { label: matchedOption?.label, code: matchedOption?.code };
+    });
+
   const mapOptionIds = (
     optionIds: string[],
+    defaultOptionIds: string[],
     optionsData: { label: string; code: string }[]
   ) => {
     if (!addon) return;
 
-    const matched_options = optionIds.map((id) => {
-      const matchedOption = optionsData.find((op) => op.code === id);
-      return { label: matchedOption?.label, code: matchedOption?.code };
-    });
+    const matched_options = matchOptionIds(optionIds, optionsData);
+    const matched_default_options = matchOptionIds(
+      defaultOptionIds,
+      optionsData
+    );
 
     const updated_addon = addon
       ? JSON.parse(JSON.stringify(addon))
       : ({} as IAddonForm);
     delete updated_addon.options;
+    delete updated_addon.defaultOptions;
 
     setInitialValues({
       addons: [
@@ -208,6 +225,7 @@ export default function AddonAddForm({
           ...initialFormValuesTemplate,
           ...updated_addon,
           options: matched_options,
+          defaultOptions: matched_default_options,
         },
       ],
     });
@@ -215,7 +233,11 @@ export default function AddonAddForm({
 
   // UseEffects
   useEffect(() => {
-    mapOptionIds((addon?.options as string[]) ?? [], optionsDropdown ?? []);
+    mapOptionIds(
+      (addon?.options as string[]) ?? [],
+      (addon?.defaultOptions as string[]) ?? [],
+      optionsDropdown ?? []
+    );
   }, [addon, optionsDropdown]);
 
   return (
@@ -419,6 +441,23 @@ export default function AddonAddForm({
                                                         ? 'red'
                                                         : '',
                                                   }}
+                                                />
+                                              </div>
+
+                                              <div className="col-span-12 sm:col-span-12">
+                                                <CustomMultiSelectComponent
+                                                  name={`addons[${index}].defaultOptions`}
+                                                  placeholder={t(
+                                                    'Selected by default'
+                                                  )}
+                                                  options={value.options ?? []}
+                                                  selectedItems={
+                                                    value.defaultOptions
+                                                  }
+                                                  setSelectedItems={
+                                                    setFieldValue
+                                                  }
+                                                  showLabel={true}
                                                 />
                                               </div>
                                             </div>

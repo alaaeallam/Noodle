@@ -7,6 +7,7 @@ export const CREATE_ADDONS = gql`
       addons {
         _id
         options
+        defaultOptions
         title
         description
         quantityMinimum
@@ -22,6 +23,7 @@ export const EDIT_ADDON = gql`
       addons {
         _id
         options
+        defaultOptions
         title
         description
         quantityMinimum
@@ -38,6 +40,7 @@ export const DELETE_ADDON = gql`
       addons {
         _id
         options
+        defaultOptions
         title
         description
         quantityMinimum

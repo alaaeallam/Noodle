@@ -9,7 +9,6 @@ export const GET_OPTIONS_BY_RESTAURANT_ID = gql`
         title
         description
         price
-        isDefault
       }
     }
   }

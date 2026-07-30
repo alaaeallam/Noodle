@@ -426,19 +426,18 @@ const typeDefs = gql`
     title: String!
     description: String
     price: Float!
-    isDefault: Boolean
   }
   type ItemOption {
     _id: String!
     title: String!
     description: String
     price: Float!
-    isDefault: Boolean
   }
 
   type Addon {
     _id: String!
     options: [String!]
+    defaultOptions: [String!]
     title: String!
     description: String
     quantityMinimum: Int!
@@ -852,7 +851,6 @@ image: String
     title: String!
     description: String
     price: Float!
-    isDefault: Boolean
   }
 
   input editOptionInput {
@@ -878,6 +876,7 @@ image: String
     _id: String
     description: String
     options: [String]
+    defaultOptions: [String]
     quantityMinimum: Int!
     quantityMaximum: Int!
   }
