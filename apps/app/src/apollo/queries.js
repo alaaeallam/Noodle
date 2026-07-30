@@ -746,6 +746,7 @@ export const restaurant = `query Restaurant($id:String){
       title
       description
       price
+      isDefault
     }
     addons{
       _id
