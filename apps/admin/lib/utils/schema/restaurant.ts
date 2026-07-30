@@ -33,7 +33,7 @@ export const RestaurantSchema = Yup.object().shape({
     .min(1, 'The value must be greater than or equal to 1'),
   minOrder: Yup.number()
     .required('Required')
-    .min(1, 'The value must be greater than or equal to 1'),
+    .min(0, 'The value must be greater than or equal to 0'),
   salesTax: Yup.number().required('Required'),
   shopType: Yup.mixed<IDropdownSelectItem>().required('Required'),
   cuisines: Yup.array()
@@ -41,7 +41,7 @@ export const RestaurantSchema = Yup.object().shape({
     .min(1, 'Cuisines field must have at least 1 items')
     .required('Required'),
 
-  image: Yup.string().url('Invalid image URL').required('Required'),
-  logo: Yup.string().url('Invalid logo URL').required('Required'),
+  image: Yup.string().test('is-url', 'Invalid image URL', (value) => !value || Yup.string().url().isValidSync(value)),
+  logo: Yup.string().test('is-url', 'Invalid logo URL', (value) => !value || Yup.string().url().isValidSync(value)),
   phoneNumber: Yup.string().required('Required').min(5,"Minimum 5 Numbers are Required"),
 });
