@@ -9,16 +9,18 @@ export const RestaurantSchema = Yup.object().shape({
     .required('Required'),
   username: Yup.string().email('Invalid email').required('Required'),
   password: Yup.string()
-  .required('Required')
-  .min(6, 'At least 6 characters')
-  .matches(/[a-z]/, 'At least one lowercase letter (a-z)')
-  .matches(/[A-Z]/, 'At least one uppercase letter (A-Z)')
-  .matches(/[0-9]/, 'At least one number (0-9)')
-  .matches(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, 'At least one special character'),
+  .test('min-length', 'At least 6 characters', (value) => !value || value.length >= 6)
+  .matches(/[a-z]/, { message: 'At least one lowercase letter (a-z)', excludeEmptyString: true })
+  .matches(/[A-Z]/, { message: 'At least one uppercase letter (A-Z)', excludeEmptyString: true })
+  .matches(/[0-9]/, { message: 'At least one number (0-9)', excludeEmptyString: true })
+  .matches(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, { message: 'At least one special character', excludeEmptyString: true }),
   confirmPassword: Yup.string()
     .nullable()
-    .oneOf([Yup.ref('password'), null], 'Password must match')
-    .required('Required'),
+    .test('passwords-match', 'Password must match', function (value) {
+      const { password } = this.parent;
+      if (!password) return true;
+      return value === password;
+    }),
     address: Yup.string()
     .max(100, 'Maximum 100 characters allowed')
     .trim()
