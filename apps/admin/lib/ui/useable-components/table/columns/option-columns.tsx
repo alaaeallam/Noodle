@@ -14,6 +14,11 @@ export const OPTION_TABLE_COLUMNS = ({
     { headerName: t('Price'), propertyName: 'price' },
     { headerName: t('Description'), propertyName: 'description' },
     {
+      headerName: t('Selected by default'),
+      propertyName: 'isDefault',
+      body: (option: IOptions) => <div>{option.isDefault ? t('Yes') : ''}</div>,
+    },
+    {
       propertyName: 'actions',
       body: (option: IOptions) => (
         <ActionMenu items={menuItems} data={option} />

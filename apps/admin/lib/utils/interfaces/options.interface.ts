@@ -27,6 +27,7 @@ export interface IOptions {
   title: string;
   description: string;
   price: number;
+  isDefault?: boolean;
   __typename: string;
 }
 export interface IOptionsByRestaurantResponse {

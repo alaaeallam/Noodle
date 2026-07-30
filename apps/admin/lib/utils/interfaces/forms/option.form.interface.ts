@@ -3,6 +3,7 @@ export interface IOptionForm {
   title: string;
   description: string;
   price: number;
+  isDefault?: boolean;
 }
 
 export interface IOptionErrors {

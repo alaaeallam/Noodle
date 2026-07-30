@@ -23,6 +23,7 @@ import {
 import { RestaurantLayoutContext } from '@/lib/context/restaurant/layout-restaurant.context';
 import { useConfiguration } from '@/lib/hooks/useConfiguration';
 import CustomButton from '@/lib/ui/useable-components/button';
+import CustomInputSwitch from '@/lib/ui/useable-components/custom-input-switch';
 import CustomTextAreaField from '@/lib/ui/useable-components/custom-text-area-field';
 import CustomTextField from '@/lib/ui/useable-components/input-field';
 import CustomNumberField from '@/lib/ui/useable-components/number-input-field';
@@ -46,12 +47,14 @@ const initialFormValuesTemplate: IOptionForm = {
   title: '',
   description: '',
   price: 1,
+  isDefault: false,
 };
 const initialEditFormValuesTemplate: IOptionForm = {
   _id: '',
   title: '',
   description: '',
   price: 1,
+  isDefault: false,
 };
 
 export default function OptionAddForm({
@@ -243,6 +246,18 @@ export default function OptionAddForm({
                                                         ? 'red'
                                                         : '',
                                                   }}
+                                                />
+                                              </div>
+                                              <div className="col-span-1 flex items-center sm:col-span-2">
+                                                <CustomInputSwitch
+                                                  isActive={!!value.isDefault}
+                                                  label={t('Selected by default')}
+                                                  onChange={() =>
+                                                    setFieldValue(
+                                                      `options[${index}].isDefault`,
+                                                      !value.isDefault
+                                                    )
+                                                  }
                                                 />
                                               </div>
                                               <div className="col-span-1 sm:col-span-2">

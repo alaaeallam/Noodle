@@ -75,6 +75,7 @@ export const restaurantFragment = gql`
       title
       description
       price
+      isDefault
     }
     addons {
       _id

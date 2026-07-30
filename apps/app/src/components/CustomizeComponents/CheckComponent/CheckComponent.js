@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 function CheckComponent(props) {
   const { i18n } = useTranslation()
   const [options, setOptions] = useState(
-    props?.options?.map(option => ({ ...option, checked: false }))
+    props?.options?.map(option => ({ ...option, checked: !!option.isDefault }))
   )
   const configuration = useContext(ConfigurationContext)
   const themeContext = useContext(ThemeContext)
@@ -53,7 +53,7 @@ function CheckComponent(props) {
             <TextDefault
               textColor={currentTheme.gray900}
               H6
-              bolder>{`${configuration.currencySymbol}${option.price}`}</TextDefault>
+              bolder>{`${configuration.currencySymbol ?? ''}${option.price}`}</TextDefault>
           </View>
         </TouchableOpacity>
       ))}

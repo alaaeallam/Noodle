@@ -43,20 +43,28 @@ function ItemDetail(props) {
   // States
   const [listZindex, setListZindex] = useState(0)
   const [isDescriptionVisible, setIsDescriptionVisible] = useState(false)
+  const initialAddons = food?.variations[0].addons?.map((fa) => {
+    const addon = addons?.find((a) => a._id === fa)
+    const addonOptions = addon?.options?.map((ao) => {
+      return options?.find((o) => o._id === ao)
+    })
+    return {
+      ...addon,
+      options: addonOptions
+    }
+  })
   const [selectedVariation, setSelectedVariation] = useState({
     ...food?.variations[0],
-    addons: food?.variations[0].addons?.map((fa) => {
-      const addon = addons?.find((a) => a._id === fa)
-      const addonOptions = addon?.options?.map((ao) => {
-        return options?.find((o) => o._id === ao)
-      })
-      return {
-        ...addon,
-        options: addonOptions
-      }
-    })
+    addons: initialAddons
   })
-  const [selectedAddons, setSelectedAddons] = useState([])
+  const [selectedAddons, setSelectedAddons] = useState(
+    initialAddons
+      ?.map((addon) => ({
+        _id: addon._id,
+        options: addon?.options?.filter((option) => option?.isDefault) ?? []
+      }))
+      .filter((addon) => addon.options.length > 0) ?? []
+  )
   const [specialInstructions, setSpecialInstructions] = useState('')
 
   const { t, i18n } = useTranslation()
