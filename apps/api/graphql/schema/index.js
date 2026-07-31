@@ -237,6 +237,7 @@ const typeDefs = gql`
     currency: String
     currencySymbol: String
     deliveryRate: Float
+    singleVendorId: String
     costType: String
     twilioAccountSid: String
     twilioAuthToken: String
@@ -1337,6 +1338,7 @@ image: String
     ): Configuration!
 
     saveDeliveryRateConfiguration(deliveryRate: Float!, costType: String): Configuration!
+    saveSingleVendorConfiguration(singleVendorId: String): Configuration!
     savePaypalConfiguration(
       configurationInput: PaypalConfigurationInput!
     ): Configuration!

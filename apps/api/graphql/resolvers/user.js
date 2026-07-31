@@ -66,8 +66,10 @@ module.exports = {
         const user = await User.findById(req.userId)
         if (!user) throw new Error('Unauthenticated')
         console.log(user)
+        const configuration = await Configuration.findOne()
         const restaurants = await Restaurant.find({
-          _id: { $in: user.favourite }
+          _id: { $in: user.favourite },
+          ...(configuration?.singleVendorId ? { owner: configuration.singleVendorId } : {})
           // zone: { $in: zones.map(z => z.id) },
           // isAvailable: true,
           // isActive: true

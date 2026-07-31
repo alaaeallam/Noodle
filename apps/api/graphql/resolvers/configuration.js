@@ -1,4 +1,6 @@
 const Configuration = require('../../models/configuration')
+const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { recordAuditLog } = require('../../helpers/auditLog')
 
 module.exports = {
   Query: {
@@ -20,6 +22,7 @@ module.exports = {
           currency: '',
           currencySymbol: '',
           deliveryRate: 5,
+          singleVendorId: '',
           twilioAccountSid: '',
           twilioAuthToken: '',
           twilioPhoneNumber: '',
@@ -115,6 +118,29 @@ module.exports = {
         changes: {
           oldData: { deliveryRate: oldDeliveryRate, costType: oldCostType },
           newData: { deliveryRate: result.deliveryRate, costType: result.costType }
+        }
+      })
+      return {
+        ...result._doc,
+        _id: result.id
+      }
+    },
+    saveSingleVendorConfiguration: async(_, args, context) => {
+      requireRole(context.req, ADMIN_ROLES)
+      console.log('saveSingleVendorConfiguration', args.singleVendorId)
+      let configuration = await Configuration.findOne()
+      if (!configuration) configuration = new Configuration()
+      const oldSingleVendorId = configuration.singleVendorId
+      configuration.singleVendorId = args.singleVendorId || null
+      const result = await configuration.save()
+      await recordAuditLog({
+        req: context.req,
+        action: 'SAVE_SINGLE_VENDOR_CONFIGURATION',
+        targetType: 'Configuration',
+        targetId: result.id,
+        changes: {
+          oldData: { singleVendorId: oldSingleVendorId },
+          newData: { singleVendorId: result.singleVendorId }
         }
       })
       return {

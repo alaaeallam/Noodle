@@ -46,6 +46,14 @@ const configurationSchema = new Schema(
       enum: ['perKM', 'fixed'],
       default: 'perKM'
     },
+    // when set, every customer-facing restaurant-discovery query is filtered
+    // to only this vendor's restaurants — lets the platform run as a
+    // single-vendor deployment without deleting other vendors' data.
+    singleVendorId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Owner',
+      default: null
+    },
     twilioAccountSid: {
       type: String
     },
