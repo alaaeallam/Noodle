@@ -238,22 +238,11 @@ function BottomTabNavigator() {
         name='Restaurants'
         component={Menu}
         options={{
-          tabBarLabel: t('Restaurants')
+          tabBarLabel: t('Stores')
         }}
         initialParams={{
           selectedType: 'restaurant',
           queryType: 'restaurant'
-        }}
-      />
-      <Tab.Screen
-        name='Store'
-        component={Menu}
-        options={{
-          tabBarLabel: t('Store')
-        }}
-        initialParams={{
-          selectedType: 'grocery',
-          queryType: 'grocery'
         }}
       />
       <Tab.Screen

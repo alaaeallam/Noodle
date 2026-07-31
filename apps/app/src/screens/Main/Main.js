@@ -18,7 +18,6 @@ import { LocationContext } from '../../context/Location'
 import analytics from '../../utils/analytics'
 import { useTranslation } from 'react-i18next'
 import MainRestaurantCard from '../../components/Main/MainRestaurantCard/MainRestaurantCard'
-import { TopBrands } from '../../components/Main/TopBrands'
 import CustomHomeIcon from '../../assets/SVG/imageComponents/CustomHomeIcon'
 import CustomOtherIcon from '../../assets/SVG/imageComponents/CustomOtherIcon'
 import CustomWorkIcon from '../../assets/SVG/imageComponents/CustomWorkIcon'
@@ -26,14 +25,11 @@ import useHomeRestaurants from '../../ui/hooks/useRestaurantOrderInfo'
 import ErrorView from '../../components/ErrorView/ErrorView'
 import ActiveOrders from '../../components/Main/ActiveOrders/ActiveOrders'
 import MainLoadingUI from '../../components/Main/LoadingUI/MainLoadingUI'
-import TopBrandsLoadingUI from '../../components/Main/LoadingUI/TopBrandsLoadingUI'
 import Banner from '../../components/Main/Banner/Banner'
 import Spinner from '../../components/Spinner/Spinner'
 import CustomApartmentIcon from '../../assets/SVG/imageComponents/CustomApartmentIcon'
 import MainModalize from '../../components/Main/Modalize/MainModalize'
-import CollectionCard from '../../components/CollectionCard/CollectionCard'
 import { sortRestaurantsByOpenStatus } from '../../utils/customFunctions'
-import { IMAGE_LINK } from '../../utils/constants'
 import useGeocoding from '../../ui/hooks/useGeocoding'
 import ForceUpdate from '../../components/Update/ForceUpdate'
 
@@ -363,78 +359,11 @@ function Main(props) {
                       <View style={{ gap: 16 }}>
                         <View>{isLoggedIn && recentOrderRestaurantsVar && recentOrderRestaurantsVar.length > 0 && <>{orderLoading || isRefreshing ? <MainLoadingUI /> : <MainRestaurantCard orders={sortRestaurantsByOpenStatus(recentOrderRestaurantsVar || [])} loading={orderLoading} error={orderError} title={'Order it again'} queryType='orderAgain' />}</>}</View>
 
-                        <View>{orderLoading || isRefreshing ? <MainLoadingUI /> : <MainRestaurantCard orders={sortRestaurantsByOpenStatus(mostOrderedRestaurantsVar || [])} loading={orderLoading} error={orderError} title={t('Popular right now')} queryType='topPicks' icon='trending' />}</View>
-                        <View style={{ padding: 15, gap: scale(8) }}>
-                          <TextDefault bolder H4 isRTL>
-                            {t('I feel like eating...')}
-                          </TextDefault>
-                          <FlatList
-                            data={restaurantCuisines ?? []}
-                            renderItem={({ item }) => {
-                              return (
-                                <CollectionCard
-                                  onPress={() => {
-                                    navigation.navigate('Restaurants', {
-                                      collection: item.name
-                                    })
-                                  }}
-                                  image={item?.image ? item?.image : IMAGE_LINK}
-                                  name={item.name}
-                                />
-                              )
-                            }}
-                            keyExtractor={(item, index) => item?._id || `${item?.name}-restaurant-${index}`}
-                            contentContainerStyle={{
-                              flexGrow: 1,
-                              gap: 8,
-                              paddingBottom: 5
-                            }}
-                            showsVerticalScrollIndicator={false}
-                            showsHorizontalScrollIndicator={false}
-                            horizontal={true}
-                            inverted={currentTheme?.isRTL ? true : false}
-                            maintainVisibleContentPosition={{
-                              minIndexForVisible: 0
-                            }}
-                          />
-                        </View>
-                        <View>{loading || isRefreshing ? <MainLoadingUI /> : <MainRestaurantCard shopType='restaurant' orders={sortRestaurantsByOpenStatus(restaurantorders || [])} loading={orderLoading} error={orderError} title={t('Restaurants near you')} queryType='restaurant' icon='restaurant' />}</View>
-                        <View style={{ padding: 15, gap: scale(8) }}>
-                          <TextDefault bolder H4 isRTL>
-                            {t('Fresh finds await...')}
-                          </TextDefault>
-                          <FlatList
-                            data={groceryCuisines ?? []}
-                            renderItem={({ item }) => {
-                              return (
-                                <CollectionCard
-                                  onPress={() => {
-                                    navigation.navigate('Store', {
-                                      collection: item.name
-                                    })
-                                  }}
-                                  image={item?.image}
-                                  name={item.name}
-                                />
-                              )
-                            }}
-                            keyExtractor={(item, index) => item?._id || `${item?.name}-grocery-${index}`}
-                            contentContainerStyle={{
-                              flexGrow: 1,
-                              gap: 8,
-                              paddingBottom: 5
-                            }}
-                            showsVerticalScrollIndicator={false}
-                            showsHorizontalScrollIndicator={false}
-                            horizontal={true}
-                            inverted={currentTheme?.isRTL ? true : false}
-                          />
-                        </View>
+                        <View>{loading || isRefreshing ? <MainLoadingUI /> : <MainRestaurantCard shopType='restaurant' orders={sortRestaurantsByOpenStatus(restaurantorders || [])} loading={orderLoading} error={orderError} title={t('BTB near you')} queryType='restaurant' icon='restaurant' />}</View>
                         <View>{loading ? <MainLoadingUI /> : <MainRestaurantCard shopType='grocery' orders={sortRestaurantsByOpenStatus(groceryorders || [])} loading={orderLoading} error={orderError} title={t('Grocery List')} queryType='grocery' icon='grocery' selectedType='grocery' />}</View>
 
                         <View>{orderLoading ? <MainLoadingUI /> : <MainRestaurantCard shopType='grocery' orders={sortRestaurantsByOpenStatus(mostOrderedRestaurantsVar?.filter((order) => order.shopType === 'grocery') || [])} loading={orderLoading} error={orderError} title={t('Top grocery picks')} queryType='grocery' icon='store' selectedType='grocery' />}</View>
                       </View>
-                      <View style={styles(currentTheme, hasActiveOrders).topBrandsMargin}>{orderLoading ? <TopBrandsLoadingUI /> : <TopBrands />}</View>
                     </ScrollView>
                   ) : !location ? (
                     <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
