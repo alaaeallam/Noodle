@@ -295,8 +295,6 @@ function Main(props) {
 
   if (error) return <ErrorView />
 
-  const groceryorders = data?.nearByRestaurantsPreview?.restaurants?.filter((restaurant) => restaurant.shopType === 'grocery')
-
   const restaurantorders = data?.nearByRestaurantsPreview?.restaurants?.filter((restaurant) => restaurant.shopType === 'restaurant')
 
   // const filterCusinies = () => {
@@ -360,9 +358,6 @@ function Main(props) {
                         <View>{isLoggedIn && recentOrderRestaurantsVar && recentOrderRestaurantsVar.length > 0 && <>{orderLoading || isRefreshing ? <MainLoadingUI /> : <MainRestaurantCard orders={sortRestaurantsByOpenStatus(recentOrderRestaurantsVar || [])} loading={orderLoading} error={orderError} title={'Order it again'} queryType='orderAgain' />}</>}</View>
 
                         <View>{loading || isRefreshing ? <MainLoadingUI /> : <MainRestaurantCard shopType='restaurant' orders={sortRestaurantsByOpenStatus(restaurantorders || [])} loading={orderLoading} error={orderError} title={t('BTB near you')} queryType='restaurant' icon='restaurant' />}</View>
-                        <View>{loading ? <MainLoadingUI /> : <MainRestaurantCard shopType='grocery' orders={sortRestaurantsByOpenStatus(groceryorders || [])} loading={orderLoading} error={orderError} title={t('Grocery List')} queryType='grocery' icon='grocery' selectedType='grocery' />}</View>
-
-                        <View>{orderLoading ? <MainLoadingUI /> : <MainRestaurantCard shopType='grocery' orders={sortRestaurantsByOpenStatus(mostOrderedRestaurantsVar?.filter((order) => order.shopType === 'grocery') || [])} loading={orderLoading} error={orderError} title={t('Top grocery picks')} queryType='grocery' icon='store' selectedType='grocery' />}</View>
                       </View>
                     </ScrollView>
                   ) : !location ? (
