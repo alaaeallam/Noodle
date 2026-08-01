@@ -489,7 +489,7 @@ function Menu({ route, props }) {
   })
 
   const applyFilters = () => {
-    let filteredData = queryType === 'orderAgain' ? [...data?.recentOrderRestaurantsPreview] : queryType === 'topPicks' ? [...data?.mostOrderedRestaurantsPreview] : queryType === 'topBrands' ? [...data?.topRatedVendorsPreview] : [...data?.nearByRestaurantsPreview?.restaurants]
+    let filteredData = queryType === 'orderAgain' ? [...data?.recentOrderRestaurantsPreview] : queryType === 'topPicks' ? [...data?.mostOrderedRestaurantsPreview] : queryType === 'topBrands' ? [...data?.topRatedVendorsPreview] : [...(data?.restaurantList ?? [])]
 
     const ratings = filters.Rating
     const sort = filters.Sort

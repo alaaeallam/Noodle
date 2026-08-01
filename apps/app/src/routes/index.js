@@ -238,7 +238,8 @@ function BottomTabNavigator() {
         name='Restaurants'
         component={Menu}
         options={{
-          tabBarLabel: t('Stores')
+          tabBarLabel: t('Stores'),
+          tabBarIcon: ({ focused, color, size }) => <BottomTabIcon name='store' size={focused ? '28' : size} color={color} />
         }}
         initialParams={{
           selectedType: 'restaurant',

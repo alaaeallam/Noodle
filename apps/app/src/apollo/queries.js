@@ -621,6 +621,52 @@ export const restaurantList = `query Restaurants($latitude:Float,$longitude:Floa
   }
 }
 }`
+// Unbounded — unlike nearByRestaurants(Preview), this ignores deliveryBounds
+// entirely, so it also lists stores the customer's address falls outside of.
+// Needed so customers can pick a store for in-store pickup even when it
+// doesn't deliver to them (the order-placement flow already supports this
+// via isPickedUp, it just needs the store to be selectable first).
+export const allStoresList = `query {
+  restaurantList {
+    _id
+    orderId
+    orderPrefix
+    name
+    image
+    address
+    username
+    password
+    deliveryTime
+    minimumOrder
+    sections
+    rating
+    isActive
+    isAvailable
+    slug
+    stripeDetailsSubmitted
+    commissionRate
+    tax
+    notificationToken
+    enableNotification
+    shopType
+    cuisines
+    reviewData{
+      total
+      ratings
+    }
+    distanceWithCurrentLocation @client
+    freeDelivery @client
+    acceptVouchers @client
+    location{coordinates}
+    openingTimes{
+      day
+      times {
+        startTime
+        endTime
+      }
+    }
+  }
+}`
 export const restaurantListPreview = `query Restaurants($latitude:Float,$longitude:Float,$shopType:String){
   nearByRestaurantsPreview(latitude:$latitude,longitude:$longitude,shopType:$shopType){
     offers{

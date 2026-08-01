@@ -3,12 +3,12 @@ import { useState } from 'react'
 import {
   mostOrderedRestaurantsQuery,
   recentOrderRestaurantsQuery,
-  restaurantListPreview,
+  allStoresList,
   topRatedVendorsInfo
 } from '../../apollo/queries'
 
 const RESTAURANTS = gql`
-  ${restaurantListPreview}
+  ${allStoresList}
 `
 
 const TOP_BRANDS = gql`
@@ -57,8 +57,8 @@ const getResult = (queryType, data, setRestaurantData, setAllData, selectedType)
       }
       break
     default:
-      setRestaurantData(data?.nearByRestaurantsPreview?.restaurants)
-      setAllData(data?.nearByRestaurantsPreview?.restaurants)
+      setRestaurantData(data?.restaurantList)
+      setAllData(data?.restaurantList)
   }
 }
 
