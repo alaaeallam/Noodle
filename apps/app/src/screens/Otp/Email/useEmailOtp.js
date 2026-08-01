@@ -190,9 +190,13 @@ const useEmailOtp = (isPhoneExists) => {
     let timer = null
     if (!configuration) return
     if (configuration.skipEmailVerification) {
-      setOtp(TEST_OTP)
+      // TEST_OTP comes from Configuration.testOtp, which resolves to null
+      // (not undefined) via GraphQL when unset in the DB — the OTP input
+      // library only guards against undefined, so passing it null crashes.
+      const testOtp = TEST_OTP || '123456'
+      setOtp(testOtp)
       timer = setTimeout(async () => {
-        await onCodeFilled(TEST_OTP)
+        await onCodeFilled(testOtp)
       }, 3000)
     }
     return () => {

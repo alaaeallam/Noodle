@@ -174,9 +174,13 @@ const usePhoneOtp = () => {
     let timer = null
     if (!configuration || !profile) return
     if (configuration.skipMobileVerification) {
-      setOtp(TEST_OTP)
+      // TEST_OTP comes from Configuration.testOtp, which resolves to null
+      // (not undefined) via GraphQL when unset in the DB — the OTP input
+      // library only guards against undefined, so passing it null crashes.
+      const testOtp = TEST_OTP || '123456'
+      setOtp(testOtp)
       timer = setTimeout(() => {
-        onCodeFilled(TEST_OTP)
+        onCodeFilled(testOtp)
       }, 3000)
     }
 
