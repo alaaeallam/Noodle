@@ -410,7 +410,7 @@ export const en = {
   additionalItems: 'Additional Items',
   edit: 'Edit',
   notAvailableinYourArea: 'We are not currently available in your area',
-  noRestaurant: 'No restaurant currently offers delivery in your area',
+  noRestaurant: 'No stores available right now',
   apply: 'Apply',
   filters: 'Filters',
   help: 'Help',

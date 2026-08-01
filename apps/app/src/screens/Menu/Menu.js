@@ -551,26 +551,12 @@ function Menu({ route, props }) {
         <View style={[styles(currentTheme).header, { paddingHorizontal: 10, paddingVertical: 6 }]}>
           <View>
             <TextDefault bolder H2 isRTL>
-              {t(heading ? heading : routeData?.name === 'Restaurants' ? 'Restaurants' : routeData?.name === 'Store' ? 'All Stores' : 'Restaurants')}
+              {t(heading ? heading : 'All Stores')}
             </TextDefault>
             <TextDefault bold H5 isRTL>
               {t('BrowseCuisines')}
             </TextDefault>
           </View>
-          <Ripple
-            style={styles(currentTheme).seeAllBtn}
-            activeOpacity={0.8}
-            onPress={() => {
-              navigation.navigate('Collection', {
-                collectionType: routeData?.name,
-                data: collectionData
-              })
-            }}
-          >
-            <TextDefault H5 bolder textColor={currentTheme.main}>
-              {t('SeeAll')}
-            </TextDefault>
-          </Ripple>
         </View>
         <View style={{ paddingLeft: 10, paddingRight: 10, paddingHorizontal: '5' }}>
           <FlatList

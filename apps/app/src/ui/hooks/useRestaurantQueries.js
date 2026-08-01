@@ -67,15 +67,15 @@ const HEADING = {
   topPicks: 'Top Picks',
   topBrands: 'Top Brands',
   grocery: 'All Grocery',
-  restaurant: 'All Restaurant'
+  restaurant: 'All Stores'
 }
 
 const SUB_HEADING = {
   orderAgain: 'From your previous orders',
-  topPicks: 'Top picked restaurants for you',
+  topPicks: 'Top picked stores for you',
   topBrands: 'Top brands in your area',
   grocery: 'Most ordered grocery stores',
-  restaurant: 'Most ordered restaurants'
+  restaurant: 'Most ordered stores'
 }
 
 export const useRestaurantQueries = (queryType, location, selectedType) => {
