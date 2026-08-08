@@ -765,6 +765,8 @@ const typeDefs = gql`
 
     notificationToken: String
     appleId: String
+    emailIsVerified: Boolean
+    isPhoneExists: Boolean
   }
 
   input OwnerInput {
