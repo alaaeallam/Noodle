@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const Earnings = require('../../models/earnings')
 const { requireWalletAccess } = require('../../helpers/guards')
 
@@ -65,6 +66,70 @@ module.exports = {
           success: false,
           message: err.message
         }
+      }
+    },
+    // Groups a store's earnings by day, for the wallet's bar chart / daily
+    // breakdown. There's no equivalent for riders because only the store
+    // app's UI needs this grouping today.
+    storeEarningsGraph: async(_, args, { req }) => {
+      console.log('storeEarningsGraph', args)
+      try {
+        const { userId: storeId } = requireWalletAccess(req, 'STORE', args.storeId)
+
+        const match = { 'storeEarnings.storeId': new mongoose.Types.ObjectId(storeId) }
+        if (args.startDate || args.endDate) {
+          match.createdAt = {}
+          if (args.startDate) match.createdAt.$gte = new Date(args.startDate)
+          if (args.endDate) match.createdAt.$lte = new Date(args.endDate)
+        }
+
+        const grouped = await Earnings.aggregate([
+          { $match: match },
+          {
+            $group: {
+              _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+              totalEarningsSum: { $sum: '$storeEarnings.totalEarnings' },
+              totalOrderAmount: { $sum: '$storeEarnings.orderAmount' },
+              totalDeliveries: { $sum: 1 },
+              earningsArray: {
+                $push: {
+                  orderDetails: {
+                    orderType: '$orderType',
+                    orderId: '$orderId',
+                    paymentMethod: '$paymentMethod'
+                  },
+                  totalOrderAmount: '$storeEarnings.orderAmount',
+                  totalEarnings: '$storeEarnings.totalEarnings',
+                  date: '$createdAt'
+                }
+              }
+            }
+          },
+          { $sort: { _id: -1 } }
+        ])
+
+        const totalCount = grouped.length
+        const pageSize = args.limit || 10
+        const pageNo = args.page || 1
+        const paged = grouped.slice((pageNo - 1) * pageSize, (pageNo - 1) * pageSize + pageSize)
+
+        return {
+          totalCount,
+          earnings: paged.map(g => ({
+            _id: g._id,
+            date: g._id,
+            totalEarningsSum: g.totalEarningsSum,
+            totalOrderAmount: g.totalOrderAmount,
+            totalDeliveries: g.totalDeliveries,
+            earningsArray: g.earningsArray.map(e => ({
+              ...e,
+              date: e.date instanceof Date ? e.date.toISOString() : e.date
+            }))
+          }))
+        }
+      } catch (err) {
+        console.log('storeEarningsGraph error', err)
+        throw err
       }
     }
   }

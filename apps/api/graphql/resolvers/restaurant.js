@@ -30,7 +30,7 @@ const {
   publishToUser
 } = require('../../helpers/pubsub')
 const { sendNotificationToZoneRiders } = require('../../helpers/notifications')
-const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { requireRole, requireRestaurantAccess, ADMIN_ROLES } = require('../../helpers/guards')
 const { recordAuditLog } = require('../../helpers/auditLog')
 const {
   sendNotificationToUser,
@@ -601,6 +601,22 @@ module.exports = {
         return transformRestaurant(result)
       } catch (err) {
         throw err
+      }
+    },
+    updateRestaurantBussinessDetails: async(_, args, { req }) => {
+      console.log('updateRestaurantBussinessDetails', args.id)
+      try {
+        await requireRestaurantAccess(req, args.id, Restaurant)
+        const restaurant = await Restaurant.findById(args.id)
+        if (!restaurant) {
+          return { success: false, message: 'Restaurant does not exist' }
+        }
+        restaurant.bussinessDetails = args.bussinessDetails
+        const result = await restaurant.save()
+        return { success: true, message: 'Business details updated', data: transformRestaurant(result) }
+      } catch (err) {
+        console.log('updateRestaurantBussinessDetails error', err)
+        return { success: false, message: err.message }
       }
     },
     deleteRestaurant: async(_, { id }, { req }) => {

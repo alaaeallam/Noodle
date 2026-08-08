@@ -852,6 +852,33 @@ const typeDefs = gql`
     pagination: Pagination
   }
 
+  type StoreEarningsOrderDetails {
+    orderType: String
+    orderId: String
+    paymentMethod: String
+  }
+
+  type StoreEarningsArrayItem {
+    orderDetails: StoreEarningsOrderDetails
+    totalOrderAmount: Float
+    totalEarnings: Float
+    date: String
+  }
+
+  type StoreDailyEarnings {
+    _id: String!
+    date: String
+    totalEarningsSum: Float!
+    totalOrderAmount: Float!
+    totalDeliveries: Int!
+    earningsArray: [StoreEarningsArrayItem!]!
+  }
+
+  type StoreEarningsGraphResponse {
+    totalCount: Int!
+    earnings: [StoreDailyEarnings!]!
+  }
+
   input EmailConfigurationInput {
     email: String!
     password: String!
@@ -1409,6 +1436,14 @@ image: String
       pagination: WalletPaginationInput
       dateFilter: DateFilterInput
     ): TransactionHistoryResponse!
+    storeCurrentWithdrawRequest(storeId: String!): WithdrawRequest
+    storeEarningsGraph(
+      storeId: ID!
+      page: Int
+      limit: Int
+      startDate: String
+      endDate: String
+    ): StoreEarningsGraphResponse!
     categories: [Category!]!
     foods: [Food!]!
     orders(offset: Int): [Order!]!
@@ -1766,6 +1801,10 @@ image: String
     createReview(review: ReviewInput!): Restaurant!
     deleteRestaurant(id: String!): Restaurant!
     editRestaurant(restaurant: RestaurantProfileInput!): Restaurant!
+    updateRestaurantBussinessDetails(
+      id: String!
+      bussinessDetails: BussinessDetailsInput
+    ): RestaurantResponse!
     createAddress(addressInput: AddressInput!): User!
     editAddress(addressInput: AddressInput!): User!
     deleteAddress(id: ID!): User!

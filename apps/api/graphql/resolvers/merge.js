@@ -401,6 +401,7 @@ const transformWithDrawRequest = async withDrawRequest => {
     _id: withDrawRequest.id,
     ...withDrawRequest._doc,
     requestTime: dateToString(withDrawRequest.requestTime),
+    createdAt: dateToString(withDrawRequest.createdAt),
     rider: populateRider(withDrawRequest.rider),
     store: populateStore(withDrawRequest.store)
   }

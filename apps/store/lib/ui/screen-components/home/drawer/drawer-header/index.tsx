@@ -35,12 +35,12 @@ const CustomDrawerHeader = () => {
           t("Unable to update availability"),
       });
     },
-  }) as MutationTuple<IStoreProfile | undefined, { restaurantId: string }>;
+  }) as MutationTuple<IStoreProfile | undefined, Record<string, never>>;
 
   // Handlers
   async function handleToggleAvailability() {
     try {
-      await toggleAvailablity({ variables: { restaurantId: userId ?? "" } });
+      await toggleAvailablity();
     } catch (error) {
       console.error("error whilte toggling availabibility", error);
     }

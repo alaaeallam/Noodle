@@ -4,7 +4,7 @@ const Restaurant = require('../../models/restaurant')
 const WithdrawRequest = require('../../models/withdrawRequest')
 const Transaction = require('../../models/transaction')
 const { transformWithDrawRequest, transformRider, transformRestaurant } = require('./merge')
-const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { requireRole, requireWalletAccess, ADMIN_ROLES } = require('../../helpers/guards')
 const { recordAuditLog } = require('../../helpers/auditLog')
 
 module.exports = {
@@ -81,6 +81,21 @@ module.exports = {
           success: false,
           message: error.message
         }
+      }
+    },
+    storeCurrentWithdrawRequest: async(_, args, { req }) => {
+      console.log('storeCurrentWithdrawRequest', args)
+      try {
+        const { userId } = requireWalletAccess(req, USER_TYPE.STORE, args.storeId)
+        const request = await WithdrawRequest.findOne({
+          store: userId,
+          status: WITHDRAW_REQUEST_STATUS.REQUESTED
+        }).sort({ createdAt: -1 })
+        if (!request) return null
+        return await transformWithDrawRequest(request)
+      } catch (err) {
+        console.log('storeCurrentWithdrawRequest error', err)
+        throw err
       }
     }
   },
