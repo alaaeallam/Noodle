@@ -58,6 +58,7 @@ const useEmailOtp = (isPhoneExists) => {
   }
 
   function onCreateUserError(error) {
+    console.log('createUser error:', error?.networkError?.result?.errors?.[0]?.message ?? error?.graphQLErrors?.[0]?.message ?? error)
     if (error.networkError) {
       FlashMessage({
         message: error.networkError.result.errors[0].message
