@@ -337,28 +337,40 @@ const SearchScreen = () => {
     }
   }
 
+  // search truthy renders its own Animated.FlatList (the search results) —
+  // that must be the screen's only scroller, since nesting it inside this
+  // ScrollView is exactly the "VirtualizedLists should never be nested
+  // inside plain ScrollViews" anti-pattern (same fix as the Stores tab).
+  // The other two branches (recent searches / tag cloud) are plain,
+  // non-virtualized content, so the ScrollView is fine as their sole
+  // scroller.
   return (
-    <ScrollView style={styles(currentTheme).flex}>
-      <View
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            colors={[currentTheme.iconColorPink]}
-            refreshing={networkStatus === 4}
-            onRefresh={() => {
-              if (networkStatus === 7) {
-                refetch()
-              }
-            }}
-          />
-        }
-      >
-        <View style={styles().searchbar}>
-          <Search setSearch={setSearch} search={search} newheaderColor={newheaderColor} placeHolder={t('searchRestaurant')} />
-        </View>
-        {renderTagsOrSearches()}
+    <View style={styles(currentTheme).flex}>
+      <View style={styles().searchbar}>
+        <Search setSearch={setSearch} search={search} newheaderColor={newheaderColor} placeHolder={t('searchRestaurant')} />
       </View>
-    </ScrollView>
+      {search ? (
+        renderTagsOrSearches()
+      ) : (
+        <ScrollView
+          style={styles(currentTheme).flex}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              colors={[currentTheme.iconColorPink]}
+              refreshing={networkStatus === 4}
+              onRefresh={() => {
+                if (networkStatus === 7) {
+                  refetch()
+                }
+              }}
+            />
+          }
+        >
+          {renderTagsOrSearches()}
+        </ScrollView>
+      )}
+    </View>
   )
 }
 
