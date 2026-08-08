@@ -18,7 +18,7 @@ export default function WithdrawRequestAdminTableHeader({
             value={globalFilterValue}
             onChange={onGlobalFilterChange}
             placeholder="Keyword Search"
-            className="w-[14rem] h-10 border-[1px] border-gray-300 rounded-[0.3rem] pl-3 pr-3"
+            className="w-[14rem] h-10 border-[1px] border-gray-300 rounded-[0.3rem] ps-3 pe-3"
           />
         </div>
       </div>

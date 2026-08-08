@@ -154,7 +154,7 @@ export default function CategoryAddForm({
       onCompleted: () => {
         showToast({
           type: 'success',
-          title: t('New Category'),
+          title: category ? t('Update Category') : t('New Category'),
           message: `${t('Category has been')} ${category ? t('edited') : t('added')} ${t('successfully')}.`,
           duration: 3000,
         });
@@ -171,7 +171,7 @@ export default function CategoryAddForm({
         }
         showToast({
           type: 'error',
-          title: t('New Category'),
+          title: category ? t('Update Category') : t('New Category'),
           message,
           duration: 3000,
         });
@@ -413,7 +413,7 @@ export default function CategoryAddForm({
 
                           <div className="mt-4 flex justify-end">
                             <CustomButton
-                              className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                              className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                               label={category ? t('Update') : t('Add')}
                               type="submit"
                               loading={mutationLoading}

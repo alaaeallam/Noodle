@@ -10,6 +10,7 @@ const { couponSchema } = require('./coupon')
 const { messageSchema } = require('./message')
 const Earning = require('./earnings')
 const Rider = require('./rider')
+const Restaurant = require('./restaurant')
 const { v4 } = require('uuid')
 const Schema = mongoose.Schema
 
@@ -68,6 +69,7 @@ const orderSchema = new Schema(
       default: payment_method[0]
     },
     reason: { type: String },
+    instructions: { type: String },
     // should we save original amount before discount also?
     // also show these details on order modal
     coupon: { type: couponSchema },
@@ -148,26 +150,67 @@ orderSchema.pre('save', async function(next) {
     this.orderStatus === 'DELIVERED' &&
     this.paymentMethod !== payment_method[0]
   ) {
+    const restaurant = await Restaurant.findById(this.restaurant)
+    const commissionRate = restaurant?.commissionRate || 0
+    const orderAmount = this.orderAmount || 0
+    const deliveryFee = this.deliveryCharges || 0
+    const tip = this.tipping || 0
+    const tax = this.taxationAmount || 0
+
+    const marketplaceCommission = +(orderAmount * (commissionRate / 100)).toFixed(2)
+    const deliveryCommission = 0
+    const platformFee = +(marketplaceCommission + deliveryCommission + tax).toFixed(2)
+    const storeTotalEarnings = +(orderAmount - marketplaceCommission).toFixed(2)
+    const riderTotalEarnings = +(deliveryFee + tip).toFixed(2)
+
     const earning = new Earning({
-      rider: this.rider,
       orderId: this.orderId,
-      deliveryFee: this.deliveryCharges,
-      orderStatus: this.orderStatus,
+      orderType: this.isPickedUp ? 'PICKUP' : 'DELIVERY',
       paymentMethod: this.paymentMethod,
-      deliveryTime: this.deliveredAt
+      platformEarnings: {
+        marketplaceCommission,
+        deliveryCommission,
+        tax,
+        platformFee,
+        totalEarnings: platformFee
+      },
+      riderEarnings: {
+        riderId: this.rider,
+        deliveryFee,
+        tip,
+        totalEarnings: riderTotalEarnings
+      },
+      storeEarnings: {
+        storeId: this.restaurant,
+        orderAmount,
+        totalEarnings: storeTotalEarnings
+      }
     })
     earning.save()
     Rider.findOneAndUpdate(
       { _id: this.rider },
       {
         $inc: {
-          currentWalletAmount: this.deliveryCharges,
-          totalWalletAmount: this.deliveryCharges
+          currentWalletAmount: riderTotalEarnings,
+          totalWalletAmount: riderTotalEarnings
         }
       }
     ).catch(err => {
-      console.log('catch while updating wallet', err)
+      console.log('catch while updating rider wallet', err)
     })
+    if (this.restaurant) {
+      Restaurant.findOneAndUpdate(
+        { _id: this.restaurant },
+        {
+          $inc: {
+            currentWalletAmount: storeTotalEarnings,
+            totalWalletAmount: storeTotalEarnings
+          }
+        }
+      ).catch(err => {
+        console.log('catch while updating store wallet', err)
+      })
+    }
   }
 })
 module.exports = mongoose.model('Order', orderSchema)

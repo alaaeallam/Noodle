@@ -9,6 +9,7 @@ const Point = require('../../models/point')
 const Sections = require('../../models/section')
 const Zone = require('../../models/zone')
 const User = require('../../models/user')
+const Configuration = require('../../models/configuration')
 const {
   sendNotificationToCustomerWeb
 } = require('../../helpers/firebase-web-notifications')
@@ -29,67 +30,241 @@ const {
   publishToUser
 } = require('../../helpers/pubsub')
 const { sendNotificationToZoneRiders } = require('../../helpers/notifications')
+const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { recordAuditLog } = require('../../helpers/auditLog')
 const {
   sendNotificationToUser,
   sendNotificationToRider
 } = require('../../helpers/notifications')
 const bcrypt = require('bcryptjs')
 
+// When Configuration.singleVendorId is set, every customer-facing
+// restaurant-discovery query below is scoped to that vendor only — lets the
+// platform run as single-vendor without deleting other vendors' data.
+async function getSingleVendorFilter() {
+  const configuration = await Configuration.findOne()
+  if (configuration?.singleVendorId) {
+    return { owner: configuration.singleVendorId }
+  }
+  return {}
+}
+
+// Shared by nearByRestaurants and nearByRestaurantsPreview (the latter is
+// what the customer app's Discovery/home screen actually queries — it was
+// missing from the schema entirely, same class of gap as the earlier
+// reviewsByRestaurant fix, so both expose the identical geo-lookup rather
+// than duplicating the query/transform logic.
+async function findNearByRestaurants(args) {
+  const { shopType } = args
+  const query = {
+    isActive: true,
+    isAvailable: true,
+    deliveryBounds: {
+      $geoIntersects: {
+        $geometry: {
+          type: 'Point',
+          coordinates: [Number(args.longitude), Number(args.latitude)]
+        }
+      }
+    }
+  }
+  if (shopType) {
+    query.shopType = shopType
+  }
+  Object.assign(query, await getSingleVendorFilter())
+  const restaurants = await Restaurant.find(query)
+
+  if (!restaurants.length) {
+    return {
+      restaurants: [],
+      sections: [],
+      offers: []
+    }
+  }
+  // TODO: do something about offers too w.r.t zones
+  const offers = await Offer.find({ isActive: true, enabled: true })
+
+  // Find restaurants containing sections / offers
+  const sectionArray = [
+    ...new Set([...restaurants.map(res => res.sections)].flat())
+  ]
+  const sections = await Sections.find({
+    _id: { $in: sectionArray },
+    enabled: true
+  })
+
+  return {
+    restaurants: await restaurants.map(transformRestaurant),
+    sections: sections.map(sec => ({
+      _id: sec.id,
+      name: sec.name,
+      restaurants: sec.restaurants
+    })),
+    offers: offers.map(o => ({
+      ...o._doc,
+      _id: o.id
+    }))
+  }
+}
+
+// Shared by topRatedVendors and topRatedVendorsPreview (same missing-preview-
+// field gap as findNearByRestaurants above — used by SearchScreen and the
+// Discovery TopBrands component, which were querying a field that didn't
+// exist in the schema at all).
+async function findTopRatedVendors(args) {
+  const { longitude, latitude } = args
+  const restaurants = await Restaurant.aggregate([
+    {
+      $match: {
+        isActive: true,
+        isAvailable: true,
+        deliveryBounds: {
+          $geoIntersects: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [Number(longitude), Number(latitude)]
+            }
+          }
+        },
+        ...(await getSingleVendorFilter())
+      }
+    },
+    {
+      $lookup: {
+        from: 'reviews',
+        localField: '_id',
+        foreignField: 'restaurant',
+        pipeline: [
+          {
+            $match: {
+              createdAt: { $gte: getThirtyDaysAgo() }
+            }
+          }
+        ],
+        as: 'reviews'
+      }
+    },
+    {
+      $addFields: {
+        averageRating: { $ifNull: [{ $avg: '$reviews.rating' }, 0] } // Calculate the average of the 'rating' property
+      }
+    },
+    {
+      $sort: { averageRating: -1 }
+    },
+    {
+      $limit: 20
+    }
+  ]).exec()
+  return restaurants.map(restaurant =>
+    transformRestaurant(new Restaurant(restaurant))
+  )
+}
+
+// Shared by recentOrderRestaurants and recentOrderRestaurantsPreview (same
+// missing-preview-field gap as the helpers above).
+async function findRecentOrderRestaurants(args, req) {
+  const { longitude, latitude } = args
+  // selects recent orders
+  const recentRestaurantIds = await Order.find({ user: req.userId })
+    .select('restaurant')
+    .sort({ createdAt: -1 })
+    .limit(100)
+    .lean()
+  // if no orders, no restaurant, returns empty
+  if (!recentRestaurantIds.length) return []
+  const restaurantIds = recentRestaurantIds.map(r => r.restaurant.toString())
+  // finds restaurants by id, also make sures restaurants delivers in the area.
+  const restaurants = await Restaurant.find({
+    $and: [
+      {
+        id: {
+          $in: restaurantIds
+        }
+      },
+      {
+        isActive: true,
+        isAvailable: true,
+        deliveryBounds: {
+          $geoIntersects: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [Number(longitude), Number(latitude)]
+            }
+          }
+        },
+        ...(await getSingleVendorFilter())
+      }
+    ]
+  })
+  return restaurants.map(transformRestaurant)
+}
+
+// Shared by mostOrderedRestaurants and mostOrderedRestaurantsPreview (same
+// missing-preview-field gap as the helpers above).
+async function findMostOrderedRestaurants(args) {
+  const { longitude, latitude } = args
+  const restaurants = await Restaurant.aggregate([
+    {
+      $match: {
+        isActive: true,
+        isAvailable: true,
+        deliveryBounds: {
+          $geoIntersects: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [Number(longitude), Number(latitude)]
+            }
+          }
+        },
+        ...(await getSingleVendorFilter())
+      }
+    },
+    {
+      $lookup: {
+        from: 'orders',
+        localField: '_id',
+        foreignField: 'restaurant',
+        pipeline: [
+          {
+            $match: {
+              createdAt: { $gte: getThirtyDaysAgo() }
+            }
+          }
+        ],
+        as: 'orders'
+      }
+    },
+    {
+      $addFields: {
+        orderCount: { $size: '$orders' }
+      }
+    },
+    {
+      $sort: { orderCount: -1 }
+    },
+    {
+      $limit: 20
+    }
+  ]).exec()
+
+  return restaurants.map(r => transformRestaurant(new Restaurant(r)))
+}
+
 module.exports = {
   Query: {
     nearByRestaurants: async(_, args) => {
       console.log('nearByRestaurants', args)
       try {
-        const { shopType } = args
-        const query = {
-          isActive: true,
-          isAvailable: true,
-          deliveryBounds: {
-            $geoIntersects: {
-              $geometry: {
-                type: 'Point',
-                coordinates: [Number(args.longitude), Number(args.latitude)]
-              }
-            }
-          }
-        }
-        if (shopType) {
-          query.shopType = shopType
-        }
-        const restaurants = await Restaurant.find(query)
-
-        if (!restaurants.length) {
-          return {
-            restaurants: [],
-            sections: [],
-            offers: []
-          }
-        }
-        // TODO: do something about offers too w.r.t zones
-        const offers = await Offer.find({ isActive: true, enabled: true })
-
-        // Find restaurants containing sections / offers
-        const sectionArray = [
-          ...new Set([...restaurants.map(res => res.sections)].flat())
-        ]
-        const sections = await Sections.find({
-          _id: { $in: sectionArray },
-          enabled: true
-        })
-
-        const result = {
-          restaurants: await restaurants.map(transformRestaurant),
-          sections: sections.map(sec => ({
-            _id: sec.id,
-            name: sec.name,
-            restaurants: sec.restaurants
-          })),
-          offers: offers.map(o => ({
-            ...o._doc,
-            _id: o.id
-          }))
-        }
-        return result
+        return await findNearByRestaurants(args)
+      } catch (err) {
+        throw err
+      }
+    },
+    nearByRestaurantsPreview: async(_, args) => {
+      console.log('nearByRestaurantsPreview', args)
+      try {
+        return await findNearByRestaurants(args)
       } catch (err) {
         throw err
       }
@@ -97,7 +272,7 @@ module.exports = {
     restaurantList: async _ => {
       console.log('restaurantList')
       try {
-        const allRestaurants = await Restaurant.find({ address: { $ne: null } })
+        const allRestaurants = await Restaurant.find({ address: { $ne: null }, ...(await getSingleVendorFilter()) })
         return transformRestaurants(allRestaurants)
       } catch (error) {
         throw error
@@ -113,9 +288,10 @@ module.exports = {
         throw e
       }
     },
-    restaurants: async _ => {
+    restaurants: async(_, args, { req }) => {
       console.log('restaurants')
       try {
+        requireRole(req, ADMIN_ROLES)
         const restaurants = await Restaurant.find()
         return transformRestaurants(restaurants)
       } catch (e) {
@@ -217,90 +393,24 @@ module.exports = {
     },
     recentOrderRestaurants: async(_, args, { req }) => {
       console.log('recentOrderRestaurants', args, req.userId)
-      const { longitude, latitude } = args
       if (!req.isAuth) throw new Error('Unauthenticated')
-      // selects recent orders
-      const recentRestaurantIds = await Order.find({ user: req.userId })
-        .select('restaurant')
-        .sort({ createdAt: -1 })
-        .limit(100)
-        .lean()
-      // if no orders, no restaurant, returns empty
-      if (!recentRestaurantIds.length) return []
-      const restaurantIds = recentRestaurantIds.map(r =>
-        r.restaurant.toString()
-      )
-      // finds restaurants by id, also make sures restaurants delivers in the area.
-      const restaurants = await Restaurant.find({
-        $and: [
-          {
-            id: {
-              $in: restaurantIds
-            }
-          },
-          {
-            isActive: true,
-            isAvailable: true,
-            deliveryBounds: {
-              $geoIntersects: {
-                $geometry: {
-                  type: 'Point',
-                  coordinates: [Number(longitude), Number(latitude)]
-                }
-              }
-            }
-          }
-        ]
-      })
-      return restaurants.map(transformRestaurant)
+      return await findRecentOrderRestaurants(args, req)
+    },
+    // Same lookup as recentOrderRestaurants, but used by the Discovery/home
+    // screen which is reachable by guests — a guest has no order history by
+    // definition, so return empty instead of throwing Unauthenticated.
+    recentOrderRestaurantsPreview: async(_, args, { req }) => {
+      console.log('recentOrderRestaurantsPreview', args, req.userId)
+      if (!req.isAuth) return []
+      return await findRecentOrderRestaurants(args, req)
     },
     mostOrderedRestaurants: async(_, args, { req }) => {
       console.log('mostOrderedRestaurants', args, req.userId)
-      const { longitude, latitude } = args
-      const restaurants = await Restaurant.aggregate([
-        {
-          $match: {
-            isActive: true,
-            isAvailable: true,
-            deliveryBounds: {
-              $geoIntersects: {
-                $geometry: {
-                  type: 'Point',
-                  coordinates: [Number(longitude), Number(latitude)]
-                }
-              }
-            }
-          }
-        },
-        {
-          $lookup: {
-            from: 'orders',
-            localField: '_id',
-            foreignField: 'restaurant',
-            pipeline: [
-              {
-                $match: {
-                  createdAt: { $gte: getThirtyDaysAgo() }
-                }
-              }
-            ],
-            as: 'orders'
-          }
-        },
-        {
-          $addFields: {
-            orderCount: { $size: '$orders' }
-          }
-        },
-        {
-          $sort: { orderCount: -1 }
-        },
-        {
-          $limit: 20
-        }
-      ]).exec()
-
-      return restaurants.map(r => transformRestaurant(new Restaurant(r)))
+      return await findMostOrderedRestaurants(args)
+    },
+    mostOrderedRestaurantsPreview: async(_, args, { req }) => {
+      console.log('mostOrderedRestaurantsPreview', args, req.userId)
+      return await findMostOrderedRestaurants(args)
     },
     relatedItems: async(_, args, { req }) => {
       console.log('relatedItems', args, req.userId)
@@ -370,54 +480,17 @@ module.exports = {
     topRatedVendors: async(_, args, { req }) => {
       console.log('topRatedVendors', args)
       try {
-        const { longitude, latitude } = args
-        const restaurants = await Restaurant.aggregate([
-          {
-            $match: {
-              isActive: true,
-              isAvailable: true,
-              deliveryBounds: {
-                $geoIntersects: {
-                  $geometry: {
-                    type: 'Point',
-                    coordinates: [Number(longitude), Number(latitude)]
-                  }
-                }
-              }
-            }
-          },
-          {
-            $lookup: {
-              from: 'reviews',
-              localField: '_id',
-              foreignField: 'restaurant',
-              pipeline: [
-                {
-                  $match: {
-                    createdAt: { $gte: getThirtyDaysAgo() }
-                  }
-                }
-              ],
-              as: 'reviews'
-            }
-          },
-          {
-            $addFields: {
-              averageRating: { $ifNull: [{ $avg: '$reviews.rating' }, 0] } // Calculate the average of the 'rating' property
-            }
-          },
-          {
-            $sort: { averageRating: -1 }
-          },
-          {
-            $limit: 20
-          }
-        ]).exec()
-        return restaurants.map(restaurant =>
-          transformRestaurant(new Restaurant(restaurant))
-        )
+        return await findTopRatedVendors(args)
       } catch (error) {
         console.log('topRatedVendors error', error)
+      }
+    },
+    topRatedVendorsPreview: async(_, args, { req }) => {
+      console.log('topRatedVendorsPreview', args)
+      try {
+        return await findTopRatedVendors(args)
+      } catch (error) {
+        console.log('topRatedVendorsPreview error', error)
       }
     }
   },
@@ -687,16 +760,28 @@ module.exports = {
         throw err
       }
     },
-    updateCommission: async(_, args) => {
+    updateCommission: async(_, args, { req }) => {
       console.log('updateCommission')
       try {
+        requireRole(req, ADMIN_ROLES)
         const { id, commissionRate } = args
+        const before = await Restaurant.findById(id).select('commissionRate name')
         const result = await Restaurant.updateOne(
           { _id: id },
           { commissionRate }
         )
         if (result.modifiedCount > 0) {
           const restaurant = await Restaurant.findOne({ _id: id })
+          await recordAuditLog({
+            req,
+            action: 'UPDATE_COMMISSION',
+            targetType: 'Restaurant',
+            targetId: id,
+            changes: {
+              oldData: { commissionRate: before?.commissionRate },
+              newData: { commissionRate: restaurant.commissionRate }
+            }
+          })
           return transformRestaurant(restaurant)
         } else {
           throw Error("Couldn't update the restaurant")

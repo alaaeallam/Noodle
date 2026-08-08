@@ -38,7 +38,7 @@ const SubcategoryCell = ({ categoryId }: { categoryId: string }) => {
     <div className="space-y-1">
       {subcategories.map((sub) => (
         <div key={sub._id} className="flex items-center">
-          <span className="w-1.5 h-1.5 rounded-full bg-gray-500 mr-1.5"></span>
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-500 me-1.5"></span>
           <span>{sub.title}</span>
         </div>
       ))}

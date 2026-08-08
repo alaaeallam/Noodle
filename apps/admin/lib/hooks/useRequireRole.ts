@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery } from '@apollo/client';
 import { PROFILE } from '../api/graphql/queries/me';
 
-type Role = 'ADMIN' | 'VENDOR' | 'USER' | 'RIDER';
+type Role = 'ADMIN' | 'SUPER_ADMIN' | 'VENDOR' | 'USER' | 'RIDER';
 
 export function useRequireRole(allowed: Role[]) {
   const router = useRouter();
@@ -19,7 +19,9 @@ export function useRequireRole(allowed: Role[]) {
       return;
     }
     const role: Role | undefined = data?.profile?.userType;
-    if (!role || !allowed.includes(role)) {
+    // SUPER_ADMIN sees everything (matches useCheckAllowedRoutes.tsx), so it
+    // must never be bounced by a page-level allowlist meant for lesser roles.
+    if (!role || (role !== 'SUPER_ADMIN' && !allowed.includes(role))) {
       // authenticated but wrong role → send to a safe home
       router.replace('/'); // or '/dashboard'
     }

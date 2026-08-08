@@ -5,8 +5,6 @@ export const CREATE_VENDOR = gql`
     createVendor(vendorInput: $vendorInput) {
       _id
       email
-      password
-      name
       image
       firstName
       lastName

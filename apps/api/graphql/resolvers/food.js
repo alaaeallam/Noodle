@@ -3,6 +3,7 @@ const Food = require('../../models/food')
 const Restaurant = require('../../models/restaurant')
 const Variation = require('../../models/variation')
 const { transformRestaurant } = require('./merge')
+const { requireRestaurantAccess } = require('../../helpers/guards')
 
 module.exports = {
   Query: {
@@ -29,9 +30,10 @@ module.exports = {
     },
   },
   Mutation: {
-    createFood: async (_, args, context) => {
+    createFood: async (_, args, { req }) => {
       console.log('createFood');
       try {
+        await requireRestaurantAccess(req, args.foodInput?.restaurant, Restaurant);
         const {
           restaurant: restId,
           category: categoryId,
@@ -77,7 +79,7 @@ module.exports = {
         throw err;
       }
     },
-    editFood: async (_, args, context) => {
+    editFood: async (_, args, { req }) => {
       const {
         _id: foodId,
         restaurant: restId,
@@ -92,6 +94,7 @@ module.exports = {
       } = args.foodInput || {};
 
       try {
+        await requireRestaurantAccess(req, restId, Restaurant);
         const restaurant = await Restaurant.findOne({ _id: restId });
 
         // Build variations array from input
@@ -161,8 +164,9 @@ module.exports = {
         throw err;
       }
     },
-    updateFoodOutOfStock: async (_, { id, restaurant, categoryId }) => {
+    updateFoodOutOfStock: async (_, { id, restaurant, categoryId }, { req }) => {
       try {
+        await requireRestaurantAccess(req, restaurant, Restaurant);
         const rest = await Restaurant.findOne({ _id: restaurant });
         if (!rest) throw new Error('Restaurant not found');
 
@@ -180,9 +184,10 @@ module.exports = {
         throw err;
       }
     },
-    deleteFood: async(_, { id, restaurant, categoryId }, context) => {
+    deleteFood: async(_, { id, restaurant, categoryId }, { req }) => {
       console.log('deleteFood')
       try {
+        await requireRestaurantAccess(req, restaurant, Restaurant)
         const restaurants = await Restaurant.findOne({ _id: restaurant })
         restaurants.categories.id(categoryId).foods.id(id).remove()
         const result = await restaurants.save()

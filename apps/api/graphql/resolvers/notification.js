@@ -1,12 +1,32 @@
 const { Expo } = require('expo-server-sdk')
 const User = require('../../models/user')
+const Notification = require('../../models/notification')
 const { sendNotificationMobile } = require('../../helpers/utilities')
+const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { recordAuditLog } = require('../../helpers/auditLog')
 
 module.exports = {
+  Query: {
+    notifications: async(_, args, { req }) => {
+      try {
+        requireRole(req, ADMIN_ROLES)
+        const notifications = await Notification.find().sort({ createdAt: -1 })
+        return notifications.map(notification => ({
+          ...notification._doc,
+          _id: notification.id,
+          createdAt: notification.createdAt.toDateString()
+        }))
+      } catch (err) {
+        console.log(err)
+        throw err
+      }
+    }
+  },
   Mutation: {
     sendNotificationUser: async(_, args, { req, res }) => {
       console.log('sendNotificationUser')
       try {
+        requireRole(req, ADMIN_ROLES)
         const users = await User.find({ isActive: true })
         const messages = []
         users.forEach(async(user, i) => {
@@ -24,10 +44,22 @@ module.exports = {
           }
         })
         await sendNotificationMobile(messages)
+        const notification = await new Notification({
+          title: args.notificationTitle,
+          body: args.notificationBody
+        }).save()
+        await recordAuditLog({
+          req,
+          action: 'SEND_NOTIFICATION',
+          targetType: 'Notification',
+          targetId: notification.id,
+          changes: notification._doc
+        })
         console.log('Before Success')
         return 'Success'
       } catch (e) {
         console.log(e)
+        throw e
       }
     },
     saveNotificationTokenWeb: async(_, args, { req, res }) => {

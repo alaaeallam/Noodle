@@ -109,7 +109,7 @@ const OrderSuperAdminTableHeader: React.FC<IOrderSuperAdminHeaderProps> = ({
                     />
                     <label
                       htmlFor={`action-${item.value}`}
-                      className="ml-2 text-sm"
+                      className="ms-2 text-sm"
                     >
                       {item.label}
                     </label>

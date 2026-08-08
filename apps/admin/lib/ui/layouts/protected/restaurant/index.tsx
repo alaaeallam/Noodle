@@ -25,7 +25,7 @@ const RestaurantLayout = ({ children }: IProvider) => {
         <RestaurantAppTopbar />
       </div>
       <div className="layout-main-container overflow-y-auto min-h-[calc(100dvh-64px)] pb-24">
-        <div className="relative left-0 z-50">
+        <div className="relative start-0 z-50">
           <RestaurantSidebar />
         </div>
         <div

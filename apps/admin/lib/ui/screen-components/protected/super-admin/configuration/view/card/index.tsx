@@ -34,7 +34,7 @@ const ConfigCard = ({
       {/* footer */}
       <div className="flex justify-end p-4">
         <CustomButton
-          className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+          className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
           label={'Save'}
           type="submit"
           loading={buttonLoading}

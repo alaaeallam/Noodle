@@ -23,7 +23,6 @@ export const GET_TRANSACTION_HISTORY = gql`
         status
         transactionId
         userType
-        userId
         amountTransferred
         createdAt
         toBank {
@@ -37,12 +36,10 @@ export const GET_TRANSACTION_HISTORY = gql`
           name
           email
           username
-          password
           phone
           image
           available
           isActive
-          # isSuperAdminRider
           accountNumber
           currentWalletAmount
           totalWalletAmount
@@ -55,15 +52,11 @@ export const GET_TRANSACTION_HISTORY = gql`
           _id
           name
           rating
-          reviewAverage
           isActive
           isAvailable
           slug
           stripeDetailsSubmitted
           address
-          phone
-          city
-          postCode
         }
       }
       pagination {

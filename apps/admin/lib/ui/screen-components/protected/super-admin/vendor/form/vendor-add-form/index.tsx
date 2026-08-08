@@ -121,7 +121,8 @@ const onVendorCreate = async (data: IVendorForm) => {
     const base = {
       // Only include _id when editing
       ...(isEditingVendor && vendorId ? { _id: vendorId } : {}),
-      name: [data.firstName, data.lastName].filter(Boolean).join(' ') || undefined,
+      // NOTE: VendorInput has no `name` field (only firstName/lastName) —
+      // sending one fails GraphQL input validation with a 400.
       email: data.email,
       image: data.image || undefined,
       firstName: (data as any).firstName || undefined,
@@ -402,7 +403,7 @@ const onVendorCreate = async (data: IVendorForm) => {
 
                         <div className="py-4 flex justify-end">
                           <CustomButton
-                            className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                            className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                             label={isEditingVendor ? t('Update') : t('Add')}
                             type="submit"
                             loading={isSubmitting}

@@ -117,8 +117,9 @@ export default function VendorDetails({
         await createVendor({
           variables: {
             vendorInput: {
-              _id: '',
-              name: formData.firstName + ' ' + formData.lastName,
+              // NOTE: VendorInput has no `name` field (only firstName/lastName)
+              // and no empty-string `_id` for a create — either fails GraphQL
+              // input validation with a 400.
               email: formData.email,
               password: formData.password,
               firstName: formData.firstName,
@@ -410,7 +411,7 @@ export default function VendorDetails({
                       )}
                       <div className="mt-4 flex justify-end">
                         <CustomButton
-                          className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                          className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                           label={t('Save & Next')}
                           type="submit"
                           loading={isSubmitting}

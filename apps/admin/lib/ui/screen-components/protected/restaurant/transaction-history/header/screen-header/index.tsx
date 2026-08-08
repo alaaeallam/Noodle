@@ -1,6 +1,6 @@
 // Components
 import HeaderText from '@/lib/ui/useable-components/header-text';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
 
 const TransactionHistoryRestaurantHeader = () => {
  // Hooks

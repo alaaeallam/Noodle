@@ -35,6 +35,18 @@ const userSchema = new Schema(
       type: Boolean,
       default: true
     },
+    status: {
+      type: String,
+      enum: ['active', 'blocked', 'deactivate'],
+      default: 'active'
+    },
+    notes: {
+      type: String,
+      default: ''
+    },
+    lastLogin: {
+      type: Date
+    },
     notificationToken: {
       type: String
     },

@@ -5,6 +5,7 @@ const categoryResolver = require('./category')
 const subCategoryResolver = require('./sub-category');
 const configurationResolver = require('./configuration')
 const riderResolver = require('./rider')
+const staffResolver = require('./staff')
 const optionResolver = require('./option')
 const addonResolver = require('./addon')
 const couponResolver = require('./coupon')
@@ -27,6 +28,10 @@ const chatResolver = require('./chat')
 const countries = require('./countries')
 const cuisine = require('./cuisine')
 const demo = require('./demo')
+const shopTypeResolver = require('./shopType')
+const bannerResolver = require('./banner')
+const auditLogResolver = require('./auditLog')
+const transactionResolver = require('./transaction')
 
 const rootResolver = {
   Query: {
@@ -37,6 +42,7 @@ const rootResolver = {
     ...orderResolver.Query,
     ...configurationResolver.Query,
     ...riderResolver.Query,
+    ...staffResolver.Query,
     ...optionResolver.Query,
     ...addonResolver.Query,
     ...couponResolver.Query,
@@ -55,7 +61,12 @@ const rootResolver = {
     ...chatResolver.Query,
     ...countries.Query,
     ...cuisine.Query,
-    ...demo.Query
+    ...demo.Query,
+    ...shopTypeResolver.Query,
+    ...bannerResolver.Query,
+    ...notificationMutation.Query,
+    ...auditLogResolver.Query,
+    ...transactionResolver.Query
   },
   Mutation: {
     ...dashboardResolver.Mutation,
@@ -66,6 +77,7 @@ const rootResolver = {
     ...categoryResolver.Mutation,
     ...configurationResolver.Mutation,
     ...riderResolver.Mutation,
+    ...staffResolver.Mutation,
     ...optionResolver.Mutation,
     ...addonResolver.Mutation,
     ...couponResolver.Mutation,
@@ -85,7 +97,9 @@ const rootResolver = {
     ...earningsResolver.Mutation,
     ...chatResolver.Mutation,
     ...cuisine.Mutation,
-    ...demo.Mutation
+    ...demo.Mutation,
+    ...shopTypeResolver.Mutation,
+    ...bannerResolver.Mutation
   },
   Subscription: {
     ...orderResolver.Subscription,

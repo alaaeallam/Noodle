@@ -88,10 +88,6 @@ export const COUPONS_TABLE_COLUMNS = ({
   const coupon_columns = useMemo(
     () => [
       {
-        headerName: t('Name'),
-        propertyName: '__typename',
-      },
-      {
         headerName: t('Code'),
         propertyName: 'title',
       },

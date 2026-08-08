@@ -199,7 +199,7 @@ const AppTopbar = () => {
             className={
               pathname === '/zone'
                 ? 'rounded bg-primary-color text-white'
-                : 'bg-transparent hover:rounded hover:bg-secondary-color'
+                : 'bg-transparent hover:rounded hover:bg-secondary-color hover:text-white'
             }
             iconStyles={{
               color: pathname === '/zone' ? 'white' : 'gray',
@@ -216,7 +216,7 @@ const AppTopbar = () => {
             className={
               pathname === '/dispatch'
                 ? 'rounded bg-primary-color text-white'
-                : 'bg-transparent hover:rounded hover:bg-secondary-color'
+                : 'bg-transparent hover:rounded hover:bg-secondary-color hover:text-white'
             }
             iconStyles={{ color: pathname === '/dispatch' ? 'white' : 'gray' }}
             onClick={() => onRedirectToPage('/dispatch')}
@@ -235,7 +235,7 @@ const AppTopbar = () => {
           {/* badge */}
           {!loading &&
             notifications?.filter((ntfn) => !ntfn.read).length > 0 && (
-              <span className="absolute text-xs top-[-4px] right-[-8px] w-4 h-4 flex justify-center items-center rounded-full bg-red-500 text-white">
+              <span className="absolute text-xs top-[-4px] end-[-8px] w-4 h-4 flex justify-center items-center rounded-full bg-red-500 text-white">
                 {notifications?.filter((ntfn) => !ntfn.read).length}
               </span>
             )}
@@ -244,7 +244,7 @@ const AppTopbar = () => {
           {isNtfnOpen && (
             <div
               ref={ntfnDropdownRef}
-              className="absolute flex select-none flex-col pb-2 top-5 right-0 mt-2 w-72 bg-white shadow-xl rounded-md border"
+              className="absolute flex select-none flex-col pb-2 top-5 end-0 mt-2 w-72 bg-white shadow-xl rounded-md border"
             >
               <p className="select-none text-center font-medium p-2 shadow-sm">
                 Notifications
@@ -314,7 +314,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'en' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'en' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('en')}
                       >
                         {item.label}
@@ -330,7 +330,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'ar' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'ar' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('ar')}
                       >
                         {item.label}
@@ -346,7 +346,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'fr' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'fr' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('fr')}
                       >
                         {item.label}
@@ -362,7 +362,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'km' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'km' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('km')}
                       >
                         {item.label}
@@ -378,7 +378,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'zh' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'zh' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('zh')}
                       >
                         {item.label}
@@ -394,7 +394,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'he' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'he' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('he')}
                       >
                         {item.label}
@@ -455,7 +455,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'en' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'en' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('en')}
                       >
                         {item.label}
@@ -471,7 +471,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'ar' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'ar' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('ar')}
                       >
                         {item.label}
@@ -487,7 +487,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'fr' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'fr' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('fr')}
                       >
                         {item.label}
@@ -503,7 +503,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'km' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'km' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('km')}
                       >
                         {item.label}
@@ -519,7 +519,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'zh' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'zh' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('zh')}
                       >
                         {item.label}
@@ -535,7 +535,7 @@ const AppTopbar = () => {
                   template(item) {
                     return (
                       <div
-                        className={`${currentLocale === 'he' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                        className={`${currentLocale === 'he' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                         onClick={() => onLocaleChange('he')}
                       >
                         {item.label}
@@ -573,7 +573,7 @@ const AppTopbar = () => {
                 template(item) {
                   return (
                     <div
-                      className={`${currentLocale === 'en' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                      className={`${currentLocale === 'en' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                       onClick={() => onLocaleChange('en')}
                     >
                       {item.label}
@@ -589,7 +589,7 @@ const AppTopbar = () => {
                 template(item) {
                   return (
                     <div
-                      className={`${currentLocale === 'ar' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                      className={`${currentLocale === 'ar' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                       onClick={() => onLocaleChange('ar')}
                     >
                       {item.label}
@@ -605,7 +605,7 @@ const AppTopbar = () => {
                 template(item) {
                   return (
                     <div
-                      className={`${currentLocale === 'fr' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                      className={`${currentLocale === 'fr' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                       onClick={() => onLocaleChange('fr')}
                     >
                       {item.label}
@@ -621,7 +621,7 @@ const AppTopbar = () => {
                 template(item) {
                   return (
                     <div
-                      className={`${currentLocale === 'km' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                      className={`${currentLocale === 'km' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                       onClick={() => onLocaleChange('km')}
                     >
                       {item.label}
@@ -637,7 +637,7 @@ const AppTopbar = () => {
                 template(item) {
                   return (
                     <div
-                      className={`${currentLocale === 'zh' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                      className={`${currentLocale === 'zh' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                       onClick={() => onLocaleChange('zh')}
                     >
                       {item.label}
@@ -653,7 +653,7 @@ const AppTopbar = () => {
                 template(item) {
                   return (
                     <div
-                      className={`${currentLocale === 'he' ? 'bg-[#b1c748]' : ''} p-2  cursor-pointer`}
+                      className={`${currentLocale === 'he' ? 'bg-nile text-white' : ''} p-2  cursor-pointer`}
                       onClick={() => onLocaleChange('he')}
                     >
                       {item.label}
@@ -679,7 +679,7 @@ const AppTopbar = () => {
 
       {isMenuOpen && (
         <div
-          className="absolute right-4 top-8 z-50 rounded-lg bg-white p-4 shadow-lg"
+          className="absolute end-4 top-8 z-50 rounded-lg bg-white p-4 shadow-lg"
           ref={containerRef}
         >
           <div className="flex flex-col items-center space-y-4">

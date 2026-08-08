@@ -6,6 +6,7 @@ import * as Location from 'expo-location'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { useEffect } from 'react'
+import { Platform } from 'react-native'
 
 /* issue we're facing on some iOS devices that getCurrentPositionAsync is slow, an alternate to that is
 using watchPositionAsync to get updated location in background. */
@@ -27,6 +28,13 @@ const useWatchLocation = () => {
   //   }, [])
 
   useEffect(() => {
+    // expo-location's web target's watchPositionAsync subscription.remove()
+    // hits LegacyEventEmitter.removeSubscription, but on web the underlying
+    // native module proxy has __expo_module_name__ set, so the emitter's
+    // constructor returns the raw module instead of itself — which doesn't
+    // implement removeSubscription at all. A background GPS watch isn't
+    // meaningful in a browser tab anyway, so just skip it there.
+    if (Platform.OS === 'web') return
     if (permission && !permission.granted) return
     let locationSubscription = null
     ;(async () => {

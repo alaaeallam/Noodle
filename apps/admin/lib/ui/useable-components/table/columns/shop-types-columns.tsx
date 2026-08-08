@@ -11,7 +11,7 @@ import { useContext, useMemo, useState } from 'react';
 import { useMutation } from '@apollo/client';
 
 //GraphQL
-import { GET_COUPONS, UPDATE_SHOP_TYPE } from '@/lib/api/graphql';
+import { GET_SHOP_TYPES, UPDATE_SHOP_TYPE } from '@/lib/api/graphql';
 
 // Contexts
 import { ToastContext } from '@/lib/context/global/toast.context';
@@ -37,7 +37,7 @@ export const SHOP_TYPES_TABLE_COLUMNS = ({
 
   // Mutations
   const [editShopType, { loading }] = useMutation(UPDATE_SHOP_TYPE, {
-    refetchQueries: [{ query: GET_COUPONS }],
+    refetchQueries: [{ query: GET_SHOP_TYPES }],
     onCompleted: () => {
       showToast({
         title: t('Edit ShopType'),

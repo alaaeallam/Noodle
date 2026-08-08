@@ -19,7 +19,7 @@ const LicenseDetails = ({ loading, rider }: IRiderDetailsProps) => {
 
       {/* columns */}
       <div className="grid grid-cols-2 py-5 px-6">
-        {/* left-column */}
+        {/* start-column */}
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
             <span className="text-xs">{t('License Number')}</span>
@@ -45,10 +45,10 @@ const LicenseDetails = ({ loading, rider }: IRiderDetailsProps) => {
           </div>
         </div>
 
-        {/* right-column */}
+        {/* end-column */}
         <div className="flex flex-col gap-5">
           {loading ? (
-            <div className="pl-5 h-full flex items-center">
+            <div className="ps-5 h-full flex items-center">
               <Skeleton width="100%" height="100%" />
             </div>
           ) : rider?.licenseDetails?.image ? (

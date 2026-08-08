@@ -398,7 +398,7 @@ export default function RestaurantDetailsForm({
                           }}
                         />
                         {errors.address && touched.address && (
-                          <small className="ml-1 p-error">
+                          <small className="ms-1 p-error">
                             {errors.address}
                           </small>
                         )}
@@ -557,14 +557,14 @@ export default function RestaurantDetailsForm({
 
                       <div className="mt-4 flex justify-between">
                         <CustomButton
-                          className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                          className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                           label={t('Back')}
                           type="button"
                           onClick={() => onStepChange(order - 1)}
                         />
 
                         <CustomButton
-                          className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                          className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                           label={t('Save & Next')}
                           type="submit"
                           loading={isSubmitting}
@@ -572,7 +572,7 @@ export default function RestaurantDetailsForm({
                       </div>
                       <div className='flex justify-end'>
                         {errors.address && touched.address && (
-                          <small className="ml-5 p-error">
+                          <small className="ms-5 p-error">
                             {errors.address}
                           </small>
                         )}

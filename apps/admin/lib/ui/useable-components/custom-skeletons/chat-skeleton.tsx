@@ -19,8 +19,8 @@ interface IChatSkeletonProps {
               key={index}
               className={`p-3 rounded-lg max-w-[80%] ${
                 isAdmin 
-                  ? 'bg-green-200 text-white ml-auto rounded-tr-none' 
-                  : 'bg-gray-200 text-gray-800 mr-auto rounded-tl-none'
+                  ? 'bg-green-200 text-white ms-auto rounded-tr-none' 
+                  : 'bg-gray-200 text-gray-800 me-auto rounded-tl-none'
               }`}
             >
               {/* Message content with random widths */}
@@ -29,7 +29,7 @@ interface IChatSkeletonProps {
               {index % 3 === 0 && <div className="h-4 bg-gray-300 rounded-full w-1/2 mb-2"></div>}
               
               {/* Timestamp */}
-              <div className="h-3 bg-gray-300 rounded-full w-32 mt-2 ml-auto"></div>
+              <div className="h-3 bg-gray-300 rounded-full w-32 mt-2 ms-auto"></div>
             </div>
           );
         })}

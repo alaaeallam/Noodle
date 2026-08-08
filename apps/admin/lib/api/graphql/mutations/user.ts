@@ -25,11 +25,3 @@ export const DELETE_USER = gql`
     }
   }
 `;
-
-export const RESET_USER_SESSION = gql`
-  mutation resetUserSession($userId: ID!) {
-    resetUserSession(userId: $userId) {
-      _id
-    }
-  }
-`;

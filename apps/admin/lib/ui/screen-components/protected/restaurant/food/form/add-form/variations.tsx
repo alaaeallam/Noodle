@@ -269,7 +269,7 @@ export default function VariationAddForm({
                                         {(foodContextData?.isEditing ||
                                           !!index) && (
                                           <button
-                                            className="absolute -right-1 top-2"
+                                            className="absolute -end-1 top-2"
                                             onClick={() => remove(index)}
                                             type="button"
                                           >
@@ -337,7 +337,7 @@ export default function VariationAddForm({
                                                 }}
                                               />
                                               {value.discounted > 0 && (
-                                                <div className="absolute bottom-[-15px] left-[2px] font-semibold text-[10px] flex gap-2">
+                                                <div className="absolute bottom-[-15px] start-[2px] font-semibold text-[10px] flex gap-2">
                                                   <p>
                                                     {t('Actual Price')}&nbsp;:
                                                     &nbsp;
@@ -449,7 +449,7 @@ export default function VariationAddForm({
 
                       <div className="mt-4 flex justify-between">
                         <CustomButton
-                          className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                          className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                           label={t('Back')}
                           type="button"
                           onClick={() => {
@@ -457,7 +457,7 @@ export default function VariationAddForm({
                           }}
                         />
                         <CustomButton
-                          className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                          className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                           label={
                             foodContextData?.isEditing ? t('Update') : t('Add')
                           }

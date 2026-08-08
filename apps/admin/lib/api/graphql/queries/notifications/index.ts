@@ -1,19 +1,18 @@
-// apps/admin/lib/api/graphql/queries/notifications/index.ts
 import { gql } from '@apollo/client';
 
-// 🟢 Your backend (current schema) does NOT have `notifications` or `webNotifications`
-// so we expose only a dummy query here to avoid 400s from any component that imports it.
-
-// If some components still import GET_NOTIFICATIONS / GET_WEB_NOTIFICATIONS,
-// give them a tiny always-empty query instead of the real one.
-
 export const GET_NOTIFICATIONS = gql`
-  query GetNotificationsDummy {
-    # server has no notifications field – return nothing
-    __typename
+  query GetNotifications {
+    notifications {
+      _id
+      title
+      body
+      createdAt
+    }
   }
 `;
 
+// 🟢 Backend has no `webNotifications` field yet, so this stays a dummy query
+// to avoid 400s from any component that imports it.
 export const GET_WEB_NOTIFICATIONS = gql`
   query GetWebNotificationsDummy {
     # server has no webNotifications field – return nothing

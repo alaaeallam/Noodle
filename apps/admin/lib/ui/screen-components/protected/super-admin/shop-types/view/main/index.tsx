@@ -93,7 +93,7 @@ export default function ShopTypesMain({
           title: t('Delete ShopType'),
           type: 'error',
           message:
-            err.message || t('An unknown error occured, please try again'),
+            err.message || t('An unknown error occurred, please try again'),
           duration: 2000,
         });
       },
@@ -198,7 +198,7 @@ export default function ShopTypesMain({
         }
         visible={isDeleting.bool}
         loading={deleteShopTypeLoading}
-        message={t('Are you sure to delete the coupon?')}
+        message={t('Are you sure to delete the shop type?')}
       />
     </div>
   );

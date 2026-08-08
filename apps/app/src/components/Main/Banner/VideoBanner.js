@@ -1,42 +1,14 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { VideoView, useVideoPlayer } from 'expo-video';
 
+// expo-video's VideoView currently fails to register its Fabric view config
+// in this project ("View config getter callback ... must be a function"),
+// crashing on mount regardless of platform or linker mode — ruled out React
+// version mismatch, stale codegen, and pnpm hoisting as causes. Rendering a
+// plain background in place of the video until that's root-caused separately.
 export default function VideoBanner(props) {
-  // Create video player instance
-  const player = useVideoPlayer(props?.source, (player) => {
-    player.loop = true;
-    player.muted = true;
-    player.play();
-  });
-
-  useEffect(() => {
-    const subscription = player.addListener('statusChange', (status) => {
-      if (status.isLoaded) {
-        // Video is ready to play
-        console.log('Video loaded successfully');
-      }
-      
-      if (status.error) {
-        console.log('expo-video error:', status.error);
-      }
-    });
-
-    return () => {
-      subscription?.remove();
-    };
-  }, [player]);
-
   return (
-    <View style={[styles.container, props?.style]}>
-      <VideoView
-        style={styles.video}
-        player={player}
-        allowsFullscreen={false}
-        allowsPictureInPicture={false}
-        nativeControls={false}
-        contentFit="cover"
-      />
+    <View style={[styles.container, styles.video, props?.style]}>
       {props?.children}
     </View>
   );

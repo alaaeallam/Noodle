@@ -1,7 +1,7 @@
 import CustomInputSwitch from '@/lib/ui/useable-components/custom-input-switch';
 import CustomTab from '@/lib/ui/useable-components/custom-tab';
 import { IDashboardSubHeaderComponentsProps } from '@/lib/utils/interfaces';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
 
 export default function DashboardSubHeader({
   isStoreView,

@@ -24,9 +24,9 @@ const RestaurantMain: React.FC = () => {
     // Conditionally render icons based on label
     let icon = null;
     if (label === t('Delivery Time')) {
-      icon = <FontAwesomeIcon icon={faClock} className="mr-1" />;
+      icon = <FontAwesomeIcon icon={faClock} className="me-1" />;
     } else if (label === t('Service Charges') || label === t('Min Order')) {
-      icon = <FontAwesomeIcon icon={faDollarSign} className="mr-1" />;
+      icon = <FontAwesomeIcon icon={faDollarSign} className="me-1" />;
     }
     return (
       <div>
@@ -43,7 +43,7 @@ const RestaurantMain: React.FC = () => {
       <div className="bg-white p-8 w-full border-2 border-dotted rounded border-inherit">
         <div className="flex items-center mb-6">
           <ProfileLogoSVG width="55" height="55" strokeColor="#1E1E1E" />
-          <div className="ml-2">
+          <div className="ms-2">
             <h1 className="text-xs text-gray-500">{t('Store Name')}</h1>
             <h2 className="text-2xl font-bold">{restaurant?.name || 'N/A'}</h2>
           </div>

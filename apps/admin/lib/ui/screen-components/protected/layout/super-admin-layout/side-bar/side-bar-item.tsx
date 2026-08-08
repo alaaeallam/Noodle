@@ -28,7 +28,7 @@ function HoveredSubMenuItem({ icon, text, active }: SubMenuItemProps) {
             <FontAwesomeIcon icon={icon} />
           </span>
         )}
-        <span className="text-primary-500 ml-3 w-28 text-start">{text}</span>
+        <span className="text-primary-500 ms-3 w-28 text-start">{text}</span>
         <div className="bg-primary-200 h-1" />
       </div>
     </div>
@@ -65,24 +65,29 @@ export default function SidebarItem({
     : 0;
 
   // Defaults
-  const bg_color = pathname.includes(route ?? '')
-    ? isParent
-      ? 'primary-color'
-      : 'secondary-color'
-    : '[#71717A]';
-
-  const text_color = pathname.includes(route ?? '') ? 'white' : '[#71717A]';
+  // NOTE: use complete, literal Tailwind class strings here (never build a
+  // class name via template-literal interpolation like `bg-${var}`) — the
+  // Tailwind JIT content scanner only detects classes that appear as a
+  // complete, static substring somewhere in the source; a dynamically
+  // concatenated class is invisible to it and silently never generates any
+  // CSS, which is exactly what caused inactive sidebar text to render
+  // colorless (inheriting body's default color) instead of the intended
+  // light shade against the dark sidebar background.
   const isActive = pathname.includes(route ?? '');
+  const isActiveLeaf = isActive && !subMenu;
+  const rowClasses = isActiveLeaf
+    ? isClickable
+      ? 'bg-nile text-white'
+      : 'text-[#CFE3E1]'
+    : isActive
+      ? 'bg-nile text-white hover:bg-nile hover:text-white'
+      : 'text-[#CFE3E1] hover:bg-nile hover:text-white';
 
   return (
     <div className={`mt-[0.4rem] flex flex-col`}>
       <div>
         <button
-          className={`group relative flex w-full cursor-pointer items-center rounded-md px-3 py-2 transition-colors ${
-            isActive && !subMenu
-              ? `bg-${isClickable ? bg_color : ''} text-${isClickable ? text_color : '[#71717A]'}`
-              : `bg-${bg_color} text-${text_color} hover:bg-secondary-color`
-          } ${!expanded && 'hidden sm:flex'} `}
+          className={`group relative flex w-full cursor-pointer items-center rounded-md px-3 py-2 transition-colors ${rowClasses} ${!expanded && 'hidden sm:flex'} `}
           onClick={() => {
             if (!isParent || isClickable) {
               if (
@@ -112,14 +117,14 @@ export default function SidebarItem({
 
           <span
             className={`card-h2 text-${isParent ? 'md' : 'sm'} overflow-hidden text-start transition-all ${
-              expanded ? 'ml-3 w-44' : 'w-0'
+              expanded ? 'ms-3 w-44' : 'w-0'
             }`}
           >
             {text}
           </span>
           {subMenu && (
             <div
-              className={`absolute right-2 h-4 w-4${expanded ? '' : 'top-2'} transition-all ${expandSubMenu ? 'rotate-90' : 'rotate-0'}`}
+              className={`absolute end-2 h-4 w-4${expanded ? '' : 'top-2'} transition-all ${expandSubMenu ? 'rotate-90' : 'rotate-0'}`}
             >
               <FontAwesomeIcon icon={faChevronRight} />
             </div>
@@ -127,7 +132,7 @@ export default function SidebarItem({
 
           {!expanded && (
             <div
-              className={`text-primary-500 invisible absolute left-full ml-6 -translate-x-3 rounded-md bg-indigo-100 px-2 py-1 text-sm opacity-20 transition-all group-hover:visible group-hover:translate-x-0 group-hover:opacity-100`}
+              className={`text-primary-500 invisible absolute start-full ms-6 -translate-x-3 rounded-md bg-indigo-100 px-2 py-1 text-sm opacity-20 transition-all group-hover:visible group-hover:translate-x-0 group-hover:opacity-100`}
             >
               {!subMenu
                 ? text
@@ -144,10 +149,10 @@ export default function SidebarItem({
         </button>
       </div>
       <ul
-        className={`${classes['sub-menu']} relative pl-6`}
+        className={`${classes['sub-menu']} relative ps-6`}
         style={{ height: subMenuHeight }}
       >
-        <div className="absolute bottom-0 left-6 top-0 w-px bg-gray-300"></div>
+        <div className="absolute bottom-0 start-6 top-0 w-px bg-gray-300"></div>
 
         {(expanded ||
           onUseLocalStorage('get', SELECTED_SIDEBAR_MENU) === text) &&
@@ -156,7 +161,7 @@ export default function SidebarItem({
             return (
               <li key={index} className="relative">
                 {isActive && (
-                  <div className="absolute -left-[0.26rem] top-1/2 z-10 h-2 w-2 -translate-y-1/2 transform rounded-full bg-green-500"></div>
+                  <div className="absolute -start-[0.26rem] top-1/2 z-10 h-2 w-2 -translate-y-1/2 transform rounded-full bg-green-500"></div>
                 )}
                 <SidebarItem {...item} expanded={expanded} />
               </li>

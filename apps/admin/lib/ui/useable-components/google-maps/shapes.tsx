@@ -61,7 +61,7 @@ export default function CustomShape({
             key={`${item.value}-${index}`}
             className={`flex flex-col items-center justify-center p-3 ${
               item.value === selected
-                ? 'bg-black text-white'
+                ? 'bg-nile text-white'
                 : 'bg-[#F4F4F5] text-black'
             } w-30 h-30 transform rounded-lg shadow transition duration-300 ease-in-out hover:scale-105 focus:outline-none active:bg-gray-800`}
             type="button"

@@ -48,6 +48,7 @@ export default function UserStats() {
         label={t('Total Users')}
         total={dashboardUsers?.usersCount ?? 0}
         description={t('analytics.up8_5')}
+        isPositive
         icon={faUsers}
         route="/general/users"
         loading={loading}
@@ -56,6 +57,7 @@ export default function UserStats() {
         label={t('Total Vendors')}
         total={dashboardUsers?.vendorsCount ?? 0}
         description={t('analytics.up2_4')}
+        isPositive
         icon={faStore}
         route="/general/vendors"
         loading={loading}
@@ -64,6 +66,7 @@ export default function UserStats() {
         label={t('Total Stores')}
         total={dashboardUsers?.restaurantsCount ?? 0}
         description={t('analytics.down6_1')}
+        isPositive={false}
         icon={faUtensils}
         route="admin/vendor/stores"
         loading={loading}
@@ -72,6 +75,7 @@ export default function UserStats() {
         label={t('Total Riders')}
         total={dashboardUsers?.ridersCount ?? 0}
         description={t('analytics.up1_9')}
+        isPositive
         icon={faMotorcycle}
         route="/general/riders"
         loading={loading}

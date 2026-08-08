@@ -29,6 +29,7 @@ import useCheckAllowedRoutes from '@/lib/hooks/useCheckAllowedRoutes';
 import SidebarItem from './side-bar-item';
 import { useTranslations } from 'next-intl';
 import { faHeadset } from '@fortawesome/free-solid-svg-icons/faHeadset';
+import { AppLogo } from '@/lib/utils/assets/svgs/logo';
 
 function SuperAdminSidebar({ children }: IGlobalComponentProps) {
   // Contexts
@@ -42,9 +43,12 @@ function SuperAdminSidebar({ children }: IGlobalComponentProps) {
         className={`box-border transform overflow-hidden transition-all duration-300 ease-in-out ${isSuperAdminSidebarVisible ? 'w-64 translate-x-0' : 'w-0 -translate-x-full'}`}
       >
         <nav
-          className={`flex h-full flex-col border-r bg-white shadow-sm transition-opacity duration-300 ${isSuperAdminSidebarVisible ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+          className={`flex h-full flex-col bg-nile-deep shadow-sm transition-opacity duration-300 ${isSuperAdminSidebarVisible ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
         >
-          <ul className="flex-1 pl-2">{children}</ul>
+          <div className="flex justify-start">
+            <AppLogo variant="light" />
+          </div>
+          <ul className="flex-1 ps-2">{children}</ul>
         </nav>
       </aside>
     </div>
@@ -231,7 +235,7 @@ export default function MakeSidebar() {
   return (
     <>
       <SuperAdminSidebar>
-        <div className="h-[90vh] pb-4 overflow-y-auto overflow-x-hidden pr-2">
+        <div className="h-[90vh] pb-4 overflow-y-auto overflow-x-hidden pe-2">
           {navBarItems.map((item, index) =>
             item.shouldShow && !item.shouldShow() ? null : (
               <SidebarItem

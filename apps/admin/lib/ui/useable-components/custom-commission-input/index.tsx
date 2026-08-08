@@ -49,7 +49,7 @@ export default function CustomCommissionTextField({
 
       <div className="relative flex items-center">
         <div
-          className="absolute left-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[#E4E4E7] hover:bg-slate-200"
+          className="absolute start-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[#E4E4E7] hover:bg-slate-200"
           onClick={handleDecrease}
         >
           <span className="text-gray-500">-</span>
@@ -64,7 +64,7 @@ export default function CustomCommissionTextField({
         />
 
         <div
-          className="absolute right-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[#E4E4E7] hover:bg-slate-200"
+          className="absolute end-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[#E4E4E7] hover:bg-slate-200"
           onClick={handleIncrease}
         >
           <span className="text-gray-500">+</span>

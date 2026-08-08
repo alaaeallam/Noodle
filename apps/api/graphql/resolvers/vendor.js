@@ -5,10 +5,15 @@ const Restaurant = require('../../models/restaurant')
 const Order = require('../../models/order');
 const { transformOwner } = require('./merge')
 const bcrypt = require('bcryptjs')
+const { recordAuditLog } = require('../../helpers/auditLog')
 
 
 // helper
 const normalizeEmail = (e = '') => String(e).trim().toLowerCase();
+const redactOwner = doc => {
+  const { password, ...rest } = doc
+  return rest
+}
 
 // helpers for vendor dashboard
 const buildDateFilter = (dateKeyword, starting_date, ending_date) => {
@@ -330,13 +335,34 @@ module.exports = {
           throw new Error('Email is already associated with another account.');
         }
 
+        if (args.vendorInput.phoneNumber) {
+          const existingPhone = await Owner.findOne({
+            phoneNumber: args.vendorInput.phoneNumber,
+            isActive: true
+          });
+          if (existingPhone) {
+            throw new Error('A vendor with this phone number already exists.');
+          }
+        }
+
         const hashedPassword = await bcrypt.hash(args.vendorInput.password, 12);
         const owner = Owner({
           email,
           password: hashedPassword,
-          userType: 'VENDOR'
+          userType: 'VENDOR',
+          firstName: args.vendorInput.firstName,
+          lastName: args.vendorInput.lastName,
+          phoneNumber: args.vendorInput.phoneNumber,
+          image: args.vendorInput.image
         });
         const result = await owner.save()
+        await recordAuditLog({
+          req,
+          action: 'CREATE_VENDOR',
+          targetType: 'Vendor',
+          targetId: result.id,
+          changes: redactOwner(result._doc)
+        })
         return transformOwner(result)
       } catch (err) {
         console.log(err)
@@ -372,6 +398,7 @@ module.exports = {
         if (!owner) {
           throw new Error('Vendor not found');
         }
+        const oldData = redactOwner(owner._doc)
 
         // Email (optional) — normalize, ensure uniqueness if changed
         if (typeof vendorInput.email === 'string') {
@@ -406,6 +433,15 @@ module.exports = {
         }
 
         const result = await owner.save();
+        if (isAdmin) {
+          await recordAuditLog({
+            req,
+            action: 'EDIT_VENDOR',
+            targetType: 'Vendor',
+            targetId: result.id,
+            changes: { oldData, newData: redactOwner(result._doc) }
+          })
+        }
         return transformOwner(result);
       } catch (err) {
         console.log(err);
@@ -413,13 +449,15 @@ module.exports = {
       }
     },
     // TODO: if vendor is deleted, shouldn't the restaurants also(isActive:false)
-    deleteVendor: async(_, args, context) => {
+    deleteVendor: async(_, args, { req }) => {
+      requireRole(req, ADMIN_ROLES);
       console.log('Delete Vendor')
       try {
         const owner = await Owner.findById(args.id);
         if (!owner) {
           throw new Error('Vendor not found');
         }
+        const oldData = redactOwner(owner._doc)
 
         await Promise.all(
           (owner.restaurants || []).map(async (rid) => {
@@ -433,6 +471,13 @@ module.exports = {
 
         owner.isActive = false;
         await owner.save();
+        await recordAuditLog({
+          req,
+          action: 'DELETE_VENDOR',
+          targetType: 'Vendor',
+          targetId: args.id,
+          changes: oldData
+        })
         return true;
       } catch (error) {
         console.log(error);

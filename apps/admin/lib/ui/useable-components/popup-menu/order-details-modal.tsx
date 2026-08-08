@@ -59,7 +59,7 @@ const OrderDetailModal: React.FC<IOrderDetailModalProps> = ({
           <div className="charges-table">
             <div className="charges-row">
               <span>Subtotal</span>
-              <span>${calculateSubtotal(restaurantData?.items || [])}</span>
+              <span>${calculateSubtotal(restaurantData?.items || []).toFixed(2)}</span>
             </div>
             <div className="charges-row">
               <span>Delivery Fee</span>

@@ -32,6 +32,9 @@ const riderSchema = new Schema(
       type: Boolean,
       default: true
     },
+    vehicleType: {
+      type: String
+    },
     assigned: [String],
     delivered: [String],
     zone: {
@@ -51,7 +54,16 @@ const riderSchema = new Schema(
     },
     currentWalletAmount: { type: Number, default: 0 },
     totalWalletAmount: { type: Number, default: 0 },
-    withdrawnWalletAmount: { type: Number, default: 0 }
+    withdrawnWalletAmount: { type: Number, default: 0 },
+    bussinessDetails: {
+      bankName: { type: String },
+      accountName: { type: String },
+      accountCode: { type: String },
+      accountNumber: { type: String },
+      bussinessRegNo: { type: String },
+      companyRegNo: { type: String },
+      taxRate: { type: Number }
+    }
   },
   { timestamps: true }
 )

@@ -38,16 +38,16 @@ const AuditLogCard: React.FC<AuditLogCardProps> = ({ log, isLast }) => {
     const { icon, color, bgColor } = getActionDetails(log.action);
 
     return (
-        <div className="relative pl-12 py-4">
+        <div className="relative ps-12 py-4">
             {/* Timeline line */}
-            {!isLast && <div className="absolute left-6 top-10 bottom-0 w-0.5 bg-gray-200"></div>}
+            {!isLast && <div className="absolute start-6 top-10 bottom-0 w-0.5 bg-gray-200"></div>}
 
             {/* Timeline icon */}
-            <div className={`absolute left-0 top-6 w-12 h-12 flex items-center justify-center rounded-full ${bgColor}`}>
+            <div className={`absolute start-0 top-6 w-12 h-12 flex items-center justify-center rounded-full ${bgColor}`}>
                 <FontAwesomeIcon icon={icon} className={`h-5 w-5 ${color}`} />
             </div>
 
-            <div className="ml-4">
+            <div className="ms-4">
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="font-bold text-lg text-gray-800">API: {log.action}</p>
@@ -55,7 +55,7 @@ const AuditLogCard: React.FC<AuditLogCardProps> = ({ log, isLast }) => {
                             Performed by <span className="font-semibold text-gray-700">{log.admin.email}</span>
                         </p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-end">
                         <p className="text-sm text-gray-600">{format(new Date(log.timestamp), 'PPP')}</p>
                         <p className="text-xs text-gray-400">{format(new Date(log.timestamp), 'p')}</p>
                     </div>

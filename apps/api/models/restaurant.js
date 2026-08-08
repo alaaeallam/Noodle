@@ -101,9 +101,22 @@ const restaurantSchema = new Schema(
       default: defaultOpeningTimes
     },
     slug: { type: String, default: null },
+    logo: { type: String },
     stripeAccountId: { type: String, default: null },
     stripeDetailsSubmitted: { type: Boolean, default: false },
     commissionRate: { type: Number, default: 25 },
+    currentWalletAmount: { type: Number, default: 0 },
+    totalWalletAmount: { type: Number, default: 0 },
+    withdrawnWalletAmount: { type: Number, default: 0 },
+    bussinessDetails: {
+      bankName: { type: String },
+      accountName: { type: String },
+      accountCode: { type: String },
+      accountNumber: { type: String },
+      bussinessRegNo: { type: String },
+      companyRegNo: { type: String },
+      taxRate: { type: Number }
+    },
     cuisines: { type: [String] },
     owner: {
       type: Schema.Types.ObjectId,

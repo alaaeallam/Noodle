@@ -21,10 +21,7 @@ import { ToastProvider } from '@/lib/context/global/toast.context';
 import { FontawesomeConfig } from '@/lib/config';
 
 // Styles
-
-import 'primeicons/primeicons.css';
-import 'primereact/resources/primereact.min.css';
-import 'primereact/resources/themes/lara-light-cyan/theme.css';
+// PrimeReact CSS/theme is imported once, canonically, in global.css
 import './global.css';
 
 // Apollo

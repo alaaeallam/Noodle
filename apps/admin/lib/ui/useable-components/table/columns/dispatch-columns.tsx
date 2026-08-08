@@ -10,8 +10,9 @@ import {
 } from '@/lib/utils/interfaces';
 
 // Prime React
-import { Tag } from 'primereact/tag';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import StatusChip from '@/lib/ui/useable-components/status-chip';
+import { getStatusTone } from '@/lib/utils/methods/status-tone';
 
 // GraphQL
 import {
@@ -37,11 +38,7 @@ import { useTranslations } from 'next-intl';
 // Status templates
 const valueTemplate = (option: IDropdownSelectItem) => (
   <div className="flex items-center justify-start gap-2">
-    <Tag
-      severity={severityChecker(option?.code)}
-      value={option?.label}
-      rounded
-    />
+    <StatusChip tone={getStatusTone(option?.code)} label={option?.label ?? ''} />
   </div>
 );
 
@@ -56,22 +53,6 @@ const itemTemplate = (option: IDropdownSelectItem) => {
   );
 };
 
-// Severity checker
-function severityChecker(status: string | undefined) {
-  switch (status) {
-    case 'PENDING':
-      return 'danger';
-    case 'ASSIGNED':
-      return 'info';
-    case 'ACCEPTED':
-      return 'success';
-    case 'CANCELLED':
-      return 'danger';
-    case 'PICKED':
-      return 'contrast';
-  }
-}
-
 export const DISPATCH_TABLE_COLUMNS = () => {
   // Hooks
   const t = useTranslations();
@@ -79,36 +60,12 @@ export const DISPATCH_TABLE_COLUMNS = () => {
 
   // Status options
   const actionStatusOptions = [
-    {
-      label: t('Pending'),
-      code: 'PENDING',
-      body: () => <Tag value={t('Pending')} severity="secondary" rounded />,
-    },
-    {
-      label: t('Assigned'),
-      code: 'ASSIGNED',
-      body: () => <Tag value={t('Assigned')} severity="warning" rounded />,
-    },
-    {
-      label: t('Accepted'),
-      code: 'ACCEPTED',
-      body: () => <Tag value={t('Accepted')} severity="info" rounded />,
-    },
-    {
-      label: t('Delivered'),
-      code: 'DELIVERED',
-      body: () => <Tag value={t('Delivered')} severity="success" rounded />,
-    },
-    {
-      label: t('Picked'),
-      code: 'PICKED',
-      body: () => <Tag value={t('Picked')} severity="contrast" rounded />,
-    },
-    {
-      label: t('Rejected'),
-      code: 'CANCELLED',
-      body: () => <Tag value={t('Rejected')} severity="danger" rounded />,
-    },
+    { label: t('Pending'), code: 'PENDING' },
+    { label: t('Assigned'), code: 'ASSIGNED' },
+    { label: t('Accepted'), code: 'ACCEPTED' },
+    { label: t('Delivered'), code: 'DELIVERED' },
+    { label: t('Picked'), code: 'PICKED' },
+    { label: t('Rejected'), code: 'CANCELLED' },
   ];
 
   // States

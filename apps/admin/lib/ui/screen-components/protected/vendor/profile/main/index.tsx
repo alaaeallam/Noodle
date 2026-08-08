@@ -187,7 +187,7 @@ const onVendorCreate = async (data: IVendorForm) => {
                   <>
                     <div>
                       <Form onSubmit={handleSubmit}>
-                        <div className="edit-profile-file-upload ml-[11px] space-y-3 rounded-[10px] border border-[#E4E4E7] p-[34px] max-[991px]:p-[20px]">
+                        <div className="edit-profile-file-upload ms-[11px] space-y-3 rounded-[10px] border border-[#E4E4E7] p-[34px] max-[991px]:p-[20px]">
                           <div className="mb-[32px] flex flex-wrap max-[991px]:mb-[20px] max-[400px]:mb-[0px] max-[400px]:justify-center">
                             <div className="h-[120px] w-[120px] shrink-0 overflow-hidden rounded-full">
                               <Image
@@ -202,7 +202,7 @@ const onVendorCreate = async (data: IVendorForm) => {
                                 objectFit="cover"
                               />
                             </div>
-                            <div className="sm:pl-[50px] remove-gap">
+                            <div className="sm:ps-[50px] remove-gap">
                               <CustomUploadImageComponent
                                 key="image"
                                 name="image"

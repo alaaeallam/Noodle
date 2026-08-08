@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from 'react'
-import { View, Image, TouchableOpacity, Dimensions, StatusBar, Platform, KeyboardAvoidingView } from 'react-native'
+import { View, Image, Text, TouchableOpacity, Dimensions, StatusBar, Platform, KeyboardAvoidingView } from 'react-native'
 import styles from './styles'
 import FdGoogleBtn from '../../ui/FdSocialBtn/FdGoogleBtn/FdGoogleBtn'
 import FdEmailBtn from '../../ui/FdSocialBtn/FdEmailBtn/FdEmailBtn'
@@ -44,12 +44,25 @@ const CreateAccount = (props) => {
       return null
     }
 
+    // expo-apple-authentication's AppleAuthenticationButton fails to
+    // register its Fabric view config in this project ("View config getter
+    // callback ... must be a function"), crashing the whole screen — same
+    // class of bug as expo-video's VideoView (see AnimatedSplashScreen.js).
+    // Rendering a plain button with identical sign-in logic until that's
+    // root-caused separately.
     return (
-      <AppleAuthentication.AppleAuthenticationButton
-        buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-        buttonStyle={themeContext.ThemeValue === 'Dark' ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-        cornerRadius={scale(20)}
-        style={styles().appleBtn}
+      <TouchableOpacity
+        activeOpacity={0.7}
+        style={[
+          styles().appleBtn,
+          {
+            backgroundColor: themeContext.ThemeValue === 'Dark' ? '#FFFFFF' : '#000000',
+            borderRadius: scale(20),
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: scale(12)
+          }
+        ]}
         onPress={async () => {
           try {
             const credential = await AppleAuthentication.signInAsync({
@@ -86,7 +99,11 @@ const CreateAccount = (props) => {
             loginButtonSetter(null)
           }
         }}
-      />
+      >
+        <Text style={{ color: themeContext.ThemeValue === 'Dark' ? '#000000' : '#FFFFFF', fontWeight: '600' }}>
+           Continue with Apple
+        </Text>
+      </TouchableOpacity>
     )
   }
 

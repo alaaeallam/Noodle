@@ -207,7 +207,7 @@ const UpdateTiming = ({
                                   name={`${dayIndex}.times[${timeIndex}].startTime`}
                                 >
                                   {(msg) => (
-                                    <div className="absolute bottom-[-15px] ml-1 text-[10px] text-red-500">
+                                    <div className="absolute bottom-[-15px] ms-1 text-[10px] text-red-500">
                                       {msg}
                                     </div>
                                   )}
@@ -286,7 +286,7 @@ const UpdateTiming = ({
                     </div>
                   ) : (
                     <div className="flex min-h-10 flex-1 items-center justify-start">
-                      <span className="select-none rounded-full bg-black px-3 py-1 text-xs text-white">
+                      <span className="select-none rounded-full bg-mango px-3 py-1 text-xs text-ink">
                         {t('Closed all Day')}
                       </span>
                     </div>
@@ -296,7 +296,7 @@ const UpdateTiming = ({
             })}
 
             <CustomButton
-              className="mb-[2px] mr-auto mt-auto flex h-11 rounded-md border-gray-300 bg-[black] px-10 text-white"
+              className="mb-[2px] me-auto mt-auto flex h-11 rounded-md border-gray-300 bg-[black] px-10 text-white"
               label={t('Save')}
               rounded={false}
               disabled={loading}

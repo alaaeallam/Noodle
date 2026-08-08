@@ -1,4 +1,6 @@
 import { memo } from 'react';
+import StatusChip from '@/lib/ui/useable-components/status-chip';
+import { getStatusTone } from '@/lib/utils/methods/status-tone';
 
 // Interfaces
 export interface ITicket {
@@ -28,20 +30,6 @@ function TicketCard({
   ticket, 
   onClick
 }: ITicketCardProps) {
-  // Get status class
-  const getStatusClass = (status: string) => {
-    switch(status.toLowerCase()) {
-      case 'open':
-        return 'bg-blue-100 text-blue-800';
-      case 'inprogress':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'closed':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-  
   // Get display text for ticket
   const getTicketDisplayText = () => {
     if (ticket.category === 'order related' && ticket.orderId) {
@@ -134,10 +122,14 @@ function TicketCard({
       
       <div className="flex justify-between items-center mt-2">
         {/* Status badge */}
-        <span className={`inline-block px-2 py-0.5 rounded-full text-xs ${getStatusClass(ticket.status)}`}>
-          {ticket.status === 'inProgress' ? 'In Progress' : 
-          ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-        </span>
+        <StatusChip
+          tone={getStatusTone(ticket.status.toLowerCase())}
+          label={
+            ticket.status === 'inProgress'
+              ? 'In Progress'
+              : ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)
+          }
+        />
         
         {/* Format date */}
         <span className="text-xs text-gray-500">

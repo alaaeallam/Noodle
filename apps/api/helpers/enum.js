@@ -37,6 +37,11 @@ exports.WITHDRAW_REQUEST_STATUS = {
   CANCELLED: 'CANCELLED'
 }
 
+exports.USER_TYPE = {
+  RIDER: 'RIDER',
+  STORE: 'STORE'
+}
+
 exports.SHOP_TYPE = {
   GROCERY: 'grocery',
   RESTAURANT: 'restaurant'

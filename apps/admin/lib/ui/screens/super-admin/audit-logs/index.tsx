@@ -55,7 +55,7 @@ const AuditLogScreen = () => {
             </div>
 
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                <div className="h-[calc(100vh-280px)] overflow-y-auto pr-2">
+                <div className="h-[calc(100vh-280px)] overflow-y-auto pe-2">
                     {auditLogs.length > 0 ? (
                         <div className="relative">
                             {auditLogs.map((log: AuditLog, index: number) => (

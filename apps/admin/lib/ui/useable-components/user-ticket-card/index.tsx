@@ -80,7 +80,7 @@ function UserTicketCard({
     <div 
       onClick={onClick} 
       className={`flex items-center border-b border-gray-200 p-3 cursor-pointer ${
-        isSelected ? 'bg-black text-white' : 'bg-white text-black'
+        isSelected ? 'bg-nile text-white' : 'bg-white text-black'
       }`}
     >
       {/* User avatar */}
@@ -90,7 +90,7 @@ function UserTicketCard({
           height={40}
           src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
           alt="User avatar"
-          className="h-10 w-10 rounded-full mr-3"
+          className="h-10 w-10 rounded-full me-3"
         />
       </div>
       

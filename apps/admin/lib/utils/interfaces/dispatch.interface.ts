@@ -7,6 +7,15 @@ export interface IActiveOrders {
     _id: string;
   };
   orderId: string;
+  restaurant: {
+    _id: string;
+    name: string;
+    image: string;
+    address: string;
+    location: {
+      coordinates: number[];
+    };
+  };
   deliveryAddress: {
     location: {
       coordinates: GeolocationCoordinates;
@@ -14,6 +23,10 @@ export interface IActiveOrders {
     deliveryAddress: string;
     details: string;
     label: string;
+  };
+  user: {
+    name: string;
+    phone: string;
   };
   paymentMethod: string;
   orderStatus: string;
@@ -39,7 +52,7 @@ export interface GeolocationCoordinates {
 }
 
 export interface IGetActiveOrders {
-  getActiveOrders: { totalCount: number; orders: IActiveOrders[] };
+  getActiveOrders: IActiveOrders[];
 }
 
 export interface IRidersByZone {

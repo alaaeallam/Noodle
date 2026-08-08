@@ -3,18 +3,16 @@ import { gql } from '@apollo/client';
 export const GET_VENDORS = gql`
   query vendors {
     vendors {
-      unique_id
       _id
       email
       userType
-      isActive
-      name
+      firstName
+      lastName
       image
       restaurants {
         _id
       }
     }
-    vendorCount @client
   }
 `;
 
@@ -46,8 +44,8 @@ export const GET_VENDOR_BY_ID_WITH_RESTAURANTS = gql`
       _id
       email
       userType
-      name
-      plainPassword
+      firstName
+      lastName
       image
       restaurants {
         _id

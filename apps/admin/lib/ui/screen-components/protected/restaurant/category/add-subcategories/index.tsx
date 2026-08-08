@@ -240,7 +240,7 @@ export default function SubCategoriesAddForm({
             ) : (
               <CustomButton
                 label={t('Submit')}
-                className="h-10 w-fit border-gray-300 bg-black px-8 text-white block m-auto my-2"
+                className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink block m-auto my-2"
                 onClick={() => handleSubmit()}
                 type="submit"
               />

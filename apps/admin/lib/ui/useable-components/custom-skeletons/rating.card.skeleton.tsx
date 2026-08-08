@@ -10,9 +10,9 @@ const ProfileCardSkeleton = () => {
         >
           <div className="flex flex-col md:flex-row items-center w-full">
             {/* Image Skeleton */}
-            <div className="w-12 h-12 bg-gray-200 rounded-md mr-4"></div>
+            <div className="w-12 h-12 bg-gray-200 rounded-md me-4"></div>
 
-            <div className="flex-grow text-center md:text-left">
+            <div className="flex-grow text-center md:text-start">
               {/* Name Skeleton */}
               <div className="w-32 h-4 bg-gray-200 rounded mb-2"></div>
 
@@ -25,7 +25,7 @@ const ProfileCardSkeleton = () => {
 
             <div className="flex items-center mt-4 md:mt-0">
               {/* Rating Skeleton */}
-              <div className="w-24 h-6 bg-gray-200 rounded mr-4"></div>
+              <div className="w-24 h-6 bg-gray-200 rounded me-4"></div>
 
               {/* Button Skeleton */}
               <div className="w-16 h-8 bg-gray-200 rounded"></div>

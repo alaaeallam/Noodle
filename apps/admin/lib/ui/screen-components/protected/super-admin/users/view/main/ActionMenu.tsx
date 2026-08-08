@@ -5,13 +5,13 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { IUserResponse } from '@/lib/utils/interfaces';
 import { CustomDialog } from '@/lib/ui/useable-components/custom-dialog';
 import { useMutation } from '@apollo/client';
-import { UPDATE_USER_STATUS, UPDATE_USER_NOTES, DELETE_USER, RESET_USER_SESSION } from '@/lib/api/graphql/mutations/user';
+import { UPDATE_USER_STATUS, UPDATE_USER_NOTES, DELETE_USER } from '@/lib/api/graphql/mutations/user';
 import useToast from '@/lib/hooks/useToast';
 
 // TODO: Setup useTranslation hook to get t function for i18n
 const t = (key: string,) => key;
 
-type ModalType = 'block' | 'unblock' | 'delete' | 'deactivate' | 'activate' | 'reset' | 'notes' | null;
+type ModalType = 'block' | 'unblock' | 'delete' | 'deactivate' | 'activate' | 'notes' | null;
 
 interface ActionMenuProps {
     rowData: IUserResponse;
@@ -59,16 +59,6 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({ rowData }) => {
         refetchQueries: ['users'] // Refetch users after deletion
     });
 
-    const [resetUserSession, { loading: resetUserSessionLoading }] = useMutation(RESET_USER_SESSION, {
-        onCompleted: () => {
-            showToast({ type: 'success', title: 'Success', message: 'User session reset successfully' });
-            setActiveModal(null);
-        },
-        onError: (error) => {
-            showToast({ type: 'error', title: 'Error', message: error.message || 'Failed to reset user session' });
-        },
-    });
-
     const handleUpdateStatus = (status: string) => {
         updateUserStatus({ variables: { id: rowData._id, status } });
     };
@@ -84,10 +74,6 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({ rowData }) => {
 
     const onConfirmDelete = () => {
         deleteUser({ variables: { id: rowData._id } });
-    };
-
-    const onConfirmResetSession = () => {
-        resetUserSession({ variables: { userId: rowData._id } });
     };
 
     const items = [];
@@ -113,11 +99,6 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({ rowData }) => {
     }
 
     items.push(
-        {
-            label: t('Reset Session'),
-            icon: 'pi pi-refresh',
-            command: () => setActiveModal('reset'),
-        },
         {
             label: t('Internal Notes'),
             icon: 'pi pi-file-edit',
@@ -210,19 +191,6 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({ rowData }) => {
                 loading={deleteUserLoading}
                 buttonConfig={{
                     primaryButtonProp: { label: t('Yes, delete'), className: 'p-button-warning p-3 !px-5 rounded-md  bg-red-500 text-white  ' },
-                    secondaryButtonProp: { label: t('Cancel'), className: 'p-button-warning p-3 rounded-md  bg-gray-500 text-white  me-5' },
-                }}
-            />
-
-            <CustomDialog
-                visible={activeModal === 'reset'}
-                onHide={() => setActiveModal(null)}
-                onConfirm={onConfirmResetSession}
-                title={t('Reset Session Confirmation')}
-                message={t('Are you sure you want to log this user out from all devices?')}
-                loading={resetUserSessionLoading} // No mutation yet
-                buttonConfig={{
-                    primaryButtonProp: { label: t('Yes, reset'), className: 'p-button-warning p-3 !px-5 rounded-md  bg-red-500 text-white  ' },
                     secondaryButtonProp: { label: t('Cancel'), className: 'p-button-warning p-3 rounded-md  bg-gray-500 text-white  me-5' },
                 }}
             />

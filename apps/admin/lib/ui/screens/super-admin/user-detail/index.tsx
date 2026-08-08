@@ -67,14 +67,14 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({ userId }) => {
             <div className="p-4 md:p-6">
                 {/* Header Skeleton */}
                 <div className="flex items-center gap-4 mb-6">
-                    <Skeleton shape="circle" size="2.5rem" className="mr-2"></Skeleton>
+                    <Skeleton shape="circle" size="2.5rem" className="me-2"></Skeleton>
                     <Skeleton width="10rem" height="2.5rem"></Skeleton>
                 </div>
 
                 {/* User Card Skeleton */}
                 <div className="card mt-6">
                     <div className="flex items-center p-4">
-                        <Skeleton shape="circle" size="6rem" className="mr-4"></Skeleton>
+                        <Skeleton shape="circle" size="6rem" className="me-4"></Skeleton>
                         <div>
                             <Skeleton width="15rem" height="2rem" className="mb-2"></Skeleton>
                             <Skeleton width="10rem" height="1rem" className="mb-1"></Skeleton>
@@ -86,8 +86,8 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({ userId }) => {
                 {/* Tabs Skeleton */}
                 <div className="card mt-6">
                     <div className="flex border-b border-gray-300">
-                        <Skeleton width="8rem" height="2.5rem" className="mr-2"></Skeleton>
-                        <Skeleton width="8rem" height="2.5rem" className="mr-2"></Skeleton>
+                        <Skeleton width="8rem" height="2.5rem" className="me-2"></Skeleton>
+                        <Skeleton width="8rem" height="2.5rem" className="me-2"></Skeleton>
                         <Skeleton width="8rem" height="2.5rem"></Skeleton>
                     </div>
                     <div className="p-4">

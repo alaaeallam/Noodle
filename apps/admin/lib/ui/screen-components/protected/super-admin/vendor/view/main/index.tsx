@@ -67,7 +67,7 @@ export default function VendorMain({ activeTab }: IVendorMainComponentProps) {
           <div className="mb-4 flex items-center justify-between">
             <HeaderText text={t('Vendors')} />
             <TextIconClickable
-              className="rounded border-gray-300 bg-black text-white sm:w-auto"
+              className="rounded border-gray-300 bg-mango text-ink sm:w-auto"
               icon={faAdd}
               iconStyles={{ color: 'white' }}
               title={t('Add Vendor')}
@@ -105,11 +105,10 @@ export default function VendorMain({ activeTab }: IVendorMainComponentProps) {
                 key={vendor._id}
                 _id={vendor._id}
                 email={vendor.email}
-                name={vendor?.name}
+                name={[vendor?.firstName, vendor?.lastName].filter(Boolean).join(' ') || vendor.email}
                 image={vendor?.image}
                 userType={vendor.userType}
                 totalRestaurants={vendor?.restaurants?.length ?? 0}
-                uniqueId={vendor.unique_id}
                 isLast={vendors.length - 1 === index}
               />
             ))
@@ -139,7 +138,7 @@ export default function VendorMain({ activeTab }: IVendorMainComponentProps) {
               />
             </div>
             <TextIconClickable
-              className="rounded border-gray-300 bg-black text-white sm:w-auto"
+              className="rounded border-gray-300 bg-mango text-ink sm:w-auto"
               icon={faAdd}
               iconStyles={{ color: 'white' }}
               title={t('Add Store')}

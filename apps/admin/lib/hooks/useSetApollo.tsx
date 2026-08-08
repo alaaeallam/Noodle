@@ -26,14 +26,19 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
     uri: `${SERVER_URL}graphql`,
   });
 
-  // WebSocket endpoint MUST include /graphql too
-  const wsLink = new WebSocketLink(
-    new SubscriptionClient(`${WS_SERVER_URL}graphql`, {
-      reconnect: true,
-      timeout: 30000,
-      lazy: true,
-    })
-  );
+  // WebSocket/subscriptions only make sense in the browser. Instantiating
+  // SubscriptionClient during SSR/static generation throws ("Invalid URL")
+  // because there's no live connection to make at build/render time.
+  const wsLink =
+    typeof window !== 'undefined'
+      ? new WebSocketLink(
+          new SubscriptionClient(`${WS_SERVER_URL}graphql`, {
+            reconnect: true,
+            timeout: 30000,
+            lazy: true,
+          })
+        )
+      : null;
 
   // Centralized error logging
   const errorLink = onError(({ networkError, graphQLErrors }) => {
@@ -79,15 +84,18 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
       })
   );
 
-  // Proper split: subscriptions → wsLink, everything else → httpLink
-  const splitLink = split(
-    ({ query }) => {
-      const def = getMainDefinition(query);
-      return def.kind === 'OperationDefinition' && def.operation === 'subscription';
-    },
-    wsLink,
-    httpLink
-  );
+  // Proper split: subscriptions → wsLink, everything else → httpLink.
+  // On the server (no wsLink), everything just goes over http.
+  const splitLink = wsLink
+    ? split(
+        ({ query }) => {
+          const def = getMainDefinition(query);
+          return def.kind === 'OperationDefinition' && def.operation === 'subscription';
+        },
+        wsLink,
+        httpLink
+      )
+    : httpLink;
 
   // Final chain: errors → auth → (ws|http)
   const link = ApolloLink.from([errorLink, requestLink, splitLink]);

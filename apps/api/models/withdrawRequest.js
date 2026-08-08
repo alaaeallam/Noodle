@@ -18,6 +18,15 @@ const withdrawRequestSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Rider'
     },
+    store: {
+      type: Schema.Types.ObjectId,
+      ref: 'Restaurant'
+    },
+    userType: {
+      type: String,
+      enum: ['RIDER', 'STORE'],
+      default: 'RIDER'
+    },
     status: {
       type: String
     }

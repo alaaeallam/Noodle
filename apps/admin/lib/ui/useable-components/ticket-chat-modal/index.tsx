@@ -315,7 +315,7 @@ export default function TicketChatModal({
               Ticket Description:
             </div>
             <p className="text-sm text-gray-700">{ticketDescription}</p>
-            <div className="text-xs text-right mt-1 text-gray-500">
+            <div className="text-xs text-end mt-1 text-gray-500">
               {formatTimestamp(ticket?.createdAt || Date.now().toString())}
             </div>
           </div>
@@ -345,12 +345,12 @@ export default function TicketChatModal({
                     key={msg._id}
                     className={`rounded-lg p-3 max-w-[80%] ${
                       isAdminMessage
-                        ? 'bg-green-500 text-white ml-auto'
-                        : 'bg-gray-100 text-gray-800 mr-auto'
+                        ? 'bg-green-500 text-white ms-auto'
+                        : 'bg-gray-100 text-gray-800 me-auto'
                     }`}
                   >
                     <p className="break-words">{msg.content}</p>
-                    <div className="text-xs mt-1 text-right">
+                    <div className="text-xs mt-1 text-end">
                       {formatTimestamp(msg.createdAt)}
                     </div>
                   </div>
@@ -380,14 +380,14 @@ export default function TicketChatModal({
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Type your message here..."
-                className="flex-1 p-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#5AC12F] resize-none"
+                className="flex-1 p-3 border border-gray-300 rounded-s-md focus:outline-none focus:ring-2 focus:ring-[#5AC12F] resize-none"
                 rows={2}
                 disabled={isSending}
               />
               <button
                 onClick={handleSendMessage}
                 disabled={!message.trim() || isSending}
-                className={`bg-green-500 rounded-r-md p-2 text-white flex items-center justify-center ${
+                className={`bg-green-500 rounded-e-md p-2 text-white flex items-center justify-center ${
                   !message.trim() || isSending
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-green-600'

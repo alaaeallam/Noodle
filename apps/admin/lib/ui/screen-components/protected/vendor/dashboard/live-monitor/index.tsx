@@ -37,7 +37,7 @@ export default function VendorLiveMonitor() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#CED111] text-white bg-[#CED111] lg:h-10 lg:w-10">
             <span className="text-base font-semibold lg:text-lg">0</span>
           </div>
-          <div className="ml-2 lg:ml-4">
+          <div className="ms-2 lg:ms-4">
             <h2 className="lg:text-md text-sm font-semibold">{t('Stores')}</h2>
             <p className="text-xs text-gray-500 lg:text-sm">N/A</p>
           </div>
@@ -47,7 +47,7 @@ export default function VendorLiveMonitor() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-red-500 text-white bg-red-500 lg:h-10 lg:w-10">
             <span className="text-base font-semibold lg:text-lg">0</span>
           </div>
-          <div className="ml-2 lg:ml-4">
+          <div className="ms-2 lg:ms-4">
             <h2 className="lg:text-md text-sm font-semibold">
               {t('Cancelled Orders')}
             </h2>
@@ -59,7 +59,7 @@ export default function VendorLiveMonitor() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-500 text-white bg-gray-500 lg:h-10 lg:w-10">
             <span className="text-base font-semibold lg:text-lg">0</span>
           </div>
-          <div className="ml-2 lg:ml-4">
+          <div className="ms-2 lg:ms-4">
             <h2 className="lg:text-md text-sm font-semibold">
               {t('Delayed Orders')}
             </h2>
@@ -68,10 +68,10 @@ export default function VendorLiveMonitor() {
         </div>
 
         <div className="flex items-center rounded-lg border p-2 lg:p-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-black bg-black text-white lg:h-10 lg:w-10">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-black bg-mango text-ink lg:h-10 lg:w-10">
             <span className="text-base font-semibold lg:text-lg">0</span>
           </div>
-          <div className="ml-2 lg:ml-4">
+          <div className="ms-2 lg:ms-4">
             <h2 className="lg:text-md text-sm font-semibold">{t('Ratings')}</h2>
             <p className="text-xs text-gray-500 lg:text-sm">N/A</p>
           </div>

@@ -17,7 +17,7 @@ export default function UserTicketSkeleton({
           className="flex items-center p-3 border-b border-gray-200 animate-pulse"
         >
           {/* Avatar circle */}
-          <div className="h-10 w-10 rounded-full bg-gray-200 mr-3"></div>
+          <div className="h-10 w-10 rounded-full bg-gray-200 me-3"></div>
 
           <div className="flex-1">
             {/* Name */}

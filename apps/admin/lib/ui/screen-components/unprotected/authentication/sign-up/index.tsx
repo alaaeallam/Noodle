@@ -191,7 +191,7 @@ export default function SignupMain() {
                       <div className="mb-2 flex flex-col gap-2 p-2">
                         <Divider align="left" className="m-0">
                           <div className="align-items-center inline-flex">
-                            <i className="pi pi-lock mr-2"></i>
+                            <i className="pi pi-lock me-2"></i>
                             <b>Password Strength</b>
                           </div>
                         </Divider>
@@ -202,7 +202,7 @@ export default function SignupMain() {
                               key={index}
                               className={`${errors.password?.includes(pmessage) ? 'text-red-500' : 'text-gray-500'} text-sm`}
                             >
-                              <i className="pi pi-times mr-2" />
+                              <i className="pi pi-times me-2" />
                               <span>{pmessage}</span>
                             </div>
                           );

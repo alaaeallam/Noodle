@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useContext, useState, useCallback } from 'react';
 import { Dropdown } from 'primereact/dropdown';
-import { Tag } from 'primereact/tag';
+import StatusChip from '@/lib/ui/useable-components/status-chip';
+import { getStatusTone } from '@/lib/utils/methods/status-tone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowsRotate,
@@ -199,28 +200,12 @@ export const WITHDRAW_REQUESTS_TABLE_COLUMNS = ({
   );
 
   // Templates
-  const valueTemplate = (option: any) => {
-    const findSeverity = (code: string | undefined) => {
-      switch (code) {
-        case 'REQUESTED':
-          return 'info';
-        case 'TRANSFERRED':
-          return 'success';
-        case 'CANCELLED':
-          return 'danger';
-        default:
-          return 'warning';
-      }
-    };
-
-    return (
-      <Tag
-        severity={findSeverity(option?.code ? String(option?.code) : undefined)}
-        value={option?.label}
-        rounded
-      />
-    );
-  };
+  const valueTemplate = (option: any) => (
+    <StatusChip
+      tone={getStatusTone(option?.code ? String(option?.code) : undefined)}
+      label={option?.label ?? ''}
+    />
+  );
 
   return useMemo(
     () => [

@@ -1,16 +1,29 @@
 const Review = require('../../models/review')
 const Order = require('../../models/order')
-const { transformReview, transformOrder } = require('./merge')
+const { transformReview, transformOrder, populateReviewsDetail } = require('./merge')
 const Restaurant = require('../../models/restaurant')
+const { requireRestaurantAccess } = require('../../helpers/guards')
 module.exports = {
   Query: {
-    reviews: async(_, args, context) => {
+    // Admin/vendor-facing: a single restaurant's own Ratings page
+    reviews: async(_, args, { req }) => {
       console.log('reviews')
       try {
-        const reviews = await Review.find({ restaurant: args.restaurant })
+        await requireRestaurantAccess(req, args.restaurant, Restaurant)
+        const reviews = await Review.find({ restaurant: args.restaurant, isActive: true })
         return reviews.map(review => {
           return transformReview(review)
         })
+      } catch (err) {
+        throw err
+      }
+    },
+    // Public, customer-facing: a restaurant's review list + average rating,
+    // shown pre-login while browsing a restaurant's menu (apps/app).
+    reviewsByRestaurant: async(_, args, context) => {
+      console.log('reviewsByRestaurant')
+      try {
+        return await populateReviewsDetail(args.restaurant)
       } catch (err) {
         throw err
       }

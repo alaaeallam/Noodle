@@ -257,7 +257,7 @@ export default function CouponForm({
                 />
 
                 <button
-                  className="float-end h-10 w-fit rounded-md border-gray-300 bg-black px-8 text-white"
+                  className="float-end h-10 w-fit rounded-md border-gray-300 bg-mango px-8 text-ink"
                   disabled={
                     isSubmitting || editCouponLoading || createCouponLoading
                   }

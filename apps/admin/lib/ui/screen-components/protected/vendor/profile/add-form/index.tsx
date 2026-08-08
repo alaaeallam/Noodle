@@ -270,7 +270,7 @@ export default function VendorUpdateForm({
 
                         <div className="mt-4 flex justify-end">
                           <CustomButton
-                            className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                            className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                             label={t('Update')}
                             type="submit"
                             loading={isSubmitting}

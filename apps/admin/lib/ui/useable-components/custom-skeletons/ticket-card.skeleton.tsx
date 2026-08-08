@@ -24,7 +24,7 @@ export default function TicketCardSkeleton({
 
           {/* Category and order ID */}
           <div className="flex mb-2">
-            <div className="h-4 bg-gray-200 rounded w-1/4 mr-3"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/4 me-3"></div>
             <div className="h-4 bg-gray-200 rounded w-1/4"></div>
           </div>
 

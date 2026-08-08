@@ -115,6 +115,9 @@ const CustomGoogleMapsLocationBounds: React.FC<
   const [search, setSearch] = useState<string>('');
   const [zones, setZones] = useState<IZoneResponse[]>([]);
   const [isPlacesReady, setIsPlacesReady] = useState(false);
+  // null = don't know yet (zone-info fetch pending), true = restaurant already
+  // has a saved location, false = confirmed no saved location (zero coords)
+  const [hasSavedLocation, setHasSavedLocation] = useState<boolean | null>(null);
   // Ref
   const polygonRef = useRef<google.maps.Polygon | null>(null);
   const listenersRef = useRef<google.maps.MapsEventListener[]>([]);
@@ -322,12 +325,19 @@ const fetch = React.useMemo(
     const isLocationZero =
       +location?.coordinates[0] === 0 && +location?.coordinates[1] === 0;
 
+    setHasSavedLocation(!isLocationZero);
+
     if (!isLocationZero) {
       setCenter(coordinates);
       setMarker(coordinates);
     }
 
-    if (boundType) setDeliveryZoneType(boundType);
+    // Backend normalizes/stores this as 'circle', but every check in this
+    // component (CustomShape selection, the map circle's `visible` prop, the
+    // save payload) uses 'radius'. Without this translation, a saved circle
+    // zone comes back as an unrecognized value: the shape selector shows
+    // nothing selected and the circle overlay vanishes from the map.
+    if (boundType) setDeliveryZoneType(boundType === 'circle' ? 'radius' : boundType);
     if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
   setDistance(circleBounds.radius / 1000);
 }
@@ -765,8 +775,23 @@ useEffect(() => {
 }, [selectedPlaceObject, search, fetch]);
 
   useEffect(() => {
-    if (!hideControls) getCurrentLocation(locationCallback);
-  }, []);
+    if (hideControls) return;
+    // No restaurantId yet (brand-new, nothing saved to fetch) — safe to use
+    // the browser's current position as a starting point immediately.
+    if (!restaurantId) {
+      getCurrentLocation(locationCallback);
+      return;
+    }
+    // Otherwise wait for the zone-info fetch to confirm there's no saved
+    // location before falling back to browser geolocation. Calling it
+    // unconditionally on every mount was surfacing a scary "Position update
+    // is unavailable" error for restaurants that already have a real saved
+    // location — harmless (the real data overwrites it moments later) but
+    // confusing, since geolocation itself is unreliable/flaky in browsers.
+    if (hasSavedLocation === false) {
+      getCurrentLocation(locationCallback);
+    }
+  }, [hasSavedLocation, restaurantId]);
 
   useEffect(() => {
     const zoomVal = calculateZoom(distance);
@@ -961,7 +986,7 @@ return (
             </div>
           </div>
           <CustomButton
-            className="h-10 w-fit border-gray-300 bg-black px-6 text-white"
+            className="h-10 w-fit border-gray-300 bg-mango px-6 text-ink"
             label={t('Save')}
             type="button"
             loading={isSubmitting}

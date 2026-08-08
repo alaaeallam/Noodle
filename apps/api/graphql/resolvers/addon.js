@@ -1,6 +1,7 @@
 const Addon = require('../../models/addon')
 const Restaurant = require('../../models/restaurant')
 const { transformAddon, transformRestaurant } = require('./merge')
+const { requireRestaurantAccess } = require('../../helpers/guards')
 
 module.exports = {
   Query: {
@@ -18,9 +19,10 @@ module.exports = {
     }
   },
   Mutation: {
-    createAddons: async(_, args, context) => {
+    createAddons: async(_, args, { req }) => {
       console.log('createAddon')
       try {
+        await requireRestaurantAccess(req, args.addonInput.restaurant, Restaurant)
         const restaurant = await Restaurant.findById(args.addonInput.restaurant)
         const addons = args.addonInput.addons
 
@@ -34,9 +36,10 @@ module.exports = {
         throw err
       }
     },
-    editAddon: async(_, args, context) => {
+    editAddon: async(_, args, { req }) => {
       console.log('editAddon')
       try {
+        await requireRestaurantAccess(req, args.addonInput.restaurant, Restaurant)
         const restaurant = await Restaurant.findById(args.addonInput.restaurant)
 
         const addons = args.addonInput.addons
@@ -55,9 +58,10 @@ module.exports = {
         throw err
       }
     },
-    deleteAddon: async(_, { id, restaurant }, context) => {
+    deleteAddon: async(_, { id, restaurant }, { req }) => {
       console.log('deleteAddon')
       try {
+        await requireRestaurantAccess(req, restaurant, Restaurant)
         const restaurants = await Restaurant.findById(restaurant)
         await restaurants.addons.id(id).remove()
         restaurants.categories = restaurants.categories.map(category => {

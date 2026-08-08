@@ -13,6 +13,7 @@ export default function StatsCard({
   label,
   total,
   description,
+  isPositive = true,
   icon,
   route,
   loading = false,
@@ -26,11 +27,11 @@ export default function StatsCard({
     }`}
   >
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-gray-600">{label}</span>
+        <span className="text-smoke">{label}</span>
 
         {icon && <FontAwesomeIcon icon={icon} />}
       </div>
-      <div className="text-2xl font-bold">
+      <div className="text-2xl font-bold font-display text-nile">
         {' '}
         {amountConfig
           ? amountConfig?.format === 'currency'
@@ -39,7 +40,10 @@ export default function StatsCard({
           : total}
       </div>
       {description && (
-        <div className="text-sm text-green-500"> {description}</div>
+        <div className={`text-sm ${isPositive ? 'text-mint' : 'text-chili'}`}>
+          {' '}
+          {description}
+        </div>
       )}
     </div>
   );

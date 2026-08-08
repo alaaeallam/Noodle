@@ -11,7 +11,8 @@ const Restaurant = require('../../models/restaurant')
 const Configuration = require('../../models/configuration')
 const Paypal = require('../../models/paypal')
 const Stripe = require('../../models/stripe')
-const { transformOrder, transformReviews } = require('./merge')
+const { transformOrder } = require('./merge')
+const { requireRole, requireRestaurantAccess, ADMIN_ROLES } = require('../../helpers/guards')
 const {
   payment_status,
   order_status,
@@ -177,6 +178,7 @@ module.exports = {
     ordersByRestId: async(_, args, context) => {
       console.log('restaurant orders')
       try {
+        await requireRestaurantAccess(context.req, args.restaurant, Restaurant)
         let orders = []
         if (args.search) {
           const search = new RegExp(
@@ -206,6 +208,7 @@ module.exports = {
     },
 
     ordersByRestIdWithoutPagination: async (_, args, context) => {
+      await requireRestaurantAccess(context.req, args.restaurant, Restaurant)
       try {
         const filter = { restaurant: args.restaurant };
         if (args.search) {
@@ -221,6 +224,7 @@ module.exports = {
     },
 
     ordersByUser: async (_, { userId, page = 1, limit = 10 }, context) => {
+      requireRole(context.req, ADMIN_ROLES)
       try {
         const skip = (page - 1) * limit;
         const [orders, totalCount] = await Promise.all([
@@ -230,13 +234,18 @@ module.exports = {
             .limit(limit),
           Order.countDocuments({ user: userId })
         ]);
+        const totalPages = Math.max(1, Math.ceil(totalCount / limit));
         return {
           orders: orders.map(order => transformOrder(order)),
-          totalCount
+          totalCount,
+          totalPages,
+          currentPage: page,
+          nextPage: page < totalPages ? page + 1 : null,
+          prevPage: page > 1 ? page - 1 : null
         };
       } catch (err) {
         console.error('ordersByUser error:', err);
-        return { orders: [], totalCount: 0 };
+        return { orders: [], totalCount: 0, totalPages: 1, currentPage: page, nextPage: null, prevPage: null }
       }
     },
     undeliveredOrders: async(_, args, { req, res }) => {
@@ -284,6 +293,7 @@ module.exports = {
       }
     },
     allOrders: async(_, args, context) => {
+      requireRole(context.req, ADMIN_ROLES)
       try {
         const orders = await Order.find()
           .sort({ createdAt: -1 })
@@ -292,6 +302,43 @@ module.exports = {
         return orders.map(order => {
           return transformOrder(order)
         })
+      } catch (err) {
+        throw err
+      }
+    },
+    allOrdersWithoutPagination: async(_, args, context) => {
+      requireRole(context.req, ADMIN_ROLES)
+      try {
+        const dateFilter = {}
+        const keyword = args.dateKeyword || 'All'
+        const now = new Date()
+
+        if (keyword === 'Custom' && args.starting_date && args.ending_date) {
+          const start = new Date(args.starting_date)
+          const end = new Date(args.ending_date)
+          end.setDate(end.getDate() + 1)
+          dateFilter.createdAt = { $gte: start, $lt: end }
+        } else if (keyword === 'Today') {
+          const start = new Date(now)
+          start.setHours(0, 0, 0, 0)
+          const end = new Date(start)
+          end.setDate(end.getDate() + 1)
+          dateFilter.createdAt = { $gte: start, $lt: end }
+        } else if (keyword === 'Week') {
+          const start = new Date(now)
+          start.setDate(start.getDate() - 7)
+          dateFilter.createdAt = { $gte: start, $lte: now }
+        } else if (keyword === 'Month') {
+          const start = new Date(now.getFullYear(), now.getMonth(), 1)
+          dateFilter.createdAt = { $gte: start, $lte: now }
+        } else if (keyword === 'Year') {
+          const start = new Date(now.getFullYear(), 0, 1)
+          dateFilter.createdAt = { $gte: start, $lte: now }
+        }
+        // 'All' (or unrecognized keyword): no date filter
+
+        const orders = await Order.find(dateFilter).sort({ createdAt: -1 })
+        return orders.map(order => transformOrder(order))
       } catch (err) {
         throw err
       }
@@ -314,22 +361,6 @@ module.exports = {
           restaurant: args.restautant
         }).countDocuments()
         return orderCount
-      } catch (err) {
-        throw err
-      }
-    },
-    reviews: async(_, args, { req, res }) => {
-      console.log('reviews')
-      if (!req.isAuth) {
-        throw new Error('Unauthenticated')
-      }
-      try {
-        const orders = await Order.find({ user: req.userId })
-          .sort({ createdAt: -1 })
-          .skip(args.offset || 0)
-          .limit(10)
-          .populate('review')
-        return transformReviews(orders)
       } catch (err) {
         throw err
       }
@@ -461,7 +492,18 @@ module.exports = {
         })
         let coupon = null
         if (args.couponCode) {
-          coupon = await Coupon.findOne({ title: args.couponCode })
+          coupon = await Coupon.findOne({
+            title: args.couponCode,
+            isActive: true,
+            restaurant: args.restaurant
+          })
+          if (!coupon) {
+            coupon = await Coupon.findOne({
+              title: args.couponCode,
+              isActive: true,
+              restaurant: null
+            })
+          }
           if (coupon) {
             price = price - (coupon.discount / 100) * price
           }
@@ -478,6 +520,7 @@ module.exports = {
           orderId: orderid,
           paidAmount: 0,
           orderStatus: 'PENDING',
+          instructions: args.instructions,
           deliveryCharges: args.isPickedUp ? 0 : DELIVERY_CHARGES,
           tipping: args.tipping,
           taxationAmount: args.taxationAmount,

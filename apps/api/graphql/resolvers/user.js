@@ -11,7 +11,13 @@ const {
   signupText,
   resetPasswordTemplate
 } = require('../../helpers/templates')
-const { requireAuth } = require('../../helpers/guards');
+const { requireAuth, requireRole, ADMIN_ROLES } = require('../../helpers/guards');
+const { recordAuditLog } = require('../../helpers/auditLog');
+
+const redactUser = doc => {
+  const { password, ...rest } = doc
+  return rest
+}
 const { checkPhoneAlreadyUsed } = require('../../helpers/utilities')
 const { transformUser, transformRestaurants, transformOwner } = require('./merge')
 const { sendOtpToPhone } = require('../../helpers/sms')
@@ -42,14 +48,26 @@ module.exports = {
     throw err;
   }
 },
-    users: async(_, args, context) => {
+    users: async(_, args, { req }) => {
       console.log('users')
       try {
+        requireRole(req, ADMIN_ROLES)
         // TODO: need pagination here
         const users = await User.find()
         return users.map(user => {
           return transformUser(user)
         })
+      } catch (err) {
+        console.log(err)
+        throw err
+      }
+    },
+    user: async(_, { id }, { req }) => {
+      try {
+        requireRole(req, ADMIN_ROLES)
+        const user = await User.findById(id)
+        if (!user) throw new Error('User does not exist')
+        return transformUser(user)
       } catch (err) {
         console.log(err)
         throw err
@@ -231,13 +249,78 @@ module.exports = {
       }
     },
     Deactivate: async(_, args, { req, res }) => {
-      const deactivateByEmail = await User.findOne({
-        email: args.email
-      })
-      deactivateByEmail.isActive = args.isActive
-      console.log(deactivateByEmail)
-      await deactivateByEmail.save()
-      return deactivateByEmail
+      // Self-service only (customer/web "deactivate my account") — always acts
+      // on the caller's own session, never on the `email` argument, to avoid
+      // one user being able to deactivate another by guessing their email.
+      requireAuth(req)
+      const user = await User.findById(req.userId)
+      if (!user) throw new Error('User does not exist')
+      user.isActive = args.isActive
+      user.status = args.isActive ? 'active' : 'deactivate'
+      await user.save()
+      return transformUser(user)
+    },
+    updateUserStatus: async(_, args, { req }) => {
+      try {
+        requireRole(req, ADMIN_ROLES)
+        const user = await User.findById(args.id)
+        if (!user) throw new Error('User does not exist')
+        const oldData = redactUser(user._doc)
+        user.status = args.status
+        user.isActive = args.status === 'active'
+        const result = await user.save()
+        await recordAuditLog({
+          req,
+          action: 'UPDATE_USER_STATUS',
+          targetType: 'User',
+          targetId: result.id,
+          changes: { oldData, newData: redactUser(result._doc) }
+        })
+        return transformUser(result)
+      } catch (err) {
+        console.log(err)
+        throw err
+      }
+    },
+    updateUserNotes: async(_, args, { req }) => {
+      try {
+        requireRole(req, ADMIN_ROLES)
+        const user = await User.findById(args.id)
+        if (!user) throw new Error('User does not exist')
+        const oldData = redactUser(user._doc)
+        user.notes = args.notes
+        const result = await user.save()
+        await recordAuditLog({
+          req,
+          action: 'UPDATE_USER_NOTES',
+          targetType: 'User',
+          targetId: result.id,
+          changes: { oldData, newData: redactUser(result._doc) }
+        })
+        return transformUser(result)
+      } catch (err) {
+        console.log(err)
+        throw err
+      }
+    },
+    deleteUser: async(_, { id }, { req }) => {
+      try {
+        requireRole(req, ADMIN_ROLES)
+        const user = await User.findById(id)
+        if (!user) throw new Error('User does not exist')
+        await user.deleteOne()
+        await recordAuditLog({
+          req,
+          action: 'DELETE_USER',
+          targetType: 'User',
+          targetId: id,
+          changes: redactUser(user._doc)
+        })
+        return transformUser(user)
+      } catch (err) {
+        console.log(err)
+        throw err
+      }
     },
     updateUser: async(_, args, { req, res }) => {
       console.log('Update user: ', args.updateUserInput, req.userId)

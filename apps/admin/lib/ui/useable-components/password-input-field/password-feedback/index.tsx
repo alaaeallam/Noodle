@@ -9,7 +9,7 @@ export default function PasswordFeedback() {
       {PasswordErrors.map((pmessage, index) => {
         return (
           <div key={index} className="text-gray-500 text-sm">
-            <FontAwesomeIcon icon={faDotCircle} className="mr-2" />
+            <FontAwesomeIcon icon={faDotCircle} className="me-2" />
             <span>{pmessage}</span>
           </div>
         );

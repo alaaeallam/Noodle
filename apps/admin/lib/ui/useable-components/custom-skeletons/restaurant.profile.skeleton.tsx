@@ -6,7 +6,7 @@ const RestaurantProfileSkeleton = () => {
       <div className="w-full rounded border-2 border-dotted border-inherit bg-white p-8">
         <div className="mb-6 flex items-center">
           <div className="h-14 w-14 rounded-full bg-gray-300"></div>
-          <div className="ml-2">
+          <div className="ms-2">
             <div className="mb-2 h-4 w-24 rounded bg-gray-300"></div>
             <div className="h-6 w-48 rounded bg-gray-300"></div>
           </div>

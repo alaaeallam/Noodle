@@ -58,7 +58,7 @@ function RadioComponent(props) {
               textColor={currentTheme.fontMainColor}
               bolder
               isRTL
-            >{`${configuration.currencySymbol}${option.price}`}</TextDefault>
+            >{`${configuration.currencySymbol ?? ''}${option.price}`}</TextDefault>
           </View>
         </TouchableOpacity>
       ))}

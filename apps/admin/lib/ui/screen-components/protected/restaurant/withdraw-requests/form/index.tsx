@@ -122,7 +122,7 @@ export default function WithdrawRequestAddForm({
                   </div>
 
                   <CustomButton
-                    className="ml-auto h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                    className="ms-auto h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                     label="Submit Request"
                     type="submit"
                     loading={mutationLoading}

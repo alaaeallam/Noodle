@@ -21,6 +21,8 @@ const {
   JOB_TYPE,
   JOB_DELAY_DEFAULT
 } = require('../../queue')
+const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { recordAuditLog } = require('../../helpers/auditLog')
 module.exports = {
   Subscription: {
     subscriptionRiderLocation: {
@@ -43,9 +45,10 @@ module.exports = {
     }
   },
   Query: {
-    riders: async() => {
+    riders: async(_, args, { req }) => {
       console.log('riders')
       try {
+        requireRole(req, ADMIN_ROLES)
         const riders = await Rider.find({ isActive: true })
         return riders.map(transformRider)
       } catch (err) {
@@ -173,9 +176,10 @@ module.exports = {
     }
   },
   Mutation: {
-    createRider: async(_, args) => {
+    createRider: async(_, args, { req }) => {
       console.log('createRider')
       try {
+        requireRole(req, ADMIN_ROLES)
         // check username, if already exists throw error
         const checkUsername = await Rider.countDocuments({
           username: args.riderInput.username
@@ -198,21 +202,38 @@ module.exports = {
           password: args.riderInput.password,
           phone: args.riderInput.phone,
           available: args.riderInput.available,
-          zone: args.riderInput.zone
+          zone: args.riderInput.zone,
+          vehicleType: args.riderInput.vehicleType
         })
         console.log('new rider :', rider)
 
         const result = await rider.save()
         console.log('result: ', result)
+        await recordAuditLog({
+          req,
+          action: 'CREATE_RIDER',
+          targetType: 'Rider',
+          targetId: result.id,
+          changes: result._doc
+        })
         return transformRider(result)
       } catch (err) {
         console.log(err)
         throw err
       }
     },
-    editRider: async(_, args) => {
+    editRider: async(_, args, { req }) => {
       console.log('editRider')
       try {
+        // Admins can edit any rider; a rider can edit their own record via
+        // the rider app's own profile screen — anyone else is forbidden.
+        const isSelf =
+          req?.isAuth &&
+          req.userType === 'RIDER' &&
+          String(req.userId) === String(args.riderInput._id)
+        if (!isSelf) {
+          requireRole(req, ADMIN_ROLES)
+        }
         const checkUsername = await Rider.find({
           username: args.riderInput.username
         })
@@ -232,26 +253,48 @@ module.exports = {
         }
 
         const rider = await Rider.findOne({ _id: args.riderInput._id })
+        const oldData = { ...rider._doc }
 
         rider.name = args.riderInput.name
         rider.username = args.riderInput.username
         rider.phone = args.riderInput.phone
         rider.available = args.riderInput.available
         rider.zone = args.riderInput.zone
+        if (args.riderInput.vehicleType !== undefined) {
+          rider.vehicleType = args.riderInput.vehicleType
+        }
 
         const result = await rider.save()
+        if (!isSelf) {
+          await recordAuditLog({
+            req,
+            action: 'EDIT_RIDER',
+            targetType: 'Rider',
+            targetId: result.id,
+            changes: { oldData, newData: result._doc }
+          })
+        }
         return transformRider(result)
       } catch (err) {
         console.log(err)
         throw err
       }
     },
-    deleteRider: async(_, { id }) => {
+    deleteRider: async(_, { id }, { req }) => {
       console.log('deleteRider')
       try {
+        requireRole(req, ADMIN_ROLES)
         const rider = await Rider.findById(id)
+        const oldData = { ...rider._doc }
         rider.isActive = false
         const result = await rider.save()
+        await recordAuditLog({
+          req,
+          action: 'DELETE_RIDER',
+          targetType: 'Rider',
+          targetId: result.id,
+          changes: { oldData, newData: result._doc }
+        })
         return transformRider(result)
       } catch (err) {
         throw err

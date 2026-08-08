@@ -248,7 +248,7 @@ export default function RestaurantDelivery({
 
                       <div className="flex justify-end">
                         <CustomButton
-                          className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                          className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                           label={t('Add')}
                           type="submit"
                           loading={isSubmitting}

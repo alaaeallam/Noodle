@@ -289,7 +289,7 @@ export default function FoodsMain() {
             variables: { ...deleteId, restaurant: restaurantId },
           });
         }}
-        message={t('Are you sure you want to delete this option?')}
+        message={t('Are you sure you want to delete this food?')}
       />
     </div>
   );

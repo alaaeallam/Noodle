@@ -162,14 +162,14 @@ export default function VendorsLayoutRestaurantCard({
           <Image
             src={image}
             alt={t('Store Logo')}
-            className="mr-3 h-10 w-10 flex-shrink-0 rounded-full"
+            className="me-3 h-10 w-10 flex-shrink-0 rounded-full"
             width={40}
             height={40}
           />
         ) : (
           <Avatar
             icon={<FontAwesomeIcon icon={faStore} />}
-            className="mr-3"
+            className="me-3"
             size="large"
             shape="circle"
           />

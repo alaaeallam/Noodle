@@ -49,7 +49,7 @@ export default function DashboardDateFilter({
               />
               <FontAwesomeIcon
                 icon={faCalendarAlt}
-                className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                className="absolute start-3 top-1/2 -translate-y-1/2 transform text-gray-400"
               />
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function DashboardDateFilter({
               />
               <FontAwesomeIcon
                 icon={faCalendarAlt}
-                className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                className="absolute start-3 top-1/2 -translate-y-1/2 transform text-gray-400"
               />
             </div>
           </div>
@@ -75,7 +75,7 @@ export default function DashboardDateFilter({
               </div>
             ) : (
               <button
-                className="mt-8 w-full rounded-full bg-black px-6 py-2 font-semibold text-white"
+                className="mt-8 w-full rounded-full bg-mango px-6 py-2 font-semibold text-ink"
                 onClick={onApply}
               >
                 {t('APPLY')}

@@ -44,7 +44,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
                 </div>
                 <div>
                     <h4 className="text-base font-semibold">Last Login</h4>
-                    <p>{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'N/A'}</p>
+                    <p>{user.lastLogin ? new Date(Number(user.lastLogin)).toLocaleString() : 'N/A'}</p>
                 </div>
                 <div>
                     <h4 className="text-base font-semibold">Order Notifications</h4>

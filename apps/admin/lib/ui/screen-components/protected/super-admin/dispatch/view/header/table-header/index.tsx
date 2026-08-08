@@ -122,7 +122,7 @@ export default function DispatchTableHeader({
                         />
                         <label
                           htmlFor={`action-${item.value}`}
-                          className="ml-1 text-sm"
+                          className="ms-1 text-sm"
                         >
                           {item.label}
                         </label>

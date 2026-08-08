@@ -61,7 +61,7 @@ export const USERS_TABLE_COLUMNS = () => {
       body: (user: IUserResponse) => {
         if (!user.lastLogin) return <div className="text-gray-400">—</div>;
 
-        const date = new Date(user.lastLogin);
+        const date = new Date(Number(user.lastLogin));
 
         // Format date and time
         const formattedDate = date.toLocaleDateString('en-GB', {

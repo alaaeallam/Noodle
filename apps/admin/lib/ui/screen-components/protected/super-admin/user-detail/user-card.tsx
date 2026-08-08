@@ -17,7 +17,7 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
         shape="circle"
         className="border shadow-md"
       />
-      <div className="ml-4">
+      <div className="ms-4">
         <h1 className="text-xl font-bold">{user.name}</h1>
         <p className="text-gray-600">{user.email}</p>
         <p className="text-gray-600">{user.phone}</p>

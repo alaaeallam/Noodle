@@ -3,27 +3,33 @@ const Schema = mongoose.Schema
 
 const earningsSchema = new Schema(
   {
-    rider: {
-      type: Schema.Types.ObjectId,
-      ref: 'Rider'
-    },
     orderId: {
       type: String
     },
-    deliveryFee: {
-      type: Number,
-      default: 0,
-      set: v => +parseFloat(v).toFixed(2)
-    },
-    orderStatus: {
-      type: String
+    orderType: {
+      type: String,
+      enum: ['DELIVERY', 'PICKUP']
     },
     paymentMethod: {
       type: String
     },
-    deliveryTime: {
-      type: Date,
-      default: new Date()
+    platformEarnings: {
+      marketplaceCommission: { type: Number, default: 0 },
+      deliveryCommission: { type: Number, default: 0 },
+      tax: { type: Number, default: 0 },
+      platformFee: { type: Number, default: 0 },
+      totalEarnings: { type: Number, default: 0 }
+    },
+    riderEarnings: {
+      riderId: { type: Schema.Types.ObjectId, ref: 'Rider' },
+      deliveryFee: { type: Number, default: 0 },
+      tip: { type: Number, default: 0 },
+      totalEarnings: { type: Number, default: 0 }
+    },
+    storeEarnings: {
+      storeId: { type: Schema.Types.ObjectId, ref: 'Restaurant' },
+      orderAmount: { type: Number, default: 0 },
+      totalEarnings: { type: Number, default: 0 }
     }
   },
   { timestamps: true }

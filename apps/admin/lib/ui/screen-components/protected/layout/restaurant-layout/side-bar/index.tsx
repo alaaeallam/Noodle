@@ -28,6 +28,7 @@ import SidebarItem from './side-bar-item';
 import { useUserContext } from '@/lib/hooks/useUser';
 import { onUseLocalStorage } from '@/lib/utils/methods';
 import { useTranslations } from 'next-intl';
+import { AppLogo } from '@/lib/utils/assets/svgs/logo';
 
 function AdminSidebar({ children }: IGlobalComponentProps) {
   // Context
@@ -41,9 +42,12 @@ function AdminSidebar({ children }: IGlobalComponentProps) {
         className={`box-border transform overflow-hidden transition-all duration-300 ease-in-out ${isRestaurantSidebarVisible ? 'w-64 translate-x-0' : 'w-0 -translate-x-full'}`}
       >
         <nav
-          className={`flex h-full flex-col border-r bg-white shadow-sm transition-opacity duration-300 ${isRestaurantSidebarVisible ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+          className={`flex h-full flex-col bg-nile-deep shadow-sm transition-opacity duration-300 ${isRestaurantSidebarVisible ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
         >
-          <ul className="flex-1 pl-2">{children}</ul>
+          <div className="flex justify-start">
+            <AppLogo variant="light" />
+          </div>
+          <ul className="flex-1 ps-2">{children}</ul>
         </nav>
       </aside>
     </div>
@@ -199,7 +203,7 @@ export default function MakeSidebar() {
   return (
     <>
       <AdminSidebar>
-        <div className="h-[92vh] overflow-y-auto overflow-x-hidden pr-2">
+        <div className="h-[92vh] overflow-y-auto overflow-x-hidden pe-2">
           {navBarItems.map((item, index) =>
             item.shouldShow && !item.shouldShow() ? null : (
               <SidebarItem

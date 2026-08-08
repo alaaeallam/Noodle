@@ -18,7 +18,7 @@ const BankDetails = ({ loading, rider }: IRiderDetailsProps) => {
 
       {/* columns */}
       <div className="grid grid-cols-2 py-5 px-6">
-        {/* left-column */}
+        {/* start-column */}
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
             <span className="text-xs">{t('Bank Name')}</span>
@@ -52,8 +52,8 @@ const BankDetails = ({ loading, rider }: IRiderDetailsProps) => {
           </div>
         </div>
 
-        {/* right-column */}
-        <div className="flex pl-5 flex-col gap-5">
+        {/* end-column */}
+        <div className="flex ps-5 flex-col gap-5">
           <div className="flex flex-col gap-1">
             <span className="text-xs">{t('Account Name')}</span>
             <span className="font-medium">

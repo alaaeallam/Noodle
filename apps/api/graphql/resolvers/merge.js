@@ -393,14 +393,16 @@ const transformEarnings = async earning => {
   }
 }
 
-const populateRider = async id => await Rider.findById(id)
+const populateRider = async id => (id ? await Rider.findById(id) : null)
+const populateStore = async id => (id ? await Restaurant.findById(id) : null)
 
 const transformWithDrawRequest = async withDrawRequest => {
   return {
     _id: withDrawRequest.id,
     ...withDrawRequest._doc,
     requestTime: dateToString(withDrawRequest.requestTime),
-    rider: populateRider(withDrawRequest.rider)
+    rider: populateRider(withDrawRequest.rider),
+    store: populateStore(withDrawRequest.store)
   }
 }
 
@@ -409,6 +411,7 @@ exports.transformFood = transformFood
 exports.transformFoods = transformFoods
 exports.transformOrder = transformOrder
 exports.transformReview = transformReview
+exports.populateReviewsDetail = populateReviewsDetail
 exports.transformOption = transformOption
 exports.transformAddon = transformAddon
 exports.transformRestaurants = transformRestaurants

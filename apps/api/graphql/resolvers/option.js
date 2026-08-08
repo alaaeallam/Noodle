@@ -1,6 +1,7 @@
 const Option = require('../../models/option')
 const Restaurant = require('../../models/restaurant')
 const { transformOption, transformRestaurant } = require('./merge')
+const { requireRestaurantAccess } = require('../../helpers/guards')
 
 module.exports = {
   Query: {
@@ -18,9 +19,10 @@ module.exports = {
     }
   },
   Mutation: {
-    createOptions: async(_, args, context) => {
+    createOptions: async(_, args, { req }) => {
       console.log('createOption')
       try {
+        await requireRestaurantAccess(req, args.optionInput.restaurant, Restaurant)
         const options = args.optionInput.options
         const restaurant = await Restaurant.findById(
           args.optionInput.restaurant
@@ -37,9 +39,10 @@ module.exports = {
         throw err
       }
     },
-    editOption: async(_, args, context) => {
+    editOption: async(_, args, { req }) => {
       console.log('editOption')
       try {
+        await requireRestaurantAccess(req, args.optionInput.restaurant, Restaurant)
         const options = args.optionInput.options
         const restaurant = await Restaurant.findById(
           args.optionInput.restaurant
@@ -56,9 +59,10 @@ module.exports = {
         throw err
       }
     },
-    deleteOption: async(_, { id, restaurant }, context) => {
+    deleteOption: async(_, { id, restaurant }, { req }) => {
       console.log('deleteOption')
       try {
+        await requireRestaurantAccess(req, restaurant, Restaurant)
         const restaurants = await Restaurant.findById(restaurant)
         restaurants.options.id(id).remove()
         restaurants.addons = restaurants.addons.map(addon => {

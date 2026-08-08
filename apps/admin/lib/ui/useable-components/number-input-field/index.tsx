@@ -58,10 +58,6 @@ export default function CustomNumberField({
                 'As Discount is a %age field, please choose a value from 0 to 100.',
             });
           }
-          // prevent floating point numbers. only allow numbers
-          if ((e.key === '.' || e.key === 'e' || e.key === '-')) {
-            e.preventDefault();
-          }
         }}
         onChange={(e: InputNumberChangeEvent) => {
           onNumberChangeHandler(e);

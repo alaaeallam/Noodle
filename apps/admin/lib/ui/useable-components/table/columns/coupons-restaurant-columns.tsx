@@ -66,7 +66,6 @@ export const COUPONS_RESTAURANT_TABLE_COLUMNS = ({
   };
 
   return [
-    { headerName: t('Name'), propertyName: '__typename' },
     { headerName: t('Code'), propertyName: 'title' },
     { headerName: t('Discount'), propertyName: 'discount' },
     // add column for endDate and lifeTimeActive

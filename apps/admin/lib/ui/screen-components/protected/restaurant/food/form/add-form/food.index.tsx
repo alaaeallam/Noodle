@@ -403,7 +403,7 @@ export default function FoodDetails({
 
                     <div className="flex justify-end mt-4">
                       <CustomButton
-                        className="w-fit h-10 bg-black text-white border-gray-300 px-8"
+                        className="w-fit h-10 bg-mango text-ink border-gray-300 px-8"
                         label={t('Next')}
                         type="submit"
                         loading={isSubmitting}

@@ -1,5 +1,7 @@
 const Zone = require('../../models/zone')
 const { transformZone } = require('./merge')
+const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { recordAuditLog } = require('../../helpers/auditLog')
 module.exports = {
   Query: {
     zones: async(_, args, { req, res }) => {
@@ -16,6 +18,7 @@ module.exports = {
   },
   Mutation: {
     createZone: async(_, args, { req, res }) => {
+      requireRole(req, ADMIN_ROLES)
       // polygon schema can be found in models/zone.js
       // coordinates: [[
       //     [72.9744366, 33.6857303],
@@ -35,15 +38,21 @@ module.exports = {
         description: args.zone.description,
         location
       })
-      console.log('Zone', zone)
-      console.log('Zone location', zone.location.coordinates)
       const result = await zone.save()
-      console.log('Zone saved: ', result)
+      await recordAuditLog({
+        req,
+        action: 'CREATE_ZONE',
+        targetType: 'Zone',
+        targetId: result.id,
+        changes: result._doc
+      })
       return transformZone(result)
     },
     editZone: async(_, args, { req, res }) => {
+      requireRole(req, ADMIN_ROLES)
       const zone = await Zone.findById(args.zone._id)
       if (!zone) throw new Error('Zone does not exist')
+      const oldData = { ...zone._doc }
       const location = {
         type: 'Polygon',
         coordinates: args.zone.coordinates
@@ -54,14 +63,29 @@ module.exports = {
       zone.location = location
 
       const result = await zone.save()
+      await recordAuditLog({
+        req,
+        action: 'EDIT_ZONE',
+        targetType: 'Zone',
+        targetId: result.id,
+        changes: { oldData, newData: result._doc }
+      })
       return transformZone(result)
     },
     deleteZone: async(_, args, { req, res }) => {
+      requireRole(req, ADMIN_ROLES)
       const deletedZone = await Zone.findByIdAndUpdate(
         args.id,
         { isActive: false },
         { new: true }
       )
+      await recordAuditLog({
+        req,
+        action: 'DELETE_ZONE',
+        targetType: 'Zone',
+        targetId: args.id,
+        changes: deletedZone ? deletedZone._doc : null
+      })
       return transformZone(deletedZone)
     }
   }

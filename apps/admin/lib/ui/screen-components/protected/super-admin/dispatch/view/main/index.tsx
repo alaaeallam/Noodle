@@ -12,87 +12,57 @@ import {
 } from '@/lib/utils/interfaces/dispatch.interface';
 
 //Hooks
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 // Constants
-import { generateDummyDispatchOrders } from '@/lib/utils/dummy';
 import { DISPATCH_TABLE_COLUMNS } from '@/lib/ui/useable-components/table/columns/dispatch-columns';
-import { useLazyQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 
 export default function DispatchMain() {
   // States
   const [selectedData, setSelectedData] = useState<IActiveOrders[]>([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [selectedActions, setSelectedActions] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState('');
 
-  // Filters
-  // const filters = {
-  //   global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
-  //   orderStatus: {
-  //     value: selectedActions.length > 0 ? selectedActions : null,
-  //     matchMode: FilterMatchMode.IN,
-  //   },
-  // };
+  // Query — getActiveOrders only takes an optional restaurantId server-side
+  // (no pagination/search/status-filter support), so filtering/pagination
+  // below is done client-side over the full active-orders list.
+  const { data: active_orders_data, loading: active_orders_loading } =
+    useQuery<IGetActiveOrders | undefined, { restaurantId?: string }>(
+      GET_ACTIVE_ORDERS,
+      {
+        variables: { restaurantId: '' },
+        pollInterval: 15000,
+      }
+    );
 
-  // Queries
-  const [
-    fetchActiveOrders,
-    { data: active_orders_data, loading: active_orders_loading },
-  ] = useLazyQuery<
-    IGetActiveOrders | undefined,
-    {
-      page: number;
-      rowsPerPage: number;
-      search: string;
-      actions: string[];
-      restaurantId?: string;
-    }
-  >(GET_ACTIVE_ORDERS, {
-    variables: {
-      restaurantId: '',
-      page: page,
-      rowsPerPage: rowsPerPage,
-      search: search,
-      actions: selectedActions,
-    },
-    onCompleted: () => {
-      setIsLoading(false);
-    },
-    // pollInterval: 3000,
-    
-  });
+  const filteredOrders = useMemo(() => {
+    const orders = active_orders_data?.getActiveOrders ?? [];
+    const term = search.trim().toLowerCase();
 
-  // fetchPolicy: 'network-only',
-  // onCompleted: () => {
-  //   setIsLoading(false);
-  // },
-  // UseEffects
-  useEffect(() => {
-    fetchActiveOrders({
-      variables: {
-        page,
-        rowsPerPage,
-        search,
-        actions: selectedActions,
-        restaurantId: '',
-      },
+    return orders.filter((order) => {
+      const matchesSearch =
+        !term ||
+        order.orderId?.toLowerCase().includes(term) ||
+        order.user?.name?.toLowerCase().includes(term) ||
+        order.user?.phone?.toLowerCase().includes(term) ||
+        order.restaurant?.name?.toLowerCase().includes(term);
+
+      const matchesStatus =
+        selectedActions.length === 0 ||
+        selectedActions.includes(order.orderStatus);
+
+      return matchesSearch && matchesStatus;
     });
-    setIsLoading(true);
-  }, [rowsPerPage, page, selectedActions, search]);
+  }, [active_orders_data, search, selectedActions]);
 
   return (
     <div className="p-3">
       <Table
         columns={DISPATCH_TABLE_COLUMNS()}
-        data={
-          active_orders_data?.getActiveOrders.orders ||
-          (isLoading ? generateDummyDispatchOrders() : [])
-        }
-        loading={isLoading || active_orders_loading}
+        data={filteredOrders}
+        loading={active_orders_loading}
         selectedData={selectedData}
         setSelectedData={(e) => setSelectedData(e as IActiveOrders[])}
         header={
@@ -105,14 +75,7 @@ export default function DispatchMain() {
             setSearch={setSearch}
           />
         }
-        rowsPerPage={rowsPerPage}
-        totalRecords={active_orders_data?.getActiveOrders.totalCount}
-        onPageChange={(page, rowNumber) => {
-          setPage(page);
-          setRowsPerPage(rowNumber);
-        }}
-        currentPage={page}
-        // filters={filters}
+        rowsPerPage={10}
       />
     </div>
   );

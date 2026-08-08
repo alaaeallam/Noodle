@@ -27,7 +27,6 @@ import { IRiderResponse } from '../interfaces/rider.interface';
 import { IUserResponse } from '../interfaces/users.interface';
 import { ICoupon } from '../interfaces/coupons.interface';
 import { ICuisine } from '../interfaces/cuisine.interface';
-import { INotification } from '../interfaces/notification.interface';
 import { IWithDrawRequest } from '../interfaces';
 import { IActiveOrders } from '../interfaces/dispatch.interface';
 import { ICouponRestaurantResponse } from '../interfaces/coupons-restaurant.interface';
@@ -396,19 +395,6 @@ export const generateDummyCuisines = (count: number = 10) => {
     });
   }
   return cuisines;
-};
-
-export const generateDummyNotifications = (count: number = 10) => {
-  const notifications: INotification[] = [];
-  for (let i = 0; i < count; i++) {
-    notifications.push({
-      _id: `notification_${i + 1}`,
-      title: `notification_${i + 1}`,
-      createdAt: new Date().toDateString(),
-      body: `notification_${i + 1}`,
-    });
-  }
-  return notifications;
 };
 
 export const generateDummyWithdrawRequests = (count: number = 10) => {

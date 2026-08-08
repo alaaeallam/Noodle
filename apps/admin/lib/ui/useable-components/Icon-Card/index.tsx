@@ -32,16 +32,16 @@ const ProfileCard: React.FC<IProfileCardProps> = ({
           alt={`Restaurant image`}
           width={58}
           height={58}
-          className="rounded-md mr-4"
+          className="rounded-md me-4"
         />
-        <div className="flex-grow text-center md:text-left">
+        <div className="flex-grow text-center md:text-start">
           <div className="font-semibold">{name}</div>
           <div className="text-sm text-gray-500">{orderedItems}</div>
           <div className="text-xs text-gray-400">Order ID: {orderId}</div>
           <div className="text-xs text-gray-400">Date: {createdAt}</div>
         </div>
         <div className="flex items-center mt-4 md:mt-0">
-          <div className="flex items-center mr-4">
+          <div className="flex items-center me-4">
             <Rating value={rating} readOnly cancel={false} />
           </div>
           <button
@@ -53,7 +53,7 @@ const ProfileCard: React.FC<IProfileCardProps> = ({
             }`}
             disabled={!reviewContent}
           >
-            <span className="mr-1">💬</span>
+            <span className="me-1">💬</span>
             <span>Review</span>
           </button>
         </div>
@@ -63,7 +63,7 @@ const ProfileCard: React.FC<IProfileCardProps> = ({
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full relative">
             <h2 className="text-xl font-semibold mb-4">Review</h2>
             <p className="text-gray-700 mb-8">{reviewContent}</p>
-            <div className="absolute bottom-4 right-4">
+            <div className="absolute bottom-4 end-4">
               <button
                 onClick={handleCloseModal}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"

@@ -127,7 +127,7 @@ const DeliveryOptions = ({ data, loading, refetch } : any) => {
                                     <button
                                         type="submit"
                                         disabled={mutationLoading}
-                                        className="h-11 w-full rounded-md bg-black text-white hover:bg-gray-900 text-sm font-semibold"
+                                        className="h-11 w-full rounded-md bg-mango text-ink hover:bg-gray-900 text-sm font-semibold"
                                     >
                                         {
                                             mutationLoading

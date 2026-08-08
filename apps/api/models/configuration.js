@@ -194,6 +194,18 @@ const configurationSchema = new Schema(
     enableAdminDemo: {
       type: Boolean,
       default: true
+    },
+    customerAppVersion: {
+      android: { type: String },
+      ios: { type: String }
+    },
+    riderAppVersion: {
+      android: { type: String },
+      ios: { type: String }
+    },
+    restaurantAppVersion: {
+      android: { type: String },
+      ios: { type: String }
     }
   },
   { timestamps: true }

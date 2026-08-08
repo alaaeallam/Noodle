@@ -499,10 +499,10 @@ export default function UpdateRestaurantDetails({
 
                     <div className="flex justify-end items-center mt-4">
                       {errors.address && touched.address && (
-                        <small className="p-error mr-4">{errors.address}</small>
+                        <small className="p-error me-4">{errors.address}</small>
                       )}
                       <CustomButton
-                        className="w-fit h-10 bg-black text-white border-gray-300 px-8"
+                        className="w-fit h-10 bg-mango text-ink border-gray-300 px-8"
                         label={t('Update')}
                         type="submit"
                         loading={isSubmitting}

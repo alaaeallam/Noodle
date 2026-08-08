@@ -290,7 +290,7 @@ export default function AddonAddForm({
                                         <div className="relative">
                                           {!!index && (
                                             <button
-                                              className="absolute -right-1 top-2"
+                                              className="absolute -end-1 top-2"
                                               onClick={() => remove(index)}
                                             >
                                               <FontAwesomeIcon
@@ -486,7 +486,7 @@ export default function AddonAddForm({
 
                         <div className="mt-4 flex justify-end">
                           <CustomButton
-                            className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                            className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                             label={addon ? t('Edit') : t('Add')}
                             type="submit"
                             loading={mutationLoading}

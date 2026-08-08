@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 
 // Context
 import { VendorContext } from '@/lib/context/super-admin/vendor.context';
-import { useConfiguration } from '@/lib/hooks/useConfiguration';
 
 // Interface
 import { IVendorCardProps } from '@/lib/utils/interfaces';
@@ -58,8 +57,7 @@ export default function VendorCard({
     useContext(VendorContext);
   const { onSetVendorFormVisible } = useContext(VendorContext);
   const { showToast } = useContext(ToastContext);
-  const {  ISPAID_VERSION } = useConfiguration();
-  
+
   // States
   const [isPopupOpen, setPopupOpen] = useState<boolean>(false);
   const [isDeletePopupOpen, setDeletePopupOpen] = useState<boolean>(false);
@@ -107,19 +105,8 @@ export default function VendorCard({
   // API Hanlders
   const onHandleConfirmDeleteVendor = async () => {
     try {
-      if (ISPAID_VERSION) {
-        await deleteVendor({ variables: { id: vendorId } });
-        setDeletePopupOpen(false);
-       
-      } else {
-        setDeletePopupOpen(false);
-        showToast({
-          type: 'error',
-          title: t('You are using free version'),
-          message: t('This Feature is only Available in Paid Version'),
-        });  
-      }
-      
+      await deleteVendor({ variables: { id: vendorId } });
+      setDeletePopupOpen(false);
     } catch (error) {
       showToast({
         type: 'error',
@@ -155,7 +142,7 @@ export default function VendorCard({
       className="relative"
     >
       <div
-        className={`flex items-center bg-${vendorId === _id ? 'black' : 'white'} cursor-pointer p-2 px-3`}
+        className={`flex items-center bg-${vendorId === _id ? 'nile' : 'white'} cursor-pointer p-2 px-3`}
       >
         <Image
           width={40}
@@ -166,7 +153,7 @@ export default function VendorCard({
           }
           alt="User avatar"
           style={{ objectFit: 'fill' }}
-          className="mr-3 h-10 w-10 rounded-full"
+          className="me-3 h-10 w-10 rounded-full"
         />
         <div className="flex flex-1 flex-col gap-y-1">
           <TextComponent
@@ -213,7 +200,7 @@ export default function VendorCard({
           )}
           {isPopupOpen && (
             <div
-              className={`absolute left-2 top-[1.2rem] z-10 ${isLast ? '-mt-36' : 'mt-1'} -translate-x-full`}
+              className="absolute start-2 top-[1.2rem] z-10 mt-1 -translate-x-full"
             >
               <CustomPopupMenu
                 close={() => setPopupOpen(false)}

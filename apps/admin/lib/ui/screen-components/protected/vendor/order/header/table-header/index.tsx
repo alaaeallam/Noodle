@@ -100,7 +100,7 @@ const OrderTableHeader: React.FC<IOrderVendorHeaderProps> = ({
                       />
                       <label
                         htmlFor={`action-${item.value}`}
-                        className="ml-2 text-sm"
+                        className="ms-2 text-sm"
                       >
                         {item.label}
                       </label>

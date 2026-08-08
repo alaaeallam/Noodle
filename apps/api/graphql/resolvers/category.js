@@ -1,6 +1,7 @@
 const Category = require('../../models/category')
 const Restaurant = require('../../models/restaurant')
 const { transformRestaurant } = require('./merge')
+const { requireRestaurantAccess } = require('../../helpers/guards')
 
 module.exports = {
   Query: {
@@ -23,9 +24,10 @@ module.exports = {
     },
   },
   Mutation: {
-    createCategory: async(_, args, context) => {
+    createCategory: async(_, args, { req }) => {
       console.log('createCategory')
       try {
+        await requireRestaurantAccess(req, args.category.restaurant, Restaurant)
         console.log(args.category)
         const category = new Category({
           title: args.category.title,
@@ -46,9 +48,10 @@ module.exports = {
         throw err
       }
     },
-    editCategory: async(_, args, context) => {
+    editCategory: async(_, args, { req }) => {
       console.log('editCategory')
       try {
+        await requireRestaurantAccess(req, args.category.restaurant, Restaurant)
         const restaurant = await Restaurant.findOne({
           _id: args.category.restaurant
         })
@@ -68,9 +71,10 @@ module.exports = {
         throw err
       }
     },
-    deleteCategory: async(_, { id, restaurant }, context) => {
+    deleteCategory: async(_, { id, restaurant }, { req }) => {
       console.log('deleteCategory')
       try {
+        await requireRestaurantAccess(req, restaurant, Restaurant)
         const restaurants = await Restaurant.findOne({ _id: restaurant })
         if (!restaurants) {
           throw new Error('Restaurant not found for deleteCategory');

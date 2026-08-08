@@ -83,18 +83,23 @@ export default function CurrentLocation() {
   const handleMarkerPress = async (coordinates) => {
     setCitiesModalVisible(false)
     setIsCheckingZone(true)
-    const response = await getAddress(coordinates.latitude, coordinates.longitude)
-    setLocation({
-      label: 'Location',
-      deliveryAddress: response.formattedAddress,
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude,
-      city: response.city
-    })
-    setTimeout(() => {
+    try {
+      const response = await getAddress(coordinates.latitude, coordinates.longitude)
+      setLocation({
+        label: 'Location',
+        deliveryAddress: response.formattedAddress,
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+        city: response.city
+      })
+      setTimeout(() => {
+        setIsCheckingZone(false)
+        navigation.navigate('Main')
+      }, 100)
+    } catch (error) {
       setIsCheckingZone(false)
-      navigation.navigate('Main')
-    }, 100)
+      FlashMessage({ message: t('errorFetchingAddress') || 'Could not fetch address for this location' })
+    }
   }
 
   async function checkCityMatch(new_location = null) {

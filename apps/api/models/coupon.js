@@ -20,6 +20,13 @@ const couponSchema = new Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    // null = platform-wide coupon (created via Management > Coupons),
+    // set = exclusive to one restaurant (created via that restaurant's own Coupons page)
+    restaurant: {
+      type: Schema.Types.ObjectId,
+      ref: 'Restaurant',
+      default: null
     }
   },
   { timestamps: true }

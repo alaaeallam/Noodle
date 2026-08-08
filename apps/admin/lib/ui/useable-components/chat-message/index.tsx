@@ -20,7 +20,7 @@ export default function ChatMessage({ message, isAdmin = false }: IChatMessagePr
   return (
     <div className={`flex ${isAdmin ? 'justify-end' : 'justify-start'} mb-4`}>
       {!isAdmin && (
-        <div className="mr-2 flex-shrink-0">
+        <div className="me-2 flex-shrink-0">
           <Image
             width={36}
             height={36}
@@ -37,13 +37,13 @@ export default function ChatMessage({ message, isAdmin = false }: IChatMessagePr
           : 'bg-gray-100 text-gray-800 rounded-tl-none'
       }`}>
         <p className="text-sm">{message.text}</p>
-        <div className="text-xs mt-1 text-right">
+        <div className="text-xs mt-1 text-end">
           {message.time}
         </div>
       </div>
       
       {isAdmin && (
-        <div className="ml-2 flex-shrink-0">
+        <div className="ms-2 flex-shrink-0">
           <Image
             width={36}
             height={36}

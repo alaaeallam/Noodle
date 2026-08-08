@@ -19,7 +19,7 @@ const CouponsHeader = ({
       <div className="flex w-full justify-between">
         <HeaderText className={'heading'} text={t('Coupons')} />
         <TextIconClickable
-          className="rounded border-gray-300 bg-black text-white sm:w-auto"
+          className="rounded border-gray-300 bg-mango text-ink sm:w-auto"
           icon={faAdd}
           iconStyles={{ color: 'white' }}
           title={t('Add Coupon')}

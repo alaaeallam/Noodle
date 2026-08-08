@@ -1,25 +1,54 @@
-@layer tailwind-base, primereact, tailwind-utilities;
-
-/* IMPORTANT: In "styled" mode you must add the PrimeReact Theme here. Do NOT include in "unstyled" mode */
-@import 'primereact/resources/primereact.min.css' layer(primereact);
-@import 'primeicons/primeicons.css' layer(primereact);
-@import 'primereact/resources/themes/lara-light-blue/theme.css'
-  layer(primereact);
-@layer tailwind-base {
-  @tailwind base;
-}
-
-@layer tailwind-utilities {
-  @tailwind components;
-  @tailwind utilities;
-}
+/* IMPORTANT: In "styled" mode you must add the PrimeReact Theme here. Do NOT include in "unstyled" mode.
+   NOTE: plain (unlayered) imports, deliberately — this project's Next.js CSS build mistranslates
+   `@import '...' layer(name);` into an invalid `@media layer(name) { ... }` block, which silently
+   disables the entire imported stylesheet (confirmed live: browser parses it as a CSSMediaRule with
+   an unrecognized condition, so none of the rules inside ever apply). Keep these unlayered and
+   imported before Tailwind so Tailwind's utilities still win on source order for any real conflict. */
+@import 'primereact/resources/primereact.min.css';
+@import 'primeicons/primeicons.css';
+@import 'primereact/resources/themes/lara-light-blue/theme.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --primary-color: #b1c748;
-  --secondary-color: #d8e3a3;
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 255, 255, 255;
+  /* Overrides the PrimeReact theme's own `:root { font-family: "Inter var" }`
+     (same selector, later in source order wins). Without this, the browser
+     still eagerly fetches PrimeReact's bundled Inter variable font (~338KB,
+     2 files) even though body's font-family already overrides it for every
+     actual rendered element — confirmed via computed-style audit that only
+     non-rendered tags (html/head/link/script) ever compute to "Inter var".
+     Overriding both the property and the theme's own --font-family variable
+     means nothing anywhere references "Inter var" any more, so the browser
+     has no reason to fetch it at all. */
+  font-family: var(--font-body), sans-serif;
+  --font-family: var(--font-body), sans-serif;
+  /* These mirror tailwind.config.ts's theme.extend.colors — the two
+     mechanisms aren't auto-synced, keep them identical when changing either. */
+  --primary-color: #0d5c63;
+  --secondary-color: #0d5c63;
+  --nile: #0d5c63;
+  --nile-deep: #083f45;
+  --nile-tint: #e7f0f0;
+  --mango: #ffb238;
+  --chili: #e4572e;
+  --mint: #2e9e6b;
+  --amber: #d98e04;
+  --canvas: #f6f4ee;
+  --paper: #ffffff;
+  --ink: #1f2428;
+  --smoke: #6a7178;
+  --line: #e6e1d5;
+  --foreground-rgb: 31, 36, 40;
+  --background-start-rgb: 246, 244, 238;
+  --background-end-rgb: 246, 244, 238;
+}
+
+body {
+  font-family: var(--font-body), sans-serif;
+  color: var(--ink);
+  /* background comes from the legacy gradient rule below, which now
+     resolves to --canvas via --background-start-rgb/--background-end-rgb */
 }
 
 html,
@@ -134,10 +163,11 @@ body {
 
 /* Card */
 .card {
-  border-radius: 0.5rem;
+  border-radius: 14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 1rem;
-  background-color: white;
+  background-color: var(--paper);
+  border: 1px solid var(--line);
 }
 
 .card-h1 {
@@ -312,13 +342,13 @@ body {
 }
 
 .p-datatable-table tr.p-highlight {
-  background-color: black !important;
-  color: white;
+  background-color: var(--nile-tint) !important;
+  color: var(--ink);
 }
 
 .p-datatable-table .p-checkbox.p-highlight .p-checkbox-box {
-  background-color: #5ac12f !important;
-  border-color: #5ac12f !important;
+  background-color: var(--mint) !important;
+  border-color: var(--mint) !important;
 }
 
 .p-datatable-tbody tr td {
@@ -415,13 +445,13 @@ body {
 }
 
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
-  background-color: #ccc !important;
-  color: black;
+  background-color: var(--nile-tint) !important;
+  color: var(--ink);
 }
 
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight.p-focus {
-  background: rgba(4, 4, 4, 0.24);
-  color: black;
+  background: var(--nile-tint);
+  color: var(--ink);
 }
 
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
@@ -477,6 +507,7 @@ body {
 
 .p-autocomplete-item:hover {
   background-color: var(--secondary-color);
+  color: #ffffff;
 }
 
 .p-autocomplete-dropdown {
@@ -487,14 +518,14 @@ body {
 
 /* Fieldset */
 .p-fieldset {
-  border: 1px dashed black;
+  border: 1px dashed var(--line);
   padding: 8px;
 }
 
 .p-fieldset-legend {
   margin-left: 10px;
   height: fit-content;
-  border: 1px dashed gray;
+  border: 1px dashed var(--line);
 }
 
 .p-fieldset-legend > a {
@@ -502,20 +533,20 @@ body {
 }
 
 .p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-highlight {
-  color: #000000;
+  color: #ffffff;
   background: var(--secondary-color);
 }
 
 .p-multiselect-select-all .p-highlight .p-checkbox-box,
 .p-multiselect-item.p-highlight .p-checkbox-box {
-  color: #000000;
+  color: #ffffff;
   background-color: var(--primary-color);
   outline: none;
   border: none;
 }
 
 .p-multiselect-item .p-highlight .p-checkbox-box svg {
-  fill: #000000;
+  fill: #ffffff;
   color: #ffffff;
 }
 

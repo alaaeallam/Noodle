@@ -34,7 +34,7 @@ export default function LoginMain() {
               />
 
               <CustomButton
-                className="border-gray-30 px-32: h-12 w-full bg-black text-white hover:bg-gray-100 hover:text-black"
+                className="border-gray-30 px-32: h-12 w-full bg-mango text-ink hover:bg-gray-100 hover:text-black"
                 label="Login with Apple"
                 rounded={true}
                 icon="pi pi-apple"

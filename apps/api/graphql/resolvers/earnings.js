@@ -1,57 +1,70 @@
 const Earnings = require('../../models/earnings')
-const Rider = require('../../models/rider')
-const { transformEarnings } = require('../resolvers/merge')
+const { requireWalletAccess } = require('../../helpers/guards')
+
 module.exports = {
   Query: {
-    earnings: async(_, __, { req }) => {
-      console.log('Earnings')
-      if (!req.isAuth) throw new Error('Unauthenticated!')
+    earnings: async(_, args, { req }) => {
+      console.log('earnings', args)
       try {
-        const earnings = await Earnings.find({})
-        return earnings.map(transformEarnings)
+        const { userType, userId } = requireWalletAccess(req, args.userType, args.userId)
+        const filter = {}
+        if (userType === 'STORE' && userId) filter['storeEarnings.storeId'] = userId
+        if (userType === 'RIDER' && userId) filter['riderEarnings.riderId'] = userId
+        if (args.orderType) filter.orderType = args.orderType
+        if (args.paymentMethod) filter.paymentMethod = args.paymentMethod
+        if (args.search) filter.orderId = { $regex: args.search, $options: 'i' }
+        if (args.dateFilter?.starting_date || args.dateFilter?.ending_date) {
+          filter.createdAt = {}
+          if (args.dateFilter.starting_date) filter.createdAt.$gte = new Date(args.dateFilter.starting_date)
+          if (args.dateFilter.ending_date) {
+            const end = new Date(args.dateFilter.ending_date)
+            end.setHours(23, 59, 59, 999)
+            filter.createdAt.$lte = end
+          }
+        }
+
+        const pageSize = args.pagination?.pageSize || 10
+        const pageNo = args.pagination?.pageNo || 1
+        const total = await Earnings.countDocuments(filter)
+        const earnings = await Earnings.find(filter)
+          .sort({ createdAt: -1 })
+          .skip((pageNo - 1) * pageSize)
+          .limit(pageSize)
+          .populate('riderEarnings.riderId')
+          .populate('storeEarnings.storeId')
+
+        const totalsAgg = await Earnings.aggregate([
+          { $match: filter },
+          {
+            $group: {
+              _id: null,
+              platformTotal: { $sum: '$platformEarnings.totalEarnings' },
+              riderTotal: { $sum: '$riderEarnings.totalEarnings' },
+              storeTotal: { $sum: '$storeEarnings.totalEarnings' }
+            }
+          }
+        ])
+        const grandTotalEarnings = totalsAgg[0] || { platformTotal: 0, riderTotal: 0, storeTotal: 0 }
+
+        return {
+          success: true,
+          data: {
+            earnings: earnings.map(e => ({
+              ...e._doc,
+              _id: e.id,
+              createdAt: e.createdAt.toISOString(),
+              updatedAt: e.updatedAt.toISOString()
+            })),
+            grandTotalEarnings
+          },
+          pagination: { total }
+        }
       } catch (err) {
-        throw err
-      }
-    },
-    riderEarnings: async(_, args, { req }) => {
-      console.log('riderEarnings', args)
-      const riderId = args.id || req.userId
-      if (!riderId) {
-        throw new Error('Unauthenticated!')
-      }
-      try {
-        const riderEarnings = await Earnings.find({ rider: riderId })
-          .sort({
-            createdAt: -1
-          })
-          .skip(args.offset || 0)
-          .limit(10)
-        return riderEarnings.map(transformEarnings)
-      } catch (err) {
-        throw err
-      }
-    }
-  },
-  Mutation: {
-    createEarning: async(_, args, { req }) => {
-      console.log('createEarning')
-      if (!req.isAuth) {
-        throw new Error('Unauthenticated')
-      }
-      try {
-        const rider = await Rider.findById(args.earningsInput.rider)
-        const earning = new Earnings({
-          rider: rider,
-          orderId: args.earningsInput.orderId,
-          deliveryFee: args.earningsInput.deliveryFee,
-          orderStatus: args.earningsInput.orderStatus,
-          paymentMethod: args.earningsInput.paymentMethod,
-          deliveryTime: new Date()
-        })
-        const result = await earning.save()
-        return result
-      } catch (err) {
-        throw err
+        console.log('earnings error', err)
+        return {
+          success: false,
+          message: err.message
+        }
       }
     }
   }

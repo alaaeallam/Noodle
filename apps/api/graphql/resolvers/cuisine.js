@@ -1,4 +1,6 @@
 const Cuisine = require('../../models/cuisine')
+const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { recordAuditLog } = require('../../helpers/auditLog')
 
 module.exports = {
   Query: {
@@ -45,9 +47,10 @@ module.exports = {
 
   Mutation: {
     // CREATE
-    createCuisine: async (_, args) => {
+    createCuisine: async (_, args, { req }) => {
       console.log('createCuisine')
       try {
+        requireRole(req, ADMIN_ROLES)
         const count = await Cuisine.countDocuments({
           name: args.cuisineInput.name,
           isActive: true,
@@ -63,6 +66,13 @@ module.exports = {
         })
 
         const result = await cuisine.save()
+        await recordAuditLog({
+          req,
+          action: 'CREATE_CUISINE',
+          targetType: 'Cuisine',
+          targetId: result.id,
+          changes: result._doc
+        })
         return {
           ...result._doc,
           _id: result.id,
@@ -74,14 +84,16 @@ module.exports = {
     },
 
     // EDIT
-    editCuisine: async (_, args) => {
+    editCuisine: async (_, args, { req }) => {
       console.log('editCuisine')
       try {
+        requireRole(req, ADMIN_ROLES)
         const input = args.cuisineInput
         const cuisine = await Cuisine.findById(input._id)
         if (!cuisine) {
           throw new Error('cuisine does not exist')
         }
+        const oldData = { ...cuisine._doc }
 
         cuisine.name = input.name
         cuisine.description = input.description
@@ -94,6 +106,13 @@ module.exports = {
           : cuisine.shopType
 
         const result = await cuisine.save()
+        await recordAuditLog({
+          req,
+          action: 'EDIT_CUISINE',
+          targetType: 'Cuisine',
+          targetId: result.id,
+          changes: { oldData, newData: result._doc }
+        })
         return {
           ...result._doc,
           _id: result.id,
@@ -105,12 +124,20 @@ module.exports = {
     },
 
     // SOFT DELETE
-    deleteCuisine: async (_, args) => {
+    deleteCuisine: async (_, args, { req }) => {
       console.log('deleteCuisine')
       try {
+        requireRole(req, ADMIN_ROLES)
         const cuisine = await Cuisine.findById(args.id)
         cuisine.isActive = false
         const result = await cuisine.save()
+        await recordAuditLog({
+          req,
+          action: 'DELETE_CUISINE',
+          targetType: 'Cuisine',
+          targetId: result.id,
+          changes: result._doc
+        })
         return result.id
       } catch (err) {
         console.log(err)

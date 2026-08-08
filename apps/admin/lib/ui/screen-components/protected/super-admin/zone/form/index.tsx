@@ -32,7 +32,7 @@ import CustomGoogleMapsLocationZoneBounds from '@/lib/ui/useable-components/goog
 import { TPolygonPoints } from '@/lib/utils/types';
 import { useTranslations } from 'next-intl';
 import { GoogleMapsContext } from '@/lib/context/global/google-maps.context';
-import { ChangeEvent, useContext } from 'react';
+import { ChangeEvent, useContext, useRef } from 'react';
 
 const DESCRIPTION_MAX_LENGTH = 100;
 
@@ -49,6 +49,11 @@ export default function ZoneAddForm({
     description: zone?.description || '',
     coordinates: zone?.location?.coordinates ?? [[[]]],
   };
+
+  // Title/Description sit above the map in this drawer, so once a user has
+  // scrolled down to draw the zone shape, a blocked (invalid) submit has no
+  // visible feedback at all — this ref lets us scroll them back up to it.
+  const titleFieldRef = useRef<HTMLDivElement>(null);
 
   // Hooks
   const t = useTranslations();
@@ -101,7 +106,7 @@ export default function ZoneAddForm({
         onCompleted: () => {
           showToast({
             type: 'success',
-            title: `${zone ? t('New') : t('Edit')} ${t('Zone')}`,
+            title: `${zone ? t('Edit') : t('New')} ${t('Zone')}`,
             message: `${t('Zone has been')} ${zone ? t('updated') : t('added')} ${t('successfully')}`,
           });
           resetForm();
@@ -115,7 +120,7 @@ export default function ZoneAddForm({
 
           showToast({
             type: 'error',
-            title: `${zone ? t('New') : t('Edit')} ${t('Zone')}`,
+            title: `${zone ? t('Edit') : t('New')} ${t('Zone')}`,
             message,
           });
         },
@@ -156,7 +161,23 @@ export default function ZoneAddForm({
                   handleChange,
                   handleSubmit,
                   setFieldValue,
+                  validateForm,
                 }) => {
+                  const onAddClick = async () => {
+                    const validationErrors = await validateForm();
+                    if (Object.keys(validationErrors).length > 0) {
+                      showToast({
+                        type: 'error',
+                        title: 'Zone',
+                        message: 'Please fill in Title and Description before saving.',
+                      });
+                      titleFieldRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                      });
+                    }
+                  };
+
                   const handleDescriptionChange = (
                     event: ChangeEvent<HTMLTextAreaElement>
                   ) => {
@@ -179,7 +200,7 @@ export default function ZoneAddForm({
                   return (
                     <Form onSubmit={handleSubmit}>
                       <div className="mb-4 space-y-4">
-                        <div>
+                        <div ref={titleFieldRef}>
                           <CustomTextField
                             type="text"
                             name="title"
@@ -232,10 +253,11 @@ export default function ZoneAddForm({
 
                         <div className="mt-4 flex justify-end">
                           <CustomButton
-                            className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                            className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                             label={zone ? t('Update') : t('Add')}
                             type="submit"
                             loading={mutationLoading}
+                            onClick={onAddClick}
                           />
                         </div>
                       </div>

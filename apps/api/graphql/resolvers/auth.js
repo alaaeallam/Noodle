@@ -47,6 +47,9 @@ module.exports = {
       if (!owner) {
         throw new Error('User does not exist!');
       }
+      if (owner.isActive === false) {
+        throw new Error('This account has been deactivated.');
+      }
       const isEqual = await bcrypt.compare(password, owner.password);
       if (!isEqual) {
         throw new Error('Invalid credentials!');
@@ -149,7 +152,12 @@ adminLogin: async (_, { email, password }) => {
         }
       }
 
+      if (user.isActive === false || (user.status && user.status !== 'active')) {
+        throw new Error('This account has been deactivated.');
+      }
+
       user.notificationToken = notificationToken;
+      user.lastLogin = new Date();
       const result = await user.save();
 
       const token = sign({

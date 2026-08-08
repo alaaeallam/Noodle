@@ -26,7 +26,7 @@ export default function PaymentCard({
       <h2 className="mb-2 text-lg font-bold text-black">{name}</h2>
       <p className="mb-4 text-center text-gray-500">{isDetailsSubmitted ? "Details Submitted": t(description)}</p>
       {!isDetailsSubmitted && <TextIconClickable
-        className="rounded border-gray-300 bg-black text-white"
+        className="rounded border-gray-300 bg-mango text-ink"
         icon={icon}
         iconStyles={{ color: 'white' }}
         title={`${t('Connect with')} ${name}`}

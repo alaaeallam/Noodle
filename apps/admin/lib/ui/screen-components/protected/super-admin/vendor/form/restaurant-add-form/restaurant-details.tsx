@@ -406,7 +406,7 @@ export default function RestaurantDetails({
                           }}
                         />
                         {errors.address && touched.address && (
-                          <small className="ml-1 p-error">
+                          <small className="ms-1 p-error">
                             {errors.address}
                           </small>
                         )}
@@ -565,12 +565,12 @@ export default function RestaurantDetails({
 
                       <div className="mt-4 flex justify-end items-center">
                         {errors.address && touched.address && (
-                          <small className="p-error mr-4">
+                          <small className="p-error me-4">
                             {errors.address}
                           </small>
                         )}
                         <CustomButton
-                          className="h-10 w-fit border-gray-300 bg-black px-8 text-white"
+                          className="h-10 w-fit border-gray-300 bg-mango px-8 text-ink"
                           label={t('Add')}
                           type="submit"
                           loading={isSubmitting}

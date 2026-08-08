@@ -293,8 +293,6 @@ function Main(props) {
     </View>
   )
 
-  if (error) return <ErrorView />
-
   const restaurantorders = data?.nearByRestaurantsPreview?.restaurants?.filter((restaurant) => restaurant.shopType === 'restaurant')
 
   // const filterCusinies = () => {
@@ -336,6 +334,12 @@ function Main(props) {
 
   const restaurantCuisines = useCuisinesData('restaurant', allCuisines)
   const groceryCuisines = useCuisinesData('grocery', allCuisines)
+
+  // Moved below all hooks: this used to sit before useCuisinesData's calls,
+  // which skipped its internal useMemo whenever `error` was truthy — a
+  // Rules-of-Hooks violation ("Rendered fewer hooks than expected") since the
+  // number of hooks called must never depend on a condition.
+  if (error) return <ErrorView />
 
   return (
     <>

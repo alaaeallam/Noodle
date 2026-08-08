@@ -80,6 +80,7 @@ const typeDefs = gql`
   type Owner {
     _id: String
     email: String
+    isActive: Boolean
   }
 
   type OrdersWithCashOnDeliveryInfo {
@@ -124,6 +125,12 @@ const typeDefs = gql`
     enableNotification: Boolean
     shopType: String
     cuisines: [String]
+    logo: String
+    currentWalletAmount: Float
+    totalWalletAmount: Float
+    withdrawnWalletAmount: Float
+    bussinessDetails: BussinessDetails
+    unique_restaurant_id: String
   }
 
   type OpeningTimes {
@@ -184,6 +191,26 @@ const typeDefs = gql`
     updatedAt: String!
   }
 
+  type BussinessDetails {
+    bankName: String
+    accountName: String
+    accountCode: String
+    accountNumber: String
+    bussinessRegNo: String
+    companyRegNo: String
+    taxRate: Float
+  }
+
+  input BussinessDetailsInput {
+    bankName: String
+    accountName: String
+    accountCode: String
+    accountNumber: String
+    bussinessRegNo: String
+    companyRegNo: String
+    taxRate: Float
+  }
+
   type Rider {
     _id: ID!
     name: String!
@@ -202,6 +229,23 @@ const typeDefs = gql`
     currentWalletAmount: Float
     totalWalletAmount: Float
     withdrawnWalletAmount: Float
+    vehicleType: String
+    assigned: [String]
+    bussinessDetails: BussinessDetails
+  }
+
+  type Staff {
+    _id: ID!
+    name: String!
+    email: String!
+    password: String!
+    plainPassword: String!
+    phone: String
+    isActive: Boolean!
+    permissions: [String]
+    userType: String
+    createdAt: String
+    updatedAt: String
   }
 
   type User {
@@ -221,6 +265,89 @@ const typeDefs = gql`
     notificationToken: String
     favourite: [String!]
     userType: String
+    status: String
+    notes: String
+    lastLogin: String
+  }
+  type Banner {
+    _id: ID!
+    title: String!
+    description: String
+    action: String
+    screen: String
+    file: String
+    parameters: String
+  }
+  input BannerInput {
+    _id: String
+    title: String!
+    description: String
+    action: String
+    screen: String
+    file: String
+    parameters: String
+  }
+  type ShopType {
+    _id: ID!
+    title: String!
+    image: String
+    isActive: Boolean!
+  }
+  input CreateShopTypeInput {
+    title: String!
+    image: String
+  }
+  input UpdateShopTypeInput {
+    _id: String!
+    title: String
+    image: String
+    isActive: Boolean
+  }
+  input FetchShopTypeFilter {
+    title: String
+    isActive: Boolean
+  }
+  input FetchUniqueShopTypeInput {
+    _id: String
+    title: String
+  }
+  input PaginationInput {
+    page: Int
+    pageSize: Int
+  }
+  enum DeleteTypeEnum {
+    SOFT
+    HARD
+  }
+  enum UserTypeEnum {
+    RIDER
+    STORE
+  }
+  enum OrderTypeEnum {
+    DELIVERY
+    PICKUP
+  }
+  enum PaymentMethodEnum {
+    COD
+    PAYPAL
+    STRIPE
+  }
+  input WalletPaginationInput {
+    pageSize: Int
+    pageNo: Int
+  }
+  input DateFilterInput {
+    starting_date: String
+    ending_date: String
+  }
+  type FetchShopTypesResponse {
+    data: [ShopType!]!
+    total: Int!
+    page: Int!
+    pageSize: Int!
+    totalPages: Int!
+    hasNextPage: Boolean!
+    hasPrevPage: Boolean!
   }
   type Configuration {
     _id: String!
@@ -283,6 +410,19 @@ const typeDefs = gql`
     enableRestaurantDemo: Boolean
     enableAdminDemo: Boolean
   }
+  type AppVersion {
+    android: String
+    ios: String
+  }
+  input AppTypeInput {
+    android: String
+    ios: String
+  }
+  type AppVersions {
+    customerAppVersion: AppVersion
+    riderAppVersion: AppVersion
+    restaurantAppVersion: AppVersion
+  }
   type OrderStatus {
     pending: String!
     preparing: String
@@ -304,6 +444,7 @@ const typeDefs = gql`
     paymentStatus: String!
     orderStatus: String
     reason: String
+    instructions: String
     isActive: Boolean!
     createdAt: String!
     updatedAt: String!
@@ -340,6 +481,10 @@ const typeDefs = gql`
   type OrdersByUserResponse {
     orders: [Order!]!
     totalCount: Int!
+    totalPages: Int!
+    currentPage: Int!
+    nextPage: Int
+    prevPage: Int
   }
 
   type RestaurantDetail {
@@ -469,11 +614,48 @@ const typeDefs = gql`
     totalSales: Float!
   }
 
+  type DashboardUsersData {
+    usersCount: Int!
+    vendorsCount: Int!
+    restaurantsCount: Int!
+    ridersCount: Int!
+  }
+
   type DashboardSales {
     orders: [SalesValues!]
   }
   type DashboardOrders {
     orders: [OrdersValues!]
+  }
+
+  type RestaurantDashboardOrdersSalesStats {
+    totalOrders: Int!
+    totalSales: Float!
+    totalCODOrders: Int!
+    totalCardOrders: Int!
+  }
+
+  type RestaurantDashboardSalesOrderCountByYear {
+    salesAmount: [Float!]!
+    ordersCount: [Int!]!
+  }
+
+  type PaymentMethodBreakdownData {
+    total_orders: Int!
+    total_sales: Float!
+    total_sales_without_delivery: Float!
+    total_delivery_fee: Float!
+  }
+
+  type PaymentMethodBreakdownEntry {
+    _type: String!
+    data: PaymentMethodBreakdownData!
+  }
+
+  type DashboardOrderSalesDetailsByPaymentMethod {
+    all: [PaymentMethodBreakdownEntry!]!
+    cod: [PaymentMethodBreakdownEntry!]!
+    card: [PaymentMethodBreakdownEntry!]!
   }
 
   type SalesValues {
@@ -489,6 +671,7 @@ const typeDefs = gql`
     title: String!
     discount: Float!
     enabled: Boolean!
+    restaurant: ID
   }
   type Taxation {
     _id: String!
@@ -579,33 +762,94 @@ const typeDefs = gql`
     isActive: Boolean!
   }
 
-  type Earnings {
-    _id: String!
-    rider: Rider!
-    orderId: String!
-    deliveryFee: Float!
-    orderStatus: String!
-    paymentMethod: String!
-    deliveryTime: String!
-  }
-
   type WithdrawRequest {
     _id: String!
     requestId: String!
     requestAmount: Float!
     requestTime: String!
-    rider: Rider!
+    rider: Rider
+    store: Restaurant
+    userType: String
     status: String!
+    createdAt: String
   }
 
-  input EarningsInput {
-    _id: String
-    rider: String!
-    orderId: String!
-    deliveryFee: Float!
-    orderStatus: String!
-    paymentMethod: String!
-    deliveryTime: String!
+  type PlatformEarningsDetail {
+    marketplaceCommission: Float
+    deliveryCommission: Float
+    tax: Float
+    platformFee: Float
+    totalEarnings: Float
+  }
+
+  type RiderEarningsDetail {
+    riderId: Rider
+    deliveryFee: Float
+    tip: Float
+    totalEarnings: Float
+  }
+
+  type StoreEarningsDetail {
+    storeId: Restaurant
+    orderAmount: Float
+    totalEarnings: Float
+  }
+
+  type EarningEntry {
+    _id: ID!
+    orderId: String
+    orderType: String
+    paymentMethod: String
+    createdAt: String
+    updatedAt: String
+    platformEarnings: PlatformEarningsDetail
+    riderEarnings: RiderEarningsDetail
+    storeEarnings: StoreEarningsDetail
+  }
+
+  type GrandTotalEarnings {
+    platformTotal: Float
+    riderTotal: Float
+    storeTotal: Float
+  }
+
+  type EarningsData {
+    earnings: [EarningEntry!]!
+    grandTotalEarnings: GrandTotalEarnings
+  }
+
+  type EarningsResponse {
+    success: Boolean!
+    message: String
+    data: EarningsData
+    pagination: Pagination
+  }
+
+  type Transaction {
+    _id: ID!
+    transactionId: String
+    userType: String
+    rider: Rider
+    store: Restaurant
+    amountCurrency: String
+    amountTransferred: Float
+    status: String
+    toBank: BussinessDetailsSnapshot
+    createdAt: String
+  }
+
+  type BussinessDetailsSnapshot {
+    accountName: String
+    bankName: String
+    accountNumber: String
+    accountCode: String
+  }
+
+  type TransactionHistoryResponse {
+    success: Boolean!
+    message: String
+    data: [Transaction!]!
+    pagination: Pagination
   }
 
   input EmailConfigurationInput {
@@ -755,6 +999,7 @@ const typeDefs = gql`
     available: Boolean!
     zone: String!
     accountNumber: String
+    vehicleType: String
   }
 
   input UserInput {
@@ -767,6 +1012,16 @@ const typeDefs = gql`
     appleId: String
     emailIsVerified: Boolean
     isPhoneExists: Boolean
+  }
+
+  input StaffInput {
+    _id: String
+    name: String!
+    email: String!
+    password: String
+    phone: String
+    isActive: Boolean
+    permissions: [String]
   }
 
   input OwnerInput {
@@ -995,6 +1250,35 @@ image: String
     message: String
   }
 
+  type Notification {
+    _id: ID!
+    title: String
+    body: String
+    createdAt: String
+  }
+
+  type AuditLogAdmin {
+    _id: String
+    email: String
+  }
+
+  type AuditLog {
+    _id: ID!
+    timestamp: String
+    admin: AuditLogAdmin
+    action: String
+    targetType: String
+    targetId: String
+    changes: String
+  }
+
+  type AuditLogsResponse {
+    auditLogs: [AuditLog!]!
+    totalCount: Int!
+    currentPage: Int!
+    totalPages: Int!
+  }
+
   type Otp {
     result: Boolean!
   }
@@ -1041,7 +1325,8 @@ image: String
     message: String
   }
   type RiderAndWithdrawRequest {
-    rider: Rider!
+    rider: Rider
+    store: Restaurant
     withdrawRequest: WithdrawRequest!
   }
 
@@ -1102,21 +1387,64 @@ image: String
   }
 
   type Query {
-    withdrawRequests: [WithdrawRequest!]!
-    earnings: [Earnings!]!
+    withdrawRequests(
+      userType: UserTypeEnum
+      userId: String
+      search: String
+      pagination: WalletPaginationInput
+    ): WithdrawRequestReponse!
+    earnings(
+      userId: String
+      userType: UserTypeEnum
+      orderType: OrderTypeEnum
+      paymentMethod: PaymentMethodEnum
+      search: String
+      pagination: WalletPaginationInput
+      dateFilter: DateFilterInput
+    ): EarningsResponse!
+    transactionHistory(
+      userType: UserTypeEnum
+      userId: String
+      search: String
+      pagination: WalletPaginationInput
+      dateFilter: DateFilterInput
+    ): TransactionHistoryResponse!
     categories: [Category!]!
     foods: [Food!]!
     orders(offset: Int): [Order!]!
     undeliveredOrders(offset: Int): [Order!]!
     deliveredOrders(offset: Int): [Order!]!
     allOrders(page: Int): [Order!]!
+    allOrdersWithoutPagination(
+      dateKeyword: String
+      starting_date: String
+      ending_date: String
+    ): [Order!]!
+    getDashboardUsers: DashboardUsersData!
     getDashboardTotal(
       starting_date: String
       ending_date: String
       restaurant: String!
     ): DashboardData!
+    getRestaurantDashboardOrdersSalesStats(
+      restaurant: String!
+      starting_date: String
+      ending_date: String
+      dateKeyword: String
+    ): RestaurantDashboardOrdersSalesStats!
+    getRestaurantDashboardSalesOrderCountDetailsByYear(
+      restaurant: String!
+      year: Int!
+    ): RestaurantDashboardSalesOrderCountByYear!
+    getDashboardOrderSalesDetailsByPaymentMethod(
+      restaurant: String!
+      starting_date: String
+      ending_date: String
+      dateKeyword: String
+    ): DashboardOrderSalesDetailsByPaymentMethod!
     likedFood: [Food!]!
     reviews(offset: Int, restaurant: String!): [Review!]!
+    reviewsByRestaurant(restaurant: String!): ReviewData!
     foodByCategory(
       category: String!
       onSale: Boolean
@@ -1128,14 +1456,22 @@ image: String
     profile: User
     vendorProfile: OwnerData
     configuration: Configuration!
+    getVersions: AppVersions
+    banners: [Banner!]!
+    fetchShopTypes(
+      filter: FetchShopTypeFilter
+      pagination: PaginationInput
+    ): FetchShopTypesResponse!
+    fetchShopTypeByUnique(dto: FetchUniqueShopTypeInput): ShopType
     users: [User!]
+    user(id: ID!): User
     userFavourite(latitude: Float, longitude: Float): [Restaurant]
     order(id: String!): Order!
     orderPaypal(id: String!): Order!
     orderStripe(id: String!): Order!
     riders: [Rider!]
     rider(id: String): Rider!
-    riderEarnings(id: String, offset: Int): [Earnings!]
+    staffs: [Staff!]
     riderWithdrawRequests(id: String, offset: Int): [WithdrawRequest!]
     pageCount(restaurant: String!): Int
     availableRiders: [Rider]
@@ -1160,7 +1496,14 @@ image: String
     cuisines: [Cuisine!]!
     taxes: Taxation!
     tips: Tipping!
+    notifications: [Notification!]!
+    auditLogs(page: Int, limit: Int): AuditLogsResponse!
     nearByRestaurants(
+      latitude: Float
+      longitude: Float
+      shopType: String
+    ): NearByData!
+    nearByRestaurantsPreview(
       latitude: Float
       longitude: Float
       shopType: String
@@ -1237,10 +1580,13 @@ image: String
     getCountries: [Country]
     getCountryByIso(iso: String!): Country
     recentOrderRestaurants(latitude: Float!, longitude: Float!): [Restaurant!]
+    recentOrderRestaurantsPreview(latitude: Float!, longitude: Float!): [Restaurant!]
     mostOrderedRestaurants(latitude: Float!, longitude: Float!): [Restaurant!]
+    mostOrderedRestaurantsPreview(latitude: Float!, longitude: Float!): [Restaurant!]
     relatedItems(itemId: String!, restaurantId: String!): [String!]!
     popularItems(restaurantId: String!): [PopularItemsResponse!]!
     topRatedVendors(latitude: Float!, longitude: Float!): [Restaurant!]
+    topRatedVendorsPreview(latitude: Float!, longitude: Float!): [Restaurant!]
     lastOrderCreds: DemoCredentails
     cuisine(cuisine: String!): Cuisine
     subCategoriesByParentId(parentCategoryId: String!): [SubCategory!]!
@@ -1249,14 +1595,16 @@ image: String
   }
 
   type Mutation {
-    createWithdrawRequest(amount: Float!): WithdrawRequest!
+    createWithdrawRequest(requestAmount: Float!, userId: String): WithdrawRequest!
     updateWithdrawReqStatus(id: ID!, status: String!): UpdateWithdrawResponse!
-    createEarning(earningsInput: EarningsInput): Earnings!
     sendOtpToEmail(email: String!, otp: String!): Otp!
     sendOtpToPhoneNumber(phone: String!, otp: String!): Otp!
     emailExist(email: String!): User!
     phoneExist(phone: String!): User!
     Deactivate(isActive: Boolean!, email: String!): User!
+    updateUserStatus(id: ID!, status: String!): User!
+    updateUserNotes(id: ID!, notes: String!): User!
+    deleteUser(id: ID!): User!
     adminLogin(email: String!, password: String!): Admin!
     login(
       appleId: String
@@ -1296,6 +1644,7 @@ image: String
       isPickedUp: Boolean!
       taxationAmount: Float!
       deliveryCharges: Float!
+      instructions: String
     ): Order!
     editOrder(_id: String!, orderInput: [OrderInput!]!): Order!
     reviewOrder(reviewInput: ReviewInput!): Order!
@@ -1354,6 +1703,17 @@ image: String
     saveCurrencyConfiguration(
       configurationInput: CurrencyConfigurationInput!
     ): Configuration!
+    setVersions(
+      customerAppVersion: AppTypeInput
+      riderAppVersion: AppTypeInput
+      restaurantAppVersion: AppTypeInput
+    ): Boolean
+    createShopType(dto: CreateShopTypeInput): ShopType!
+    updateShopType(dto: UpdateShopTypeInput): ShopType!
+    deleteShopType(id: String!, type: DeleteTypeEnum): ShopType!
+    createBanner(bannerInput: BannerInput!): Banner!
+    editBanner(bannerInput: BannerInput!): Banner!
+    deleteBanner(id: String!): ID
     pushToken(token: String): User!
     updateOrderStatus(id: String!, status: String!, reason: String): Order!
     uploadToken(id: String!, pushToken: String!): OwnerData!
@@ -1369,6 +1729,9 @@ image: String
     createRider(riderInput: RiderInput): Rider!
     editRider(riderInput: RiderInput): Rider!
     deleteRider(id: String!): Rider!
+    createStaff(staffInput: StaffInput): Staff!
+    editStaff(staffInput: StaffInput): Staff!
+    deleteStaff(id: String!): Staff!
     toggleAvailablity(id: String): Rider!
     updateStatus(id: String, orderStatus: String!): Order!
     assignRider(id: String!, riderId: String!): Order!
@@ -1391,7 +1754,7 @@ image: String
     editRestaurantCoupon(restaurantId: ID!, couponInput: CouponInput!): Coupon!
     deleteCoupon(id: String!): String!
     deleteRestaurantCoupon(restaurantId: ID!, couponId: ID!): String!
-    coupon(coupon: String!): Coupon!
+    coupon(coupon: String!, restaurantId: ID): Coupon!
     createCuisine(cuisineInput: CuisineInput!): Cuisine!
     editCuisine(cuisineInput: CuisineInput!): Cuisine!
     deleteCuisine(id: String!): String!

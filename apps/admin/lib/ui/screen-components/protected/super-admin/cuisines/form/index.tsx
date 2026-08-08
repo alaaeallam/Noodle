@@ -292,7 +292,7 @@ onSubmit={async (values, { setSubmitting }) => {
                   />
 
                   <button
-                    className="float-end my-2 block rounded-md bg-black px-12 py-2 text-white"
+                    className="float-end my-2 block rounded-md bg-mango px-12 py-2 text-ink"
                     disabled={
                       isSubmitting || createCuisineLoading || editCuisineLoading
                     }

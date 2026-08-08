@@ -284,7 +284,7 @@ export const restaurantFragment = gql`
   }
 `
 export const restaurantPreviewFragment = gql`
-  fragment RestaurantPreviewFields on RestaurantPreview {
+  fragment RestaurantPreviewFields on Restaurant {
     _id
     orderId
     orderPrefix
@@ -308,10 +308,10 @@ export const restaurantPreviewFragment = gql`
     enableNotification
     shopType
     cuisines
-    keywords
-    tags
-    reviewCount
-    reviewAverage
+    reviewData {
+      total
+      ratings
+    }
     location {
       coordinates
     }
@@ -703,10 +703,10 @@ export const restaurantListPreview = `query Restaurants($latitude:Float,$longitu
       enableNotification
       shopType
       cuisines
-      keywords
-      tags
-      reviewCount
-      reviewAverage
+      reviewData{
+        total
+        ratings
+      }
       distanceWithCurrentLocation @client
       freeDelivery @client
       acceptVouchers @client
@@ -766,7 +766,6 @@ export const restaurant = `query Restaurant($id:String){
     deliveryTime
     minimumOrder
     tax
-    reviewCount
     reviewData{
       total
       ratings
@@ -821,8 +820,6 @@ export const restaurant = `query Restaurant($id:String){
         endTime
       }
     }
-    phone
-    restaurantUrl
     cuisines
     stripeDetailsSubmitted
   }
@@ -876,8 +873,10 @@ export const FavouriteRestaurant = `query UserFavourite ($latitude:Float,$longit
       shopType
       tax
       isAvailable
-      reviewCount
-      reviewAverage
+      reviewData{
+        total
+        ratings
+      }
       categories{
         _id
         title
