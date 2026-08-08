@@ -189,7 +189,7 @@ const SearchScreen = () => {
   function getUniqueTags(restaurants) {
     const allTags = new Set()
     restaurants?.forEach((restaurant) => {
-      restaurant?.tags.forEach((tag) => allTags.add(tag))
+      restaurant?.tags?.forEach((tag) => allTags.add(tag))
     })
     return Array.from(allTags) // Convert Set back to an array
   }
