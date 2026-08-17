@@ -9,7 +9,8 @@ const {
   publishRiderLocation,
   RIDER_LOCATION,
   ZONE_ORDER,
-  publishOrder
+  publishOrder,
+  publishToUser
 } = require('../../helpers/pubsub')
 const { sendNotificationToUser } = require('../../helpers/notifications')
 const {
@@ -374,6 +375,7 @@ module.exports = {
         const user = await User.findById(order.user)
         const transformedOrder = await transformOrder(result)
         publishOrder(transformedOrder)
+        publishToUser(result.user.toString(), transformedOrder, 'update')
         sendNotificationToUser(result.user, result)
         sendNotificationToCustomerWeb(
           user.notificationTokenWeb,
@@ -401,6 +403,7 @@ module.exports = {
         const transformedOrder = await transformOrder(result)
         sendNotificationToUser(order.user.toString(), transformedOrder)
         publishOrder(transformedOrder)
+        publishToUser(order.user.toString(), transformedOrder, 'update')
         return transformedOrder
       } catch (error) {
         throw error
