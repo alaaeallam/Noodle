@@ -42,6 +42,7 @@ export const orderStatusChanged = `subscription OrderStatusChanged($userId:Strin
         food
         description
         quantity
+        image
         variation{
           _id
           title
@@ -71,14 +72,17 @@ export const orderStatusChanged = `subscription OrderStatusChanged($userId:Strin
       rider{
         _id
         name
+        phone
       }
       review{
         _id
+        rating
       }
       paymentMethod
       paidAmount
       orderAmount
       orderStatus
+      paymentStatus
       tipping
       taxationAmount
       createdAt
