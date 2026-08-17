@@ -1,0 +1,43 @@
+name: OTA Update Rider
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "apps/rider/**"
+  workflow_dispatch: {}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # Publishes a JS-only over-the-air update to the "production" channel.
+      # Only reaches installed builds whose runtimeVersion (tied to the
+      # app's version string via the appVersion policy) matches - a native
+      # change (new native module, version bump) needs a real EAS/device
+      # build instead, this won't reach those.
+      - name: Publish OTA update
+        working-directory: apps/rider
+        run: eas update --branch production --non-interactive --message "OTA update ${{ github.sha }}"

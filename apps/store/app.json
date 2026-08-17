@@ -12,6 +12,12 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6a94161f-f21b-4ad9-8a04-c95b54ef0116"
+    },
     "splash": {
       "image": "./lib/assets/images/black.png",
       "resizeMode": "cover",

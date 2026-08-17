@@ -17,6 +17,12 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9144a7fc-b205-464a-8fb6-64eb66fc8743"
+    },
     "plugins": [
     "expo-router",
       [
