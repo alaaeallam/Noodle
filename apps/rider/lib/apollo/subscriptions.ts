@@ -124,12 +124,14 @@ export const SUBSCRIPTION_ZONE_ORDERS = gql`
         pickedAt
         assignedAt
         isPickedUp
+        isReadyToPickUp
         deliveredAt
         deliveryCharges
         orderId
         restaurant {
           _id
           name
+          image
           address
           location {
             coordinates
@@ -148,6 +150,7 @@ export const SUBSCRIPTION_ZONE_ORDERS = gql`
           title
           food
           description
+          image
           quantity
           variation {
             _id
@@ -184,6 +187,7 @@ export const SUBSCRIPTION_ZONE_ORDERS = gql`
         reason
         isRiderRinged
         preparationTime
+        hasUnreadChatForRider
         rider {
           _id
           name
@@ -203,13 +207,16 @@ export const SUBSCRIPTION_ASSIGNED_RIDER = gql`
         createdAt
         acceptedAt
         pickedAt
+        assignedAt
         isPickedUp
+        isReadyToPickUp
         deliveredAt
         expectedTime
         deliveryCharges
         restaurant {
           _id
           name
+          image
           address
           location {
             coordinates
@@ -265,6 +272,7 @@ export const SUBSCRIPTION_ASSIGNED_RIDER = gql`
         reason
         isRiderRinged
         preparationTime
+        hasUnreadChatForRider
         rider {
           _id
           name

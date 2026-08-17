@@ -1,15 +1,92 @@
 import { gql } from "@apollo/client";
 
+// Selection matches RIDER_ORDERS exactly - both write into the same
+// normalized Order cache entries, and Apollo's cache logs "Missing field"
+// warnings when one operation's selection is a subset of another's for the
+// same object.
+const ORDER_FIELDS = `
+  _id
+  orderId
+  createdAt
+  acceptedAt
+  pickedAt
+  assignedAt
+  isPickedUp
+  isReadyToPickUp
+  deliveredAt
+  expectedTime
+  deliveryCharges
+  restaurant {
+    _id
+    name
+    image
+    address
+    location {
+      coordinates
+    }
+  }
+  deliveryAddress {
+    location {
+      coordinates
+    }
+    deliveryAddress
+    label
+    details
+  }
+  items {
+    _id
+    title
+    food
+    description
+    image
+    quantity
+    variation {
+      _id
+      title
+      price
+    }
+    addons {
+      _id
+      options {
+        _id
+        title
+        price
+      }
+      title
+      description
+      quantityMinimum
+      quantityMaximum
+    }
+    isActive
+    createdAt
+  }
+  user {
+    _id
+    name
+    phone
+  }
+  paymentMethod
+  paidAmount
+  orderAmount
+  paymentStatus
+  orderStatus
+  tipping
+  taxationAmount
+  reason
+  isRiderRinged
+  preparationTime
+  hasUnreadChatForRider
+  rider {
+    _id
+    name
+    username
+  }
+`;
+
 export const ASSIGN_ORDER = gql`
   mutation AssignOrder($id: String!) {
     assignOrder(id: $id) {
-      _id
-      orderStatus
-      rider {
-        _id
-        name
-        username
-      }
+      ${ORDER_FIELDS}
     }
   }
 `;
@@ -17,8 +94,7 @@ export const ASSIGN_ORDER = gql`
 export const UPDATE_ORDER_STATUS_RIDER = gql`
   mutation UpdateOrderStatusRider($id: String!, $status: String!) {
     updateOrderStatusRider(id: $id, status: $status) {
-      _id
-      orderStatus
+      ${ORDER_FIELDS}
     }
   }
 `;
