@@ -21,8 +21,15 @@ const {
   JOB_TYPE,
   JOB_DELAY_DEFAULT
 } = require('../../queue')
-const { requireRole, ADMIN_ROLES } = require('../../helpers/guards')
+const { requireRole, ADMIN_ROLES, requireWalletAccess } = require('../../helpers/guards')
 const { recordAuditLog } = require('../../helpers/auditLog')
+
+// Same unsigned Cloudinary preset the admin panel already uploads
+// restaurant/cuisine images through (apps/admin/.env.production) --
+// reused here so rider document uploads (license/vehicle plate) land
+// in the same real, working media pipeline instead of a fictional S3 bucket.
+const CLOUDINARY_UPLOAD_URL = 'https://api.cloudinary.com/v1_1/' + 'alaaeallam' + '/image/upload'
+const CLOUDINARY_UPLOAD_PRESET = 'noodle_admin_unsigned'
 module.exports = {
   Subscription: {
     subscriptionRiderLocation: {
@@ -143,33 +150,48 @@ module.exports = {
         if (!rider) throw new Error('Rider does not exist')
         const date = new Date()
         date.setDate(date.getDate() - 1)
-        const assignedOrders = await Order.find({
+        const activeWindow = {
+          $gte: `${date.getFullYear()}-${
+            date.getMonth() + 1
+          }-${date.getDate()}`
+        }
+        // Delivered/cancelled orders are the rider's history, not their
+        // active queue — they shouldn't be dropped just because they were
+        // created outside the ~24h "active order" window above (e.g. an
+        // order accepted yesterday and only just marked delivered). Give
+        // history a much longer, but still bounded, window instead.
+        const historyDate = new Date()
+        historyDate.setDate(historyDate.getDate() - 30)
+        const historyWindow = {
+          $gte: `${historyDate.getFullYear()}-${
+            historyDate.getMonth() + 1
+          }-${historyDate.getDate()}`
+        }
+        const activeOrders = await Order.find({
           rider: req.userId,
-          createdAt: {
-            $gte: `${date.getFullYear()}-${
-              date.getMonth() + 1
-            }-${date.getDate()}`
-          },
+          createdAt: activeWindow,
           $or: [
             { orderStatus: 'ACCEPTED' },
             { orderStatus: 'PICKED' },
-            { orderStatus: 'DELIVERED' },
             { orderStatus: 'ASSIGNED' }
           ]
+        }).sort({ createdAt: -1 })
+        const historyOrders = await Order.find({
+          rider: req.userId,
+          createdAt: historyWindow,
+          $or: [{ orderStatus: 'DELIVERED' }, { orderStatus: 'CANCELLED' }]
         }).sort({ createdAt: -1 })
         const orders = await Order.find({
           zone: rider.zone,
           orderStatus: 'ACCEPTED',
           rider: null,
-          createdAt: {
-            $gte: `${date.getFullYear()}-${
-              date.getMonth() + 1
-            }-${date.getDate()}`
-          }
+          createdAt: activeWindow
         }).sort({ createdAt: -1 })
-        return orders.concat(...assignedOrders).map(order => {
-          return transformOrder(order)
-        })
+        return orders
+          .concat(activeOrders, historyOrders)
+          .map(order => {
+            return transformOrder(order)
+          })
       } catch (err) {
         throw err
       }
@@ -407,6 +429,91 @@ module.exports = {
         location: location
       })
       return transformRider(result)
+    },
+    updateRiderBussinessDetails: async(_, args, { req }) => {
+      console.log('updateRiderBussinessDetails', args.id)
+      try {
+        const { userId } = requireWalletAccess(req, 'RIDER', args.id)
+        const rider = await Rider.findById(userId)
+        if (!rider) throw new Error('Rider does not exist')
+        rider.bussinessDetails = args.bussinessDetails
+        const result = await rider.save()
+        return transformRider(result)
+      } catch (err) {
+        console.log('updateRiderBussinessDetails error', err)
+        throw err
+      }
+    },
+    updateRiderLicenseDetails: async(_, args, { req }) => {
+      console.log('updateRiderLicenseDetails', args.id)
+      try {
+        const { userId } = requireWalletAccess(req, 'RIDER', args.id)
+        const rider = await Rider.findById(userId)
+        if (!rider) throw new Error('Rider does not exist')
+        rider.licenseDetails = args.licenseDetails
+        const result = await rider.save()
+        return transformRider(result)
+      } catch (err) {
+        console.log('updateRiderLicenseDetails error', err)
+        throw err
+      }
+    },
+    updateRiderVehicleDetails: async(_, args, { req }) => {
+      console.log('updateRiderVehicleDetails', args.id)
+      try {
+        const { userId } = requireWalletAccess(req, 'RIDER', args.id)
+        const rider = await Rider.findById(userId)
+        if (!rider) throw new Error('Rider does not exist')
+        rider.vehicleDetails = args.vehicleDetails
+        const result = await rider.save()
+        return transformRider(result)
+      } catch (err) {
+        console.log('updateRiderVehicleDetails error', err)
+        throw err
+      }
+    },
+    updateWorkSchedule: async(_, args, { req }) => {
+      console.log('updateWorkSchedule', args.riderId)
+      try {
+        const { userId } = requireWalletAccess(req, 'RIDER', args.riderId)
+        const rider = await Rider.findById(userId)
+        if (!rider) throw new Error('Rider does not exist')
+        rider.workSchedule = args.workSchedule
+        rider.timeZone = args.timeZone
+        const result = await rider.save()
+        return transformRider(result)
+      } catch (err) {
+        console.log('updateWorkSchedule error', err)
+        throw err
+      }
+    },
+    uploadImageToS3: async(_, args, { req }) => {
+      console.log('uploadImageToS3')
+      try {
+        if (!req.isAuth) throw new Error('Unauthenticated')
+        const match = /^data:(.+);base64,(.+)$/.exec(args.image || '')
+        if (!match) throw new Error('Invalid image data')
+        const [, mime, base64Data] = match
+        const buffer = Buffer.from(base64Data, 'base64')
+
+        const formData = new FormData()
+        formData.append('file', new Blob([buffer], { type: mime }), 'upload.jpg')
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+
+        const response = await fetch(CLOUDINARY_UPLOAD_URL, {
+          method: 'POST',
+          body: formData
+        })
+        const data = await response.json()
+        if (!data.secure_url) {
+          console.log('uploadImageToS3 cloudinary error', data)
+          throw new Error((data.error && data.error.message) || 'Image upload failed')
+        }
+        return { imageUrl: data.secure_url }
+      } catch (err) {
+        console.log('uploadImageToS3 error', err)
+        throw err
+      }
     }
   }
 }

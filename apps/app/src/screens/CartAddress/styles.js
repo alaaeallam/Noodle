@@ -6,88 +6,94 @@ import { verticalScale } from '../../utils/scaling'
 const styles = (props = null) =>
   StyleSheet.create({
     flex: {
-      flex: 1,
-      
+      flex: 1
+    },
+    cartAddress: {
+      ...alignment.PBmedium,
+      backgroundColor: props !== null ? props.themeBackground : 'transparent'
+    },
+    headingBlock: {
+      paddingHorizontal: scale(24),
+      paddingTop: scale(20),
+      gap: scale(10)
+    },
+    eyebrow: {
+      letterSpacing: scale(1.2)
+    },
+    subtext: {
+      marginTop: scale(2)
+    },
+    currentLocationBtn: {
+      height: scale(54),
+      backgroundColor: props !== null ? props.main : '#FF1D02',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: props?.isRTL ? 'row-reverse' : 'row',
+      gap: scale(8)
+    },
+    savedLabel: {
+      marginTop: scale(6),
+      letterSpacing: scale(1)
     },
     width100: {
       width: '100%'
     },
-    width10: {
-      width: '10%'
-    },
     titleAddress: {
       flexDirection: props?.isRTL ? 'row-reverse' : 'row',
+      alignItems: 'center'
     },
-    homeIcon: {
-      width: '20%',
+    addressIconBox: {
+      width: scale(42),
+      height: scale(42),
+      backgroundColor: props !== null ? props.themeBackground : '#F4F2EF',
       alignItems: 'center',
       justifyContent: 'center'
     },
-    homeIconImg: {
-      width: scale(15),
-      height: scale(15)
+    addressTextBlock: {
+      flex: 1,
+      gap: scale(3)
     },
-    cartAddress:{
-      ...alignment.PBmedium,
-      backgroundColor: props !== null ? props.themeBackground : 'transparent',
-
+    containerSpace: theme => ({
+      backgroundColor: theme !== null ? theme.white : 'transparent',
+      flexDirection: theme?.isRTL ? 'row-reverse' : 'row',
+      alignItems: 'center',
+      gap: scale(14),
+      padding: scale(14),
+      borderWidth: scale(2),
+      borderColor: theme !== null ? theme.borderColor : '#E4E1DD'
+    }),
+    containerSpaceSelected: theme => ({
+      backgroundColor: theme !== null ? theme.newButtonBackground : '#FFF3F1',
+      borderColor: theme !== null ? theme.main : '#FF1D02'
+    }),
+    editBtn: {
+      padding: scale(4)
     },
-    addressContainer: {
-      width: '93%',
-      alignSelf: 'center',
-      borderRadius: scale(10),
-      backgroundColor: props !== null ? props.gray100 : 'transparent',
-      ...alignment.PTsmall,
-      ...alignment.PBsmall,
-      ...alignment.PRsmall,
-      ...alignment.PLsmall,
-      borderWidth: 1,
-      alignSelf: 'center',
-      borderColor: props !== null ? props.gray200 : '#E5E7EB'
-    },
-    addressDetail: {
-      width: '80%',
-      alignSelf: 'flex-end'
-    },
-    line: {
-      width: '80%',
-      alignSelf: 'flex-end',
-      borderBottomColor: 'lightgrey',
-      borderBottomWidth: 1,
-      ...alignment.MTmedium,
-      ...alignment.MBmedium
-    },
-    
-    containerSpace: {
-      backgroundColor: props !== null ? props.cardBackground : 'transparent',
-      width: '92%',
-      // margin: scale(10),
-      padding: scale(5),
-      borderRadius: scale(10),
-      borderWidth: 1,
-      alignSelf: 'center',
-      borderColor: props !== null ? props.customBorder : '#E5E7EB',
-    },
-
     containerButton: {
       backgroundColor: props !== null ? props.themeBackground : 'transparent',
       width: '90%',
-      height: scale(55),
-      bottom: verticalScale(0),
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center',
-      ...alignment.PBmedium
+      ...alignment.MBsmall
     },
     addButton: {
-      backgroundColor: props !== null ? props.newheaderColor : 'transparent',
+      backgroundColor: props !== null ? props.white : 'transparent',
+      borderWidth: scale(2),
+      borderColor: props !== null ? props.black : '#0A0A0A',
       width: '100%',
-      height: scale(40),
-      borderRadius: 50,
+      height: scale(50),
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center'
     },
-
+    continueButton: {
+      backgroundColor: props !== null ? props.black : '#0A0A0A',
+      width: '100%',
+      height: scale(56),
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignSelf: 'center'
+    }
   })
 export default styles

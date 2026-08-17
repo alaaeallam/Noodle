@@ -35,33 +35,27 @@ const RootLayout = () => {
       key={tabKey}
       screenOptions={{
         tabBarActiveTintColor: appTheme.primary,
+        tabBarInactiveTintColor: "#7A7A7A",
+        tabBarLabelStyle: {
+          fontFamily: "Archivo800",
+          fontSize: 11,
+          letterSpacing: 0.6,
+          textTransform: "uppercase",
+        },
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: Platform.select({
           ios: {
-            position: "absolute",
-            backgroundColor: "#1F2937",
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            borderTopWidth: 0.5, // Optional border at the top
-            shadowColor: "#000", // Shadow for iOS
-            shadowOffset: { width: 0, height: -5 },
-            shadowOpacity: 0.1,
-            shadowRadius: 5,
-            // display: isDrawerOpen === 'open' ? 'none' : 'flex',
+            backgroundColor: appTheme.tabNaviatorBackground,
+            borderTopWidth: 0,
+            paddingTop: 8,
           },
           android: {
-            position: "absolute",
-            backgroundColor: "#1F2937",
-            // display: (isDrawerOpen === 'open'||pathName.startsWith('/wallet/success') )? 'none' : 'flex',
-
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            borderTopWidth: 0.5, // Optional border at the top
-            elevation: 5, // Shadow for Android
-            shadowOffset: { width: 0, height: -5 },
-            shadowOpacity: 0.1,
-            shadowRadius: 5,
+            backgroundColor: appTheme.tabNaviatorBackground,
+            display: pathName.startsWith("/wallet/success") ? "none" : "flex",
+            borderTopWidth: 0,
+            paddingTop: 8,
+            elevation: 0,
           },
         }),
       }}

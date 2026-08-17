@@ -1,37 +1,43 @@
 /* eslint-disable react/display-name */
-import React, { useRef, useContext, useLayoutEffect, useState, useEffect, useCallback, useMemo } from 'react'
-import { View, SafeAreaView, TouchableOpacity, StatusBar, Platform, ScrollView, FlatList, Image, RefreshControl, ActivityIndicator } from 'react-native'
+import React, { useRef, useContext, useState, useEffect, useCallback, useMemo } from 'react'
+import { View, TouchableOpacity, StatusBar, Platform, ScrollView, Alert, RefreshControl, ActivityIndicator } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { AntDesign, SimpleLineIcons } from '@expo/vector-icons'
 import { useMutation, useQuery, gql } from '@apollo/client'
-import { useLocation } from '../../ui/hooks'
+import { useLocation, useCurrentStore } from '../../ui/hooks'
 import UserContext from '../../context/User'
-import { getBanners, getCuisines, restaurantListPreview } from '../../apollo/queries'
+import { restaurantListPreview, allStoresList, getBanners } from '../../apollo/queries'
 import { selectAddress } from '../../apollo/mutations'
 import { scale } from '../../utils/scaling'
 import styles from './styles'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import ThemeContext from '../../ui/ThemeContext/ThemeContext'
 import { theme } from '../../utils/themeColors'
-import navigationOptions from './navigationOptions'
 import TextDefault from '../../components/Text/TextDefault/TextDefault'
 import { LocationContext } from '../../context/Location'
 import analytics from '../../utils/analytics'
 import { useTranslation } from 'react-i18next'
-import MainRestaurantCard from '../../components/Main/MainRestaurantCard/MainRestaurantCard'
+import HomeTopBar from '../../components/Main/HomeTopBar/HomeTopBar'
+import Banner from '../../components/Main/Banner/Banner'
+import FeaturedBanner from '../../components/Main/FeaturedBanner/FeaturedBanner'
+import StoreStrip from '../../components/Main/StoreStrip/StoreStrip'
+import ResumeCart from '../../components/Main/ResumeCart/ResumeCart'
+import WholeMenu from '../../components/Main/WholeMenu/WholeMenu'
+import StoreSwitcherModal from '../../components/Main/StoreSwitcher/StoreSwitcherModal'
+import CategoryChips from '../../components/Main/CategoryChips/CategoryChips'
+import ReorderRail from '../../components/Main/ReorderRail/ReorderRail'
+import { FlashMessage } from '../../ui/FlashMessage/FlashMessage'
 import CustomHomeIcon from '../../assets/SVG/imageComponents/CustomHomeIcon'
 import CustomOtherIcon from '../../assets/SVG/imageComponents/CustomOtherIcon'
 import CustomWorkIcon from '../../assets/SVG/imageComponents/CustomWorkIcon'
-import useHomeRestaurants from '../../ui/hooks/useRestaurantOrderInfo'
 import ErrorView from '../../components/ErrorView/ErrorView'
 import ActiveOrders from '../../components/Main/ActiveOrders/ActiveOrders'
-import MainLoadingUI from '../../components/Main/LoadingUI/MainLoadingUI'
-import Banner from '../../components/Main/Banner/Banner'
 import Spinner from '../../components/Spinner/Spinner'
 import CustomApartmentIcon from '../../assets/SVG/imageComponents/CustomApartmentIcon'
 import MainModalize from '../../components/Main/Modalize/MainModalize'
-import { sortRestaurantsByOpenStatus } from '../../utils/customFunctions'
 import useGeocoding from '../../ui/hooks/useGeocoding'
 import ForceUpdate from '../../components/Update/ForceUpdate'
+import { flattenMenu, getFeaturedItems, getTodayClosingTime } from '../../utils/homeMenu'
 
 import useNetworkStatus from '../../utils/useNetworkStatus'
 import ModalDropdown from '../../components/Picker/ModalDropdown'
@@ -39,14 +45,18 @@ import ModalDropdown from '../../components/Picker/ModalDropdown'
 const RESTAURANTS = gql`
   ${restaurantListPreview}
 `
-const SELECT_ADDRESS = gql`
-  ${selectAddress}
+// Unbounded list for the store switcher — restaurantorders (below) is
+// delivery-bounds-restricted, so it only ever contains the store(s) that
+// deliver to the customer's current address, which broke "switch store"
+// when the customer only had one store in range.
+const ALL_STORES = gql`
+  ${allStoresList}
 `
-const GET_BANNERS = gql`
+const BANNERS = gql`
   ${getBanners}
 `
-const GET_CUISINES = gql`
-  ${getCuisines}
+const SELECT_ADDRESS = gql`
+  ${selectAddress}
 `
 
 function Main(props) {
@@ -54,10 +64,12 @@ function Main(props) {
 
   const { t, i18n } = useTranslation()
   const [busy, setBusy] = useState(false)
-  const { isLoggedIn, profile } = useContext(UserContext)
+  const { isLoggedIn, profile, cartCount, restaurant: cartRestaurantId, clearCart } = useContext(UserContext)
   const { location, setLocation } = useContext(LocationContext)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [selectedMenuCategory, setSelectedMenuCategory] = useState(null)
   const modalRef = useRef(null)
+  const storeSwitcherRef = useRef(null)
   const navigation = useNavigation()
   const themeContext = useContext(ThemeContext)
   const currentTheme = {
@@ -86,39 +98,28 @@ function Main(props) {
     fetchPolicy: 'network-only'
   })
 
-  let filteredCuisines
-  const { data: banners, refetch: refetchBanners } = useQuery(GET_BANNERS, {
-    fetchPolicy: 'network-only'
-  })
-  const { data: allCuisines } = useQuery(GET_CUISINES)
-
-  const cus = new Set()
-  const { orderLoading, orderError, orderData } = useHomeRestaurants()
-
   function onError(error) {
     console.log(error)
   }
   const [mutate] = useMutation(SELECT_ADDRESS, {
     onError
   })
-  const recentOrderRestaurantsVar = orderData?.recentOrderRestaurants
-  const mostOrderedRestaurantsVar = orderData?.mostOrderedRestaurants
 
   const handleActiveOrdersChange = (activeOrdersExist) => {
     setHasActiveOrders(activeOrdersExist)
   }
   const handleRefresh = async () => {
     setIsRefreshing(true)
-    const { data: newBanners } = await refetchBanners()
-    const { data: newRestaurants } = await refetchRestaurants()
+    await refetchRestaurants()
+    if (refetchCurrentStore) await refetchCurrentStore()
     setIsRefreshing(false)
   }
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS === 'android') {
-        StatusBar.setBackgroundColor(currentTheme.newheaderColor)
+        StatusBar.setBackgroundColor(currentTheme.headerBackground)
       }
-      StatusBar.setBarStyle('dark-content')
+      StatusBar.setBarStyle('light-content')
     }, [currentTheme])
   )
   useEffect(() => {
@@ -127,18 +128,6 @@ function Main(props) {
     }
     Track()
   }, [])
-  useLayoutEffect(() => {
-    navigation.setOptions(
-      navigationOptions({
-        headerMenuBackground: currentTheme.themeBackground,
-        fontMainColor: currentTheme.darkBgFont,
-        iconColorPink: currentTheme.iconColor,
-        open: onOpen,
-        navigation
-      })
-    )
-  }, [navigation, currentTheme])
-
   const onOpen = () => {
     const modal = modalRef.current
     if (modal) {
@@ -167,14 +156,9 @@ function Main(props) {
   }
 
   const setCurrentLocation = async () => {
-    console.log('Fetching current location...')
     setBusy(true)
 
     const { error, coords } = await getCurrentLocation()
-    console.log('getCurrentLocation result:', { error, coords })
-    console.log('coords', coords)
-    console.log('coords', coords.latitude)
-    console.log('coords', coords.longitude)
 
     if (!coords || !coords.latitude || !coords.longitude) {
       console.error('Invalid coordinates:', coords)
@@ -183,11 +167,7 @@ function Main(props) {
     }
 
     try {
-      // Fetch the address using the geocoding hook
-      const { formattedAddress, city } = await getAddress(coords.latitude, coords.longitude)
-
-      console.log('Formatted address:', formattedAddress)
-      console.log('City:', city)
+      const { formattedAddress } = await getAddress(coords.latitude, coords.longitude)
 
       let address = formattedAddress || 'Unknown Address'
 
@@ -214,7 +194,6 @@ function Main(props) {
 
   const handleMarkerPress = async (coordinates) => {
     setCitiesModalVisible(false)
-    // setIsCheckingZone(true)
     const response = await getAddress(coordinates.latitude, coordinates.longitude)
     setLocation({
       label: 'Location',
@@ -224,13 +203,10 @@ function Main(props) {
       city: response.city
     })
     setTimeout(() => {
-      // setIsCheckingZone(false)
       reloadScreen()
-      // navigation.navigate('Main')
     }, 100)
   }
 
-  // Function to reload screen
   const reloadScreen = () => {
     navigation.navigate('Discovery', {
       refresh: Date.now()
@@ -295,106 +271,144 @@ function Main(props) {
 
   const restaurantorders = data?.nearByRestaurantsPreview?.restaurants?.filter((restaurant) => restaurant.shopType === 'restaurant')
 
-  // const filterCusinies = () => {
-  //   if (data !== undefined) {
-  //     const cuisineShopTypeMap = new Map()
+  const { data: allStoresData } = useQuery(ALL_STORES, { fetchPolicy: 'cache-and-network' })
+  const allSwitcherStores = allStoresData?.restaurantList?.filter((restaurant) => restaurant.shopType === 'restaurant') ?? restaurantorders
 
-  //     for (let restaurant of data?.nearByRestaurantsPreview?.restaurants) {
-  //       for (let cuisine of restaurant.cuisines) {
-  //         const key = `${cuisine.name}-${restaurant.shopType}`
-  //         if (!cuisineShopTypeMap.has(key)) {
-  //           cuisineShopTypeMap.set(key, {
-  //             ...cuisine,
-  //             shopType: restaurant.shopType
-  //           })
-  //         }
-  //       }
-  //     }
+  const { data: bannersData } = useQuery(BANNERS, { fetchPolicy: 'cache-and-network' })
 
-  //     return Array.from(cuisineShopTypeMap.values())
-  //   }
-  //   return []
-  // }
+  const deliveryAddressText = location?.deliveryAddress === 'Current Location' ? t('currentLocation') : location?.deliveryAddress
 
-  const useCuisinesData = (shopType, allCuisines) => {
-    const cuisinesData = useMemo(() => {
-      if (!allCuisines?.cuisines) return []
-
-      if (shopType === 'restaurant') {
-        return allCuisines.cuisines.filter((cuisine) => cuisine?.shopType?.toLowerCase() === 'restaurant')
-      } else if (shopType === 'grocery') {
-        return allCuisines.cuisines.filter((cuisine) => cuisine?.shopType?.toLowerCase() === 'grocery')
-      } else {
-        return allCuisines.cuisines
-      }
-    }, [shopType, allCuisines])
-
-    return cuisinesData
+  const onPressCart = () => {
+    if (cartCount > 0) {
+      navigation.navigate('Cart')
+    } else {
+      FlashMessage({ message: t('cartIsEmpty') })
+    }
   }
 
-  const restaurantCuisines = useCuisinesData('restaurant', allCuisines)
-  const groceryCuisines = useCuisinesData('grocery', allCuisines)
+  // "Current store" — nearest BTB location out of restaurantorders, or
+  // whichever the user picked via the store switcher. See useCurrentStore.
+  const { currentStore, currentStoreId, loadingCurrentStore, refetchCurrentStore, switchStore } = useCurrentStore(restaurantorders, allSwitcherStores)
 
-  // Moved below all hooks: this used to sit before useCuisinesData's calls,
-  // which skipped its internal useMemo whenever `error` was truthy — a
-  // Rules-of-Hooks violation ("Rendered fewer hooks than expected") since the
-  // number of hooks called must never depend on a condition.
+  const menuCategoryChipData = useMemo(
+    () => (currentStore?.categories || []).map((c) => ({ _id: c._id, name: c.title })),
+    [currentStore]
+  )
+
+  const wholeMenuItems = useMemo(() => {
+    const items = flattenMenu(currentStore)
+    return selectedMenuCategory ? items.filter((item) => item.categoryTitle === selectedMenuCategory.name) : items
+  }, [currentStore, selectedMenuCategory])
+
+  const featuredItems = useMemo(() => getFeaturedItems(currentStore), [currentStore])
+  const closingTime = useMemo(() => getTodayClosingTime(currentStore), [currentStore])
+
+  const onPressMenuItem = (food) => {
+    const openItemDetail = () => {
+      navigation.navigate('ItemDetail', {
+        food,
+        addons: currentStore?.addons || [],
+        options: currentStore?.options || [],
+        restaurant: currentStore?._id
+      })
+    }
+    if (!cartRestaurantId || cartRestaurantId === currentStore?._id) {
+      openItemDetail()
+    } else {
+      Alert.alert(
+        '',
+        t('clearCartText'),
+        [
+          { text: t('Cancel'), style: 'cancel' },
+          {
+            text: t('okText'),
+            onPress: async () => {
+              await clearCart()
+              openItemDetail()
+            }
+          }
+        ],
+        { cancelable: false }
+      )
+    }
+  }
+
+  // Must stay below every hook call (including useCurrentStore/useMemo above)
+  // — an early return before them would be a Rules-of-Hooks violation
+  // ("Rendered fewer hooks than expected") since the number of hooks called
+  // must never depend on a condition.
   if (error) return <ErrorView />
 
   return (
     <>
       {!connect ? (
-        <ErrorView refetchFunctions={[refetchRestaurants, refetchBanners]} />
+        <ErrorView refetchFunctions={[refetchRestaurants]} />
       ) : (
         <SafeAreaView edges={['bottom', 'left', 'right']} style={styles().flex}>
           <View style={[styles().flex, styles(currentTheme).screenBackground]}>
-            <View style={styles().flex}>
-              <View style={styles().mainContentContainer}>
-                <View style={[styles().flex, styles().subContainer]}>
-                  {loading ? (
-                    <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
-                      <ActivityIndicator size='large' color={currentTheme.spinnerColor} />
-                    </View>
-                  ) : restaurantorders?.length > 0 ? (
-                    <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}>
-                      <Banner banners={banners?.banners} />
-                      <View style={{ gap: 16 }}>
-                        <View>{isLoggedIn && recentOrderRestaurantsVar && recentOrderRestaurantsVar.length > 0 && <>{orderLoading || isRefreshing ? <MainLoadingUI /> : <MainRestaurantCard orders={sortRestaurantsByOpenStatus(recentOrderRestaurantsVar || [])} loading={orderLoading} error={orderError} title={'Order it again'} queryType='orderAgain' />}</>}</View>
-
-                        <View>{loading || isRefreshing ? <MainLoadingUI /> : <MainRestaurantCard shopType='restaurant' orders={sortRestaurantsByOpenStatus(restaurantorders || [])} loading={orderLoading} error={orderError} title={t('BTB near you')} queryType='restaurant' icon='restaurant' />}</View>
-                      </View>
-                    </ScrollView>
-                  ) : !location ? (
-                    <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
-                      <Spinner backColor='transparent' />
-                    </View>
-                  ) : (
-                    <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
-                      <TextDefault bold H4 style={{ textAlign: 'center', marginBottom: 4 }}>
-                        {t('We are currently not available in your location.')}
-                      </TextDefault>
-                      <TextDefault style={{ textAlign: 'center', marginBottom: 10 }}>{t('Please check back later or try a different location.')}</TextDefault>
-
-                      {/* <TouchableOpacity style={styles(currentTheme).buttonContainer} onPress={() => setCitiesModalVisible(true)}>
-                        <TextDefault textColor={currentTheme.color4} style={styles().checkoutBtn} bold H4>
-                          {t('Select Different Location')}
-                        </TextDefault>
-                      </TouchableOpacity> */}
-
-                      <TouchableOpacity activeOpacity={0.7} onPress={() => setCitiesModalVisible(true)} style={[styles(currentTheme).button, { opacity: 1 }]}>
-                        <TextDefault textColor={currentTheme.color4} style={{ paddingHorizontal: 10 }} bold H7>
-                          {t('Select different location')}
-                        </TextDefault>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-                <ForceUpdate />
+            {loading || loadingCurrentStore ? (
+              <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+                <ActivityIndicator size='large' color={currentTheme.spinnerColor} />
               </View>
-            </View>
+            ) : restaurantorders?.length > 0 ? (
+              <ScrollView style={styles().flex} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}>
+                <HomeTopBar
+                  currentTheme={currentTheme}
+                  address={deliveryAddressText}
+                  onPressAddress={onOpen}
+                  cartCount={cartCount}
+                  onPressCart={onPressCart}
+                />
+                {currentStore && (
+                  <StoreStrip
+                    currentTheme={currentTheme}
+                    storeName={currentStore.name}
+                    distanceKm={currentStore.distanceWithCurrentLocation}
+                    closingTime={closingTime}
+                    onPressSwitch={() => storeSwitcherRef.current?.open()}
+                  />
+                )}
+                <FeaturedBanner
+                  currentTheme={currentTheme}
+                  storeName={currentStore?.name}
+                  featuredItems={featuredItems}
+                  onPressAddToBag={onPressMenuItem}
+                />
+                <View style={{ gap: 18, paddingTop: scale(4) }}>
+                  <ResumeCart currentTheme={currentTheme} />
+
+                  {isLoggedIn && <ReorderRail />}
+
+                  <Banner banners={bannersData?.banners} />
+
+                  <CategoryChips currentTheme={currentTheme} cuisines={menuCategoryChipData} selectedCuisine={selectedMenuCategory} onSelect={setSelectedMenuCategory} allLabel={t('yourUsual')} />
+
+                  <WholeMenu currentTheme={currentTheme} items={wholeMenuItems} onPressItem={onPressMenuItem} />
+                </View>
+              </ScrollView>
+            ) : !location ? (
+              <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+                <Spinner backColor='transparent' />
+              </View>
+            ) : (
+              <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+                <TextDefault bold H4 style={{ textAlign: 'center', marginBottom: 4 }}>
+                  {t('We are currently not available in your location.')}
+                </TextDefault>
+                <TextDefault style={{ textAlign: 'center', marginBottom: 10 }}>{t('Please check back later or try a different location.')}</TextDefault>
+
+                <TouchableOpacity activeOpacity={0.7} onPress={() => setCitiesModalVisible(true)} style={[styles(currentTheme).button, { opacity: 1 }]}>
+                  <TextDefault textColor={currentTheme.color4} style={{ paddingHorizontal: 10 }} bold H7>
+                    {t('Select different location')}
+                  </TextDefault>
+                </TouchableOpacity>
+              </View>
+            )}
+            <ForceUpdate />
             <ActiveOrders onActiveOrdersChange={handleActiveOrdersChange} />
 
             <MainModalize modalRef={modalRef} currentTheme={currentTheme} isLoggedIn={isLoggedIn} addressIcons={addressIcons} modalHeader={modalHeader} modalFooter={modalFooter} setAddressLocation={setAddressLocation} profile={profile} location={location} />
+            <StoreSwitcherModal modalRef={storeSwitcherRef} currentTheme={currentTheme} stores={allSwitcherStores} currentStoreId={currentStoreId} onSelect={switchStore} />
             <ModalDropdown theme={currentTheme} visible={citiesModalVisible} onItemPress={handleMarkerPress} onClose={() => setCitiesModalVisible(false)} />
           </View>
         </SafeAreaView>

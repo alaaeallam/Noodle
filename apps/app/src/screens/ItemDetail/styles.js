@@ -48,22 +48,12 @@ const styles = (props = null) =>
       ...alignment.MBsmall,
       backgroundColor: props !== null ? props?.black : 'black'
     },
-    input: {
-      backgroundColor: props !== null ? props?.themeBackground : 'black',
-      borderRadius: scale(10),
-      height: scale(50),
-      paddingLeft: scale(10),
-      textAlignVertical: 'center',
-      borderWidth: 1,
-      borderColor: props != null ? props?.verticalLine : '#B8B8B8',
-      textAlign: props?.isRTL ? 'right' : 'left'
-    },
     inputContainer: {
       alignSelf: 'center',
       zIndex: scale(1)
     },
     backBtnContainer: {
-      borderRadius: scale(50),
+      borderRadius: 0,
       width: scale(55),
       alignItems: 'center'
     },
@@ -73,6 +63,25 @@ const styles = (props = null) =>
       paddingTop: scale(10),
       maxWidth: '100%',
       ...alignment.MRxSmall
+    },
+    mainHeadingContainer: {
+      paddingHorizontal: scale(16),
+      paddingTop: scale(16),
+      gap: scale(6)
+    },
+    priceRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: scale(6),
+      paddingTop: scale(2)
+    },
+    input: {
+      height: scale(46),
+      paddingHorizontal: scale(14),
+      justifyContent: 'center',
+      borderWidth: scale(2),
+      borderStyle: 'dashed',
+      borderColor: props != null ? props?.borderColor : '#E4E1DD'
     }
   })
 export default styles

@@ -5,16 +5,14 @@ import { Stack } from "expo-router";
 // Hooks
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfileLayout() {
   // Hooks
   const { t } = useTranslation();
   const { appTheme } = useApptheme();
-  const {top} = useSafeAreaInsets()
 
   return (
-    <View style={{paddingTop: top+10, flex: 1, backgroundColor: appTheme.themeBackground}}>
+    <View style={{ flex: 1, backgroundColor: appTheme.screenBackground }}>
       <Stack screenOptions={{ headerShown: false, headerShadowVisible: false }}>
         <Stack.Screen
           name="index"
@@ -22,8 +20,13 @@ export default function ProfileLayout() {
             headerShown: true,
             headerTitleAlign: "center",
             headerTitle: t("Profile"),
-            headerTitleStyle: { color: appTheme.mainTextColor },
-            headerStyle: { backgroundColor: appTheme.themeBackground },
+            headerTitleStyle: {
+              color: appTheme.white,
+              fontFamily: "Anton",
+              fontSize: 20,
+              textTransform: "uppercase",
+            },
+            headerStyle: { backgroundColor: appTheme.black },
           }}
         />
       </Stack>

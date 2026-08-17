@@ -17,3 +17,9 @@ export const SEND_CHAT_MESSAGE = gql`
     }
   }
 `;
+
+export const MARK_ORDER_CHAT_READ_BY_RIDER = gql`
+  mutation MarkOrderChatReadByRider($orderId: ID!) {
+    markOrderChatReadByRider(orderId: $orderId)
+  }
+`;

@@ -26,7 +26,16 @@ export default function UnavailableStatus() {
         zIndex: 50,
       }}
     >
-      <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>
+      <Text
+        style={{
+          color: "#FFF",
+          textAlign: "center",
+          fontFamily: "Archivo800",
+          fontSize: 12,
+          letterSpacing: 0.6,
+          textTransform: "uppercase",
+        }}
+      >
         You are currently unavailable.
       </Text>
     </View>

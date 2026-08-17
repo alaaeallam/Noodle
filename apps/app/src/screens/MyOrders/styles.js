@@ -41,12 +41,11 @@ const styles = (props = null) =>
     },
     emptyButton: {
       width: '85%',
-      padding: scale(10),
-      backgroundColor: props !== null ? props?.buttonBackground : 'grey',
+      height: scale(54),
+      backgroundColor: props !== null ? props?.primary : '#FF1D02',
       justifyContent: 'center',
       alignItems: 'center',
-      alignSelf: 'center',
-      borderRadius: scale(10)
+      alignSelf: 'center'
     },
     subContainer: {
       flex: 1,

@@ -120,6 +120,7 @@ export interface IOrder {
   expectedTime?: string;
   preparationTime?: string;
   isPickedUp: boolean;
+  isReadyToPickUp?: boolean;
   acceptedAt?: string;
   pickedAt?: string;
   deliveredAt?: string;

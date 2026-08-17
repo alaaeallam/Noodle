@@ -56,8 +56,12 @@ export default function LanguageMain() {
         return (
           <View
             key={`lng-${index}`}
-            className="w-full mx-auto flex flex-row items-center justify-between border-b-2 border-b-gray-300 h-12"
-            style={{ backgroundColor: appTheme.themeBackground }}
+            className="w-full mx-auto flex flex-row items-center justify-between h-12"
+            style={{
+              backgroundColor: appTheme.white,
+              borderBottomWidth: 2,
+              borderBottomColor: appTheme.horizontalLine,
+            }}
           >
             <View className="flex flex-row gap-3 items-center justify-center px-3">
               <View className="overflow-hidden items-center justify-start w-8 h-6">
@@ -68,7 +72,15 @@ export default function LanguageMain() {
                   className="max-w-8 max-h-8"
                 />
               </View>
-              <Text style={{ color: appTheme.fontMainColor }}>{lng.value}</Text>
+              <Text
+                style={{
+                  color: appTheme.fontMainColor,
+                  fontFamily: "Archivo800",
+                  fontSize: 15,
+                }}
+              >
+                {lng.value}
+              </Text>
             </View>
             <View>
               <CustomRadioButton

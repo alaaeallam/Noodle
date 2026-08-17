@@ -1,5 +1,5 @@
 import React from 'react'
-import { Pressable, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { useStyles } from './styles'
 import TextDefault from '../Text/TextDefault/TextDefault'
 
@@ -11,8 +11,8 @@ export const FulfillmentMode = ({ theme, isPickup, setIsPickup, t }) => {
     const styles = useStyles(theme)
     return <View style={styles.container}>
         <View style={styles.ovalContainer}>
-            <OvalButton theme={theme} styles={styles.ovalButton} title={t('Delivery')} selected={!isPickup} icon={<DeliveryIcon />} onSelect={() => { setIsPickup(false) }} />
-            <OvalButton theme={theme} styles={styles.ovalButton} title={t('Pickup')} selected={isPickup} icon={<PickupIcon />} onSelect={() => { setIsPickup(true) }} />
+            <OvalButton theme={theme} styles={styles} title={t('Delivery')} selected={!isPickup} Icon={DeliveryIcon} onSelect={() => { setIsPickup(false) }} />
+            <OvalButton theme={theme} styles={styles} title={t('Pickup')} selected={isPickup} Icon={PickupIcon} onSelect={() => { setIsPickup(true) }} />
         </View>
     </View>
 }
@@ -20,13 +20,11 @@ export const FulfillmentMode = ({ theme, isPickup, setIsPickup, t }) => {
 const OvalButton = ({
     theme,
     selected = false, title,
-    icon,
+    Icon,
     onSelect,
-    styles }) => (<Pressable onPress={onSelect} style={[styles, {
-        backgroundColor: selected ? theme.main : null,
-    }]}>
+    styles }) => (<Pressable onPress={onSelect} style={[styles.ovalButton, selected ? styles.ovalButtonActive : styles.ovalButtonInactive]}>
         <View style={alignment.MxSmall}>
-            {icon}
+            <Icon color={selected ? theme.white : theme.black} />
         </View>
-        <TextDefault bold={!selected} textColor={theme.color4}>{title}</TextDefault>
+        <TextDefault uppercase bolder small textColor={selected ? theme.white : theme.black}>{title}</TextDefault>
     </Pressable>)

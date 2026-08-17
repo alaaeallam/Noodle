@@ -188,7 +188,7 @@ export default function VehiclePlateForm({
           <FormHeader title={t("Vehicle Plate")} />
           <View>
             <View className="flex flex-col w-full my-2">
-              <Text style={{ color: appTheme.fontMainColor }}>
+              <Text style={{ color: appTheme.fontSecondColor, fontFamily: "Archivo800", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
                 {t("Plate No")}
               </Text>
               <TextInput
@@ -197,20 +197,21 @@ export default function VehiclePlateForm({
                   handleInputChange("number", licenseNo)
                 }
                 style={{
+                  borderWidth: 2,
                   borderColor: appTheme.borderLineColor,
                   color: appTheme.fontMainColor,
                 }}
-                className="w-full rounded-md border p-3 my-2"
+                className="w-full p-3 my-2"
               />
             </View>
             <View className="flex flex-col w-full my-2">
-              <Text style={{ color: appTheme.fontMainColor }}>
+              <Text style={{ color: appTheme.fontSecondColor, fontFamily: "Archivo800", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
                 {t("Add Registration Document")}
               </Text>
               {!uploadedImageUrl || !formData.image ? (
                 <TouchableOpacity
-                  className="w-full rounded-md border border-dashed  p-3 h-28 items-center justify-center"
-                  style={{ borderColor: appTheme.borderLineColor }}
+                  className="w-full p-3 h-28 items-center justify-center"
+                  style={{ borderWidth: 2, borderStyle: "dashed", borderColor: appTheme.borderLineColor }}
                   onPress={pickImage}
                 >
                   {isLoading.isUploading ? (
@@ -226,7 +227,7 @@ export default function VehiclePlateForm({
                   )}
                 </TouchableOpacity>
               ) : (
-                <View className="flex flex-row justify-between border  rounded-md p-4 my-2">
+                <View className="flex flex-row justify-between p-4 my-2" style={{ borderWidth: 2, borderColor: appTheme.borderLineColor }}>
                   <View className="flex flex-row gap-2">
                     <Ionicons name="image" size={20} color="#3F51B5" />
                     <Text

@@ -16,65 +16,53 @@ export default function OtherDetailsSection() {
   const { currentTheme, toggleTheme, appTheme } = useApptheme();
 
   return (
-    <View className="flex flex-col justify-between items-start h-[40%] w-full px-4 py-2 pb-20 my-5">
-      <View className="flex flex-row items-center justify-between w-full">
+    <View className="flex flex-col items-start w-full px-5 pb-24 pt-2 gap-3">
+      <Text
+        style={{
+          color: appTheme.fontSecondColor,
+          fontFamily: "Archivo800",
+          fontSize: 12,
+          letterSpacing: 1.4,
+          textTransform: "uppercase",
+        }}
+      >
+        {t("Other information")}
+      </Text>
+      {[
+        { label: t("Email"), value: dataProfile?.email ?? "example@email.com" },
+        { label: t("Password"), value: dataProfile?.password ?? "Password@123" },
+        { label: t("Phone"), value: dataProfile?.phone ?? "+324 234 328979" },
+      ].map((field) => (
+        <View key={field.label} className="w-full gap-1.5">
+          <Text
+            style={{
+              color: appTheme.fontSecondColor,
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
+            {field.label}
+          </Text>
+          <View
+            className="w-full px-3.5 justify-center"
+            style={{ height: 46, borderWidth: 2, borderColor: appTheme.borderLineColor }}
+          >
+            <Text style={{ color: appTheme.fontMainColor, fontFamily: "Archivo700", fontSize: 15 }}>
+              {field.value}
+            </Text>
+          </View>
+        </View>
+      ))}
+
+      <View className="flex flex-row items-center justify-between w-full mt-2">
         <Text
-          className="text-xl font-bold"
-          style={{ color: appTheme.mainTextColor }}
-        >
-          {t("Other information")}
-        </Text>
-      </View>
-      <View
-        className="flex flex-col gap-3 item-start justify-between w-full   h-20 p-4 rounded-md my-4"
-        style={{
-          backgroundColor: appTheme.themeBackground,
-          borderWidth: 1,
-          borderColor: appTheme.borderLineColor,
-        }}
-      >
-        <Text style={{ color: appTheme.fontSecondColor }}>{t("Email")}</Text>
-        <View className="flex-1 h-12 text-base text-black">
-          <Text className="h-12" style={{ color: appTheme.fontSecondColor }}>
-            {dataProfile?.email ?? "example@email.com"}
-          </Text>
-        </View>
-      </View>
-      <View
-        className="flex flex-col gap-3 item-start justify-between w-full   h-20 p-4 rounded-md my-4"
-        style={{
-          backgroundColor: appTheme.themeBackground,
-          borderWidth: 1,
-          borderColor: appTheme.borderLineColor,
-        }}
-      >
-        <Text style={{ color: appTheme.fontSecondColor }}>{t("Password")}</Text>
-        <View className="flex-1 h-12 text-base text-black">
-          <Text className="h-12" style={{ color: appTheme.fontSecondColor }}>
-            {dataProfile?.password ?? "Password@123"}
-          </Text>
-        </View>
-      </View>
-      <View
-        className="flex flex-col gap-3 item-start justify-between w-full   h-20 p-4 rounded-md my-4"
-        style={{
-          backgroundColor: appTheme.themeBackground,
-          borderWidth: 1,
-          borderColor: appTheme.borderLineColor,
-        }}
-      >
-        <Text style={{ color: appTheme.fontSecondColor }}>{t("Phone")}</Text>
-        <View className="flex-1 h-12 text-base text-black">
-          <Text className="h-12" style={{ color: appTheme.fontSecondColor }}>
-            {dataProfile?.phone ?? "+324 234 328979"}
-          </Text>
-        </View>
-      </View>
-      <View className="flex flex-row items-center justify-between w-full">
-        <Text
-          className="text-xl font-bold"
           style={{
-            color: appTheme.mainTextColor,
+            color: appTheme.fontMainColor,
+            fontFamily: "Anton",
+            fontSize: 18,
+            textTransform: "uppercase",
           }}
         >
           {t("Theme")}

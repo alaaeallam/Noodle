@@ -54,6 +54,7 @@ export const placeOrder = `
             description
             price
           }
+          defaultOptions
           title
           description
           quantityMinimum
@@ -238,6 +239,7 @@ export const reviewOrder = `mutation ReviewOrder(
             description
             price
           }
+          defaultOptions
           title
           description
           quantityMinimum

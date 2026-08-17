@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 // Core
-import { Image, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import Modal from "react-native-modal";
 
 // Interface
 import { IWellDoneComponentProps } from "@/lib/utils/interfaces";
 
 // Hooks
+import { useApptheme } from "@/lib/context/global/theme.context";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -24,6 +25,7 @@ export default function WelldoneComponent({
 
   // Hooks
   const { t } = useTranslation();
+  const { appTheme } = useApptheme();
   return (
     <Modal
       isVisible={!!orderId}
@@ -33,23 +35,24 @@ export default function WelldoneComponent({
       coverScreen={false}
     >
       <View className="h-fit w-full bg-transparent items-center">
-        <View className="h-[120px] w-[95%] items-center justify-around bg-white border-white rounded-[16px]">
-          {/* <View> */}
-          {/* <WellDoneIcon /> */}
-          <Image
-            source={require("../../../assets/images/welldone.png")}
-            className="h-[40px] w-[40px]"
-          />
-
-          {/* </View> */}
-          <View className="items-center">
-            <Text className="font-inter text-lg font-bold text-centertext-gray-900">
-              {t("Well Done Rider")}
-            </Text>
-            <Text className="font-inter text-sm font-normal leading-[22px] text-center">
-              {t("Order Number")} #{orderId.substring(0, 5)} {status}
-            </Text>
-          </View>
+        <View
+          className="w-[95%] gap-1 px-5 py-4"
+          style={{ backgroundColor: appTheme.black }}
+        >
+          <Text
+            style={{
+              color: appTheme.white,
+              fontFamily: "Anton",
+              fontSize: 18,
+              textTransform: "uppercase",
+              letterSpacing: 0.4,
+            }}
+          >
+            {t("Well Done Rider")}
+          </Text>
+          <Text style={{ color: "#B4B0AB", fontSize: 13 }}>
+            {t("Order Number")} #{orderId.substring(0, 5)} {t(status)}
+          </Text>
         </View>
       </View>
     </Modal>

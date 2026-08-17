@@ -51,6 +51,13 @@ function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../lib/assets/fonts/SpaceMono-Regular.ttf"),
     Inter: require("../lib/assets/fonts/Inter.ttf"),
+    Anton: require("../lib/assets/fonts/Anton/Anton-Regular.ttf"),
+    Archivo: require("../lib/assets/fonts/Archivo/Archivo-Regular.ttf"),
+    Archivo500: require("../lib/assets/fonts/Archivo/Archivo-Medium.ttf"),
+    Archivo600: require("../lib/assets/fonts/Archivo/Archivo-SemiBold.ttf"),
+    Archivo700: require("../lib/assets/fonts/Archivo/Archivo-Bold.ttf"),
+    Archivo800: require("../lib/assets/fonts/Archivo/Archivo-ExtraBold.ttf"),
+    Archivo900: require("../lib/assets/fonts/Archivo/Archivo-Black.ttf"),
   });
   const client = setupApollo();
 

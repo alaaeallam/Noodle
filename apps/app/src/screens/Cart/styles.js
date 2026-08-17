@@ -37,7 +37,7 @@ const styles = (props = null) =>
     dealContainer: {
       width: '100%',
       backgroundColor: props !== null ? props.themeBackground : 'transparent',
-      borderRadius: scale(10),
+      borderRadius: 0,
       ...alignment.PLsmall,
       ...alignment.PRsmall
     },
@@ -47,7 +47,7 @@ const styles = (props = null) =>
     termsContainer: {
       width: '100%',
       backgroundColor: props !== null ? props.backgroundColor : 'transparent',
-      borderRadius: scale(5),
+      borderRadius: 0,
       ...alignment.PLsmall,
       ...alignment.PRsmall
     },
@@ -57,7 +57,7 @@ const styles = (props = null) =>
     },
     priceContainer: {
       width: '100%',
-      borderRadius: scale(20),
+      borderRadius: 0,
       borderBottomColor:
         props !== null ? props.lightHorizontalLine : 'transparent',
       ...alignment.PLsmall,
@@ -108,7 +108,7 @@ const styles = (props = null) =>
     suggestItemContainer: {
       borderWidth: 1,
       borderColor: props != null ? props.customBorder : '#181818',
-      borderRadius: 12,
+      borderRadius: 0,
       padding: scale(8),
       width: scale(120),
       marginTop: scale(14),
@@ -118,7 +118,7 @@ const styles = (props = null) =>
       backgroundColor: '#F3F4F6',
       borderWidth: 1,
       borderColor: '#E5E7EB',
-      borderRadius: 8,
+      borderRadius: 0,
       padding: scale(4)
     },
     suggestItemName: {
@@ -130,7 +130,7 @@ const styles = (props = null) =>
     addToCart: {
       width: scale(25),
       height: scale(25),
-      borderRadius: scale(12.5),
+      borderRadius: 0,
       backgroundColor: props !== null ? props.newFontcolor : '#f0f0f0',
       justifyContent: 'center',
       alignItems: 'center'
@@ -138,7 +138,7 @@ const styles = (props = null) =>
     totalBillContainer: {
       width: '100%',
       height: '20%',
-      backgroundColor: props !== null ? props.newheaderColor : '#90E36D',
+      backgroundColor: props !== null ? props.newheaderColor : '#FF1D02',
       ...alignment.PLlarge,
       ...alignment.PRlarge
     },
@@ -157,7 +157,7 @@ const styles = (props = null) =>
       alignItems: 'center',
       width: scale(140),
       height: scale(40),
-      borderRadius: 40
+      borderRadius: 0
     },
     subContainerImage: {
       flex: 1,
@@ -182,14 +182,14 @@ const styles = (props = null) =>
       backgroundColor: props !== null ? props.newheaderColor : 'transparent',
       width: '70%',
       height: scale(40),
-      borderRadius: scale(20),
+      borderRadius: 0,
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center'
     },
     placeHolderContainer: {
       backgroundColor: props != null ? props.cartContainer : '#B8B8B8',
-      borderRadius: 3,
+      borderRadius: 0,
       elevation: 3,
       marginBottom: 12,
       padding: 12
@@ -227,7 +227,7 @@ const styles = (props = null) =>
     },
     labelButton: {
       marginRight: 10,
-      borderRadius: scale(10),
+      borderRadius: 0,
       width: '22%',
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: props !== null ? props.horizontalLine : 'transparent',
@@ -236,7 +236,7 @@ const styles = (props = null) =>
     },
     activeLabel: {
       marginRight: 10,
-      borderRadius: scale(10),
+      borderRadius: 0,
       backgroundColor: props !== null ? props.main : 'transparent',
       width: '22%',
       //borderWidth: 2,
@@ -275,7 +275,7 @@ const styles = (props = null) =>
       alignItems: 'center'
     },
     changeAddressBtn: {
-      borderRadius: scale(10),
+      borderRadius: 0,
       backgroundColor: props != null ? props.main : '#B8B8B8',
       width: '40%',
       justifyContent: 'center',
@@ -295,7 +295,7 @@ const styles = (props = null) =>
       backgroundColor: props != null ? props.newBorderColor : '#E5E7EB',
       width: scale(30),
       height: scale(30),
-      borderRadius: 30,
+      borderRadius: 0,
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: scale(10),
@@ -308,7 +308,7 @@ const styles = (props = null) =>
       alignItems: 'center',
       flexDirection: 'row',
       height: scale(40),
-      borderRadius: 40,
+      borderRadius: 0,
       borderWidth: 1,
       borderColor: props !== null ? props.borderColor : 'black',
       width: '70%',

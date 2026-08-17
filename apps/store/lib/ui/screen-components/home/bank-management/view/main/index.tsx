@@ -187,21 +187,29 @@ export default function BankManagementMain() {
                 className={`flex flex-col w-full items-start justify-start  gap-2`}
               >
                 <Text
-                  className="text-lg font-normal"
                   style={{
                     color: appTheme.fontMainColor,
+                    fontFamily: "Archivo800",
+                    fontSize: 12,
+                    letterSpacing: 1.2,
+                    textTransform: "uppercase",
                   }}
                 >
                   {t("Bank Name")}
                 </Text>
                 <TextInput
-                  className={`min-w-[100%] rounded-md border ${isError.field === "bankName" ? "border-red-600 border-2" : "border-2 border-gray-300"} p-3 my-2 `}
-                  value={formData.bankName}
-                  placeholder={t("Swiss Bank")}
+                  className="min-w-[100%] p-3 my-2"
                   style={{
-                    color: appTheme.fontSecondColor,
+                    color: appTheme.fontMainColor,
+                    borderWidth: 2,
+                    borderColor:
+                      isError.field === "bankName"
+                        ? appTheme.primary
+                        : appTheme.horizontalLine,
                   }}
-                  placeholderTextColor={appTheme.fontSecondColor}
+                  value={formData.bankName}
+                  placeholder={t("Swiss Bank") ?? ""}
+                  placeholderTextColor="#A6A6A6"
                   onChangeText={(val) => {
                     setIsError({ field: "", message: "" });
                     handleChange("bankName", val);
@@ -210,17 +218,29 @@ export default function BankManagementMain() {
               </View>,
               <View className="flex flex-col w-full items-start justify-start gap-2">
                 <Text
-                  className="text-lg font-normal"
-                  style={{ color: appTheme.fontMainColor }}
+                  style={{
+                    color: appTheme.fontMainColor,
+                    fontFamily: "Archivo800",
+                    fontSize: 12,
+                    letterSpacing: 1.2,
+                    textTransform: "uppercase",
+                  }}
                 >
                   {t("Account Name")}
                 </Text>
                 <TextInput
-                  className={`min-w-[100%] rounded-md border ${isError.field === "accountName" ? "border-red-600 border-2" : "border-2 border-gray-300"} p-3 my-2`}
+                  className="min-w-[100%] p-3 my-2"
+                  style={{
+                    color: appTheme.fontMainColor,
+                    borderWidth: 2,
+                    borderColor:
+                      isError.field === "accountName"
+                        ? appTheme.primary
+                        : appTheme.horizontalLine,
+                  }}
                   value={formData.accountName}
-                  placeholder={t("Account_Name_Placeholder")}
-                  style={{ color: appTheme.fontSecondColor }}
-                  placeholderTextColor={appTheme.fontSecondColor}
+                  placeholder={t("Account_Name_Placeholder") ?? ""}
+                  placeholderTextColor="#A6A6A6"
                   onChangeText={(val) => {
                     setIsError({ field: "", message: "" });
                     handleChange("accountName", val);
@@ -229,17 +249,29 @@ export default function BankManagementMain() {
               </View>,
               <View className="flex flex-col w-full items-start justify-start gap-2">
                 <Text
-                  className="text-lg font-normal"
-                  style={{ color: appTheme.fontMainColor }}
+                  style={{
+                    color: appTheme.fontMainColor,
+                    fontFamily: "Archivo800",
+                    fontSize: 12,
+                    letterSpacing: 1.2,
+                    textTransform: "uppercase",
+                  }}
                 >
                   {t("IBAN_SWIFT_BSB")}
                 </Text>
                 <TextInput
-                  className={`min-w-[100%] rounded-md border ${isError.field === "accountCode" ? "border-red-600 border-2" : "border-2 border-gray-300"} p-3 my-2`}
+                  className="min-w-[100%] p-3 my-2"
+                  style={{
+                    color: appTheme.fontMainColor,
+                    borderWidth: 2,
+                    borderColor:
+                      isError.field === "accountCode"
+                        ? appTheme.primary
+                        : appTheme.horizontalLine,
+                  }}
                   value={formData.accountCode}
-                  placeholder={t("IBAN_Placeholder")}
-                  style={{ color: appTheme.fontSecondColor }}
-                  placeholderTextColor={appTheme.fontSecondColor}
+                  placeholder={t("IBAN_Placeholder") ?? ""}
+                  placeholderTextColor="#A6A6A6"
                   onChangeText={(val) => {
                     setIsError({ field: "", message: "" });
                     handleChange("accountCode", val);
@@ -248,19 +280,31 @@ export default function BankManagementMain() {
               </View>,
               <View className="flex flex-col w-full items-start justify-start gap-2">
                 <Text
-                  className="text-lg font-normal"
-                  style={{ color: appTheme.fontMainColor }}
+                  style={{
+                    color: appTheme.fontMainColor,
+                    fontFamily: "Archivo800",
+                    fontSize: 12,
+                    letterSpacing: 1.2,
+                    textTransform: "uppercase",
+                  }}
                 >
                   {t("Account Number")}
                 </Text>
                 <TextInput
-                  className={`min-w-[100%] rounded-md border ${isError.field === "accountNumber" ? "border-red-600 border-2" : "border-2 border-gray-300"} p-3 my-2`}
+                  className="min-w-[100%] p-3 my-2"
+                  style={{
+                    color: appTheme.fontMainColor,
+                    borderWidth: 2,
+                    borderColor:
+                      isError.field === "accountNumber"
+                        ? appTheme.primary
+                        : appTheme.horizontalLine,
+                  }}
                   value={formData.accountNumber}
                   placeholder="7838246824682346"
                   keyboardType="number-pad"
                   textContentType="password"
-                  style={{ color: appTheme.fontSecondColor }}
-                  placeholderTextColor={appTheme.fontSecondColor}
+                  placeholderTextColor="#A6A6A6"
                   onChangeText={(val) => {
                     setIsError({ field: "", message: "" });
                     handleChange("accountNumber", val);

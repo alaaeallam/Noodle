@@ -4,5 +4,5 @@ import { useTranslation } from "react-i18next";
 export default function WalletScreenHeader() {
   // Hooks
   const { t } = useTranslation();
-  return <CustomScreenHeader title={t("Earnings")} />;
+  return <CustomScreenHeader title={t("Wallet")} />;
 }

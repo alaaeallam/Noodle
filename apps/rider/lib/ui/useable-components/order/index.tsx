@@ -1,8 +1,6 @@
 import { memo, useContext } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-// Components
-import { IconSymbol } from "@/lib/ui/useable-components/IconSymbol";
 // Interface
 import { IOrderComponentProps } from "@/lib/utils/interfaces/interface";
 
@@ -34,6 +32,8 @@ const Order = ({
   acceptedAt,
   user,
   tab,
+  isReadyToPickUp,
+  hasUnreadChatForRider,
 }: IOrderComponentProps) => {
   // Hooks
   const { t } = useTranslation();
@@ -61,15 +61,7 @@ const Order = ({
     return null;
   } else
     return (
-      <View
-        className="m-auto"
-        style={{
-          minWidth: "50%",
-          minHeight: ["PICKED"].includes(orderStatus) ? "6.8%" : "6%",
-          height: "auto",
-        }}
-        key={orderId}
-      >
+      <View className="w-full" key={orderId}>
         {orderStatus === "ACCEPTED" || orderStatus === "PICKED" ? (
           <View />
         ) : null}
@@ -106,48 +98,51 @@ const Order = ({
               }}
             >
               <View
-                className="flex-1 gap-y-4  border border-1 rounded-[8px] m-4 p-2"
+                className="flex-1 mx-4 my-3"
                 style={{
-                  backgroundColor: appTheme.themeBackground,
+                  backgroundColor: appTheme.white,
+                  borderWidth: 2,
                   borderColor: appTheme.borderLineColor,
                 }}
               >
-                <View className="flex flex-col gap-y-2">
+                <View className="flex flex-col gap-y-2 px-4 pt-3 pb-2">
                   {/* Status */}
                   {orderStatus && (
                     <View className="flex-1 flex-row justify-between items-center">
                       <Text
-                        className="font-[Inter] text-base font-bold  text-left decoration-skip-ink-0 "
-                        style={{ color: appTheme.fontSecondColor }}
+                        style={{
+                          color: appTheme.fontSecondColor,
+                          fontFamily: "Archivo800",
+                          fontSize: 12,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                        }}
                       >
                         {t("Status")}
                       </Text>
                       <View
-                        className={`px-3 py-1 border border-1 rounded-[12px]`}
+                        className="px-3 py-1.5"
                         style={{
                           backgroundColor:
                             tab === "delivered"
-                              ? "cyan"
+                              ? appTheme.black
                               : tab === "processing"
-                                ? "lightyellow"
-                                : "lightgreen",
-                          borderColor:
-                            tab === "delivered"
-                              ? "blue"
-                              : tab === "processing"
-                                ? "orange"
-                                : "green0",
+                                ? appTheme.primary
+                                : "transparent",
+                          borderWidth: tab === "new_orders" ? 2 : 0,
+                          borderColor: appTheme.black,
                         }}
                       >
                         <Text
-                          className={`font-[Inter] text-[12px] font-semibold text-center decoration-skip-ink-0`}
                           style={{
                             color:
-                              tab === "delivered"
-                                ? "blue"
-                                : tab === "processing"
-                                  ? "orange"
-                                  : "green",
+                              tab === "new_orders"
+                                ? appTheme.black
+                                : appTheme.white,
+                            fontFamily: "Anton",
+                            fontSize: 12,
+                            letterSpacing: 0.6,
+                            textTransform: "uppercase",
                           }}
                         >
                           {orderStatus}
@@ -156,18 +151,60 @@ const Order = ({
                     </View>
                   )}
 
-                  {/* Order ID */}
-                  {orderId && (
+                  {/* Ready for pickup, restaurant-signaled */}
+                  {orderStatus === "ASSIGNED" && isReadyToPickUp && (
                     <View className="flex-1 flex-row justify-between items-center">
                       <Text
-                        className="font-[Inter] text-base font-bold  text-left decoration-skip-ink-0 "
-                        style={{ color: appTheme.fontSecondColor }}
+                        style={{
+                          color: appTheme.fontSecondColor,
+                          fontFamily: "Archivo800",
+                          fontSize: 12,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {t("Pickup")}
+                      </Text>
+                      <View
+                        className="px-3 py-1.5"
+                        style={{ backgroundColor: appTheme.primary }}
+                      >
+                        <Text
+                          style={{
+                            color: appTheme.white,
+                            fontFamily: "Anton",
+                            fontSize: 12,
+                            letterSpacing: 0.6,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          {t("Ready for pickup")}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Order ID */}
+                  {orderId && (
+                    <View className="flex-1 flex-row justify-between items-baseline">
+                      <Text
+                        style={{
+                          color: appTheme.fontSecondColor,
+                          fontFamily: "Archivo800",
+                          fontSize: 12,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                        }}
                       >
                         {t("Order ID")}
                       </Text>
                       <Text
-                        className="font-[Inter] text-[16px] text-base font-semibold  text-right underline-offset-auto decoration-skip-ink "
-                        style={{ color: appTheme.fontMainColor }}
+                        style={{
+                          color: appTheme.fontMainColor,
+                          fontFamily: "Anton",
+                          fontSize: 20,
+                          letterSpacing: 0.4,
+                        }}
                       >
                         #{orderId}
                       </Text>
@@ -176,102 +213,165 @@ const Order = ({
                 </View>
 
                 {/* Store Image and Name */}
-                <View className="w-[90%] flex-row justify-start items-center gap-x-4">
-                  {/* <View className="h-8 w-8 bg-gray-400 justify-center items-center"> */}
-                  {/* <View className="w-[60px] h-[70px] bg-gray-200 rounded-[8px]"> */}
-                  <Image
-                    src={restaurant?.image}
-                    style={{ width: 32, height: 30, borderRadius: 8 }}
-                  />
-                  {/* </View> */}
-                  {/* </View> */}
+                <View className="w-full flex-row items-center gap-x-3 px-4 pb-3">
+                  <View
+                    style={{
+                      width: 44,
+                      height: 44,
+                      backgroundColor: appTheme.primary,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {restaurant?.image ? (
+                      <Image
+                        src={restaurant.image}
+                        style={{ width: 44, height: 44 }}
+                      />
+                    ) : (
+                      <Text
+                        style={{
+                          color: appTheme.white,
+                          fontFamily: "Anton",
+                          fontSize: 14,
+                        }}
+                      >
+                        BTB
+                      </Text>
+                    )}
+                  </View>
                   <Text
-                    className="font-[Inter] text-lg font-bold leading-7 text-left underline-offset-auto decoration-skip-ink "
-                    style={{ color: appTheme.fontMainColor }}
+                    style={{
+                      color: appTheme.fontMainColor,
+                      fontFamily: "Archivo900",
+                      fontSize: 17,
+                      textTransform: "uppercase",
+                    }}
                   >
                     {restaurant?.name}
                   </Text>
                 </View>
 
-                {/* Pick Up Order */}
-                <View className="w-[90%] flex-row items-center gap-x-2">
-                  <View>
-                    <IconSymbol
-                      name="apartment"
-                      size={30}
-                      weight="medium"
-                      color={appTheme.fontMainColor}
-                    />
-                  </View>
-                  <View>
+                {/* Pick up / Drop off */}
+                <View
+                  className="flex flex-col gap-2.5 px-4 py-3"
+                  style={{ backgroundColor: appTheme.themeBackground }}
+                >
+                  <View className="flex-row gap-3">
                     <Text
-                      className="font-[Inter] text-base font-semibold leading-6 text-left underline-offset-auto decoration-skip-ink "
-                      style={{ color: appTheme.fontMainColor }}
+                      style={{
+                        width: 22,
+                        color: appTheme.primary,
+                        fontFamily: "Anton",
+                        fontSize: 13,
+                        paddingTop: 2,
+                      }}
                     >
-                      {t("Pickup Order")}
+                      A
                     </Text>
-                    <Text
-                      className="font-[Inter] text-base font-bold leading-6 text-left underline-offset-auto decoration-skip-ink "
-                      style={{ color: appTheme.fontMainColor }}
-                    >
-                      {(String(restaurant.address).length > 40
-                        ? String(restaurant.address)
-                            .substring(0, 40)
-                            .concat("...")
-                        : String(restaurant.address)) ?? "-"}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Delivery Order */}
-                <View className="w-[90%] flex-row items-center gap-x-2">
-                  <View>
-                    <IconSymbol
-                      name="home"
-                      size={30}
-                      weight="medium"
-                      color={appTheme.fontMainColor}
-                    />
-                  </View>
-                  <View>
-                    <Text
-                      className="font-[Inter] text-base font-semibold leading-6 text-left underline-offset-auto decoration-skip-ink "
-                      style={{ color: appTheme.fontMainColor }}
-                    >
-                      {t("Delivery Order")}
-                    </Text>
-                    <Text
-                      className="font-[Inter] text-base font-bold leading-6 text-left underline-offset-auto decoration-skip-ink "
-                      style={{ color: appTheme.fontMainColor }}
-                    >
-                      {(String(deliveryAddress?.deliveryAddress).length > 40
-                        ? String(deliveryAddress?.deliveryAddress)
-                            .substring(0, 40)
-                            .concat("...")
-                        : String(deliveryAddress?.deliveryAddress)) ?? "-"}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Price/Time/Distance */}
-                <View className="w-[99%] flex-row justify-between items-center">
-                  {time && (
-                    <View className="flex-1 flex-row justify-start  items-center gap-x-1">
-                      <ClockIcon color="#6b7280" />
+                    <View className="flex-1 gap-0.5">
                       <Text
-                        className="font-[Inter] text-base font-medium  text-left underline-offset-auto decoration-skip-ink "
-                        style={{ color: appTheme.fontMainColor }}
+                        style={{
+                          color: appTheme.fontSecondColor,
+                          fontFamily: "Archivo800",
+                          fontSize: 11,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {t("Pick up")}
+                      </Text>
+                      <Text
+                        style={{
+                          color: appTheme.fontMainColor,
+                          fontFamily: "Archivo800",
+                          fontSize: 14,
+                          lineHeight: 18,
+                        }}
+                      >
+                        {(String(restaurant.address).length > 60
+                          ? String(restaurant.address).substring(0, 60).concat("...")
+                          : String(restaurant.address)) ?? "-"}
+                      </Text>
+                    </View>
+                  </View>
+                  <View className="flex-row gap-3">
+                    <Text
+                      style={{
+                        width: 22,
+                        color: appTheme.fontMainColor,
+                        fontFamily: "Anton",
+                        fontSize: 13,
+                        paddingTop: 2,
+                      }}
+                    >
+                      B
+                    </Text>
+                    <View className="flex-1 gap-0.5">
+                      <Text
+                        style={{
+                          color: appTheme.fontSecondColor,
+                          fontFamily: "Archivo800",
+                          fontSize: 11,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {t("Drop off")}
+                      </Text>
+                      <Text
+                        style={{
+                          color: appTheme.fontMainColor,
+                          fontFamily: "Archivo800",
+                          fontSize: 14,
+                          lineHeight: 18,
+                        }}
+                      >
+                        {(String(deliveryAddress?.deliveryAddress).length > 60
+                          ? String(deliveryAddress?.deliveryAddress)
+                              .substring(0, 60)
+                              .concat("...")
+                          : String(deliveryAddress?.deliveryAddress)) ?? "-"}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Time / Distance */}
+                <View
+                  className="flex-row"
+                  style={{
+                    borderTopWidth: 2,
+                    borderBottomWidth: 2,
+                    borderColor: appTheme.borderLineColor,
+                  }}
+                >
+                  {time && (
+                    <View
+                      className="flex-1 flex-row items-center gap-x-1.5 px-4 py-2.5"
+                      style={{ borderRightWidth: 2, borderColor: appTheme.borderLineColor }}
+                    >
+                      <ClockIcon color={appTheme.fontSecondColor} />
+                      <Text
+                        style={{
+                          color: appTheme.fontMainColor,
+                          fontFamily: "Archivo700",
+                          fontSize: 14,
+                        }}
                       >
                         {time}
                       </Text>
                     </View>
                   )}
 
-                  <View className="flex-1 flex-row justify-end items-center gap-x-1">
-                    <BikeRidingIcon color="#6b7280" />
+                  <View className="flex-1 flex-row items-center gap-x-1.5 px-4 py-2.5">
+                    <BikeRidingIcon color={appTheme.fontSecondColor} />
                     <Text
-                      className="font-[Inter] text-base font-medium "
-                      style={{ color: appTheme.fontMainColor }}
+                      style={{
+                        color: appTheme.fontMainColor,
+                        fontFamily: "Archivo700",
+                        fontSize: 14,
+                      }}
                     >
                       {calculateDistance(
                         Number(restaurant?.location?.coordinates[0]),
@@ -286,111 +386,147 @@ const Order = ({
                   </View>
                 </View>
 
-                {/* Payment Method */}
-                <View className="w-[99%] flex-row justify-between items-center">
-                  <Text
-                    className="flex-1 font-[Inter] text-[16px] text-base font-[500] "
-                    style={{ color: appTheme.fontSecondColor }}
-                  >
-                    {t("Payment Method")}
-                  </Text>
-                  <Text
-                    className="flex-1 font-[Inter] text-base font-semibold text-right underline-offset-auto decoration-skip-ink "
-                    style={{ color: appTheme.fontMainColor }}
-                  >
-                    {paymentMethod}
-                  </Text>
-                </View>
-
-                {/* Order Amount */}
-                <View className="w-[99%] flex-row justify-between">
-                  <Text
-                    className="flex-1 font-[Inter] text-[16px] text-base font-[500] "
-                    style={{ color: appTheme.fontSecondColor }}
-                  >
-                    {t("Order Amount")}
-                  </Text>
-
-                  <Text
-                    className="flex-1 font-[Inter] font-semibold text-right "
-                    style={{ color: appTheme.fontMainColor }}
-                  >
-                    {configuration?.currencySymbol}
-                    {orderAmount}
-                    {paymentStatus === "PAID" ? t("Paid") : t("(Not paid yet)")}
-                  </Text>
-                </View>
-
-                {["PICKED"].includes(orderStatus) && (
-                  <View className="flex-row items-center gap-x-2">
-                    <TouchableOpacity
-                      onPress={() => {
-                        router.push({
-                          pathname: "/chat",
-                          params: {
-                            phoneNumber: user.phone,
-                            orderId: orderId,
-                            id: _id,
-                          },
-                        });
+                <View className="gap-2 px-4 py-3">
+                  {/* Payment Method */}
+                  <View className="flex-row justify-between">
+                    <Text style={{ color: appTheme.fontSecondColor, fontSize: 15 }}>
+                      {t("Payment Method")}
+                    </Text>
+                    <Text
+                      style={{
+                        color: appTheme.fontMainColor,
+                        fontFamily: "Archivo900",
+                        fontSize: 15,
+                        textTransform: "uppercase",
                       }}
                     >
-                      <View className="border border-[#E2E8F0] rounded-full p-3">
-                        <ChatIcon
-                          width={30}
-                          height={30}
-                          color={appTheme.fontMainColor}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                    {/* Order Comment */}
-                    <View className="flex-1">
-                      <Text
-                        className="font-[Inter] text-[16px] text-base font-[500] "
-                        style={{ color: appTheme.fontSecondColor }}
-                      >
-                        {t("Order Comment")}
-                      </Text>
-                      <Text
-                        className="font-[Inter] text-[16px] italic font-medium "
-                        style={{ color: appTheme.fontMainColor }}
-                      >
-                        {t("No Comment")}
-                      </Text>
-                    </View>
+                      {paymentMethod}
+                    </Text>
                   </View>
-                )}
-                {tab === "new_orders" && (
-                  // <CustomContinueButton
-                  //   title={t("Assign me")}
-                  //   className="w-[95%] mx-auto"
-                  //   onPress={() =>
-                  //     mutateAssignOrder({
-                  //       variables: { id: _id },
-                  //     })
-                  //   }
-                  // />
-                  <TouchableOpacity
-                    className="h-14 rounded-3xl py-3 mt-10 w-full"
-                    disabled={loadingAssignOrder}
-                    style={{ backgroundColor: appTheme.primary }}
-                    onPress={() =>
-                      mutateAssignOrder({
-                        variables: { id: _id },
-                      })
-                    }
-                  >
-                    {loadingAssignOrder ? (
-                      <SpinnerComponent />
-                    ) : (
-                      <Text
-                        className="text-center text-lg font-medium"
-                        style={{ color: appTheme.black }}
+
+                  {/* Order Amount */}
+                  <View className="flex-row justify-between items-baseline">
+                    <Text style={{ color: appTheme.fontSecondColor, fontSize: 15 }}>
+                      {t("Order Amount")}
+                    </Text>
+                    <Text
+                      style={{
+                        color: appTheme.fontMainColor,
+                        fontFamily: "Archivo800",
+                        fontSize: 15,
+                      }}
+                    >
+                      {configuration?.currencySymbol}
+                      {orderAmount}{" "}
+                      {paymentStatus === "PAID" ? t("Paid") : t("(Not paid yet)")}
+                    </Text>
+                  </View>
+
+                  {["PICKED"].includes(orderStatus) && (
+                    <View className="flex-row items-center gap-x-3 pt-2">
+                      <TouchableOpacity
+                        onPress={() => {
+                          router.push({
+                            pathname: "/chat",
+                            params: {
+                              phoneNumber: user.phone,
+                              orderId: orderId,
+                              id: _id,
+                              customerName: user.name,
+                              orderAmount: String(orderAmount ?? ""),
+                              deliveryAddress:
+                                deliveryAddress?.deliveryAddress ?? "",
+                              distanceKm: calculateDistance(
+                                Number(restaurant?.location?.coordinates[0]),
+                                Number(restaurant?.location?.coordinates[1]),
+                                deliveryAddress?.location?.coordinates[0],
+                                deliveryAddress?.location?.coordinates[1],
+                              ).toFixed(1),
+                            },
+                          });
+                        }}
                       >
-                        {t("Assign me")}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
+                        <View
+                          className="p-3"
+                          style={{
+                            borderWidth: 2,
+                            borderColor: hasUnreadChatForRider
+                              ? appTheme.primary
+                              : appTheme.borderLineColor,
+                          }}
+                        >
+                          <ChatIcon
+                            width={26}
+                            height={26}
+                            color={
+                              hasUnreadChatForRider
+                                ? appTheme.primary
+                                : appTheme.fontMainColor
+                            }
+                          />
+                          {hasUnreadChatForRider && (
+                            <View
+                              style={{
+                                position: "absolute",
+                                top: 4,
+                                right: 4,
+                                width: 8,
+                                height: 8,
+                                borderRadius: 4,
+                                backgroundColor: appTheme.primary,
+                              }}
+                            />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                      {/* Order Comment */}
+                      <View className="flex-1">
+                        <Text style={{ color: appTheme.fontSecondColor, fontSize: 13 }}>
+                          {t("Order Comment")}
+                        </Text>
+                        <Text
+                          style={{
+                            color: appTheme.fontMainColor,
+                            fontStyle: "italic",
+                            fontSize: 14,
+                          }}
+                        >
+                          {t("No Comment")}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+
+                {tab === "new_orders" && (
+                  <View className="px-4 pb-4">
+                    <TouchableOpacity
+                      style={{ height: 56, backgroundColor: appTheme.primary }}
+                      className="items-center justify-center"
+                      disabled={loadingAssignOrder}
+                      onPress={() =>
+                        mutateAssignOrder({
+                          variables: { id: _id },
+                        })
+                      }
+                    >
+                      {loadingAssignOrder ? (
+                        <SpinnerComponent color={appTheme.white} />
+                      ) : (
+                        <Text
+                          style={{
+                            color: appTheme.white,
+                            fontFamily: "Anton",
+                            fontSize: 18,
+                            letterSpacing: 0.4,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          {t("Assign me")}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 )}
               </View>
             </TouchableOpacity>

@@ -27,12 +27,20 @@ function RadioComponent(props) {
 
   return (
     <View>
-      {options.map((option) => (
+      {options.map((option) => {
+        const isSelected = selected ? selected._id === option._id : false
+        return (
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={onPress.bind(this, option)}
           key={option._id}
-          style={styles(currentTheme).mainContainer}
+          style={[
+            styles(currentTheme).mainContainer,
+            {
+              borderColor: isSelected ? currentTheme.primary : currentTheme.borderColor,
+              backgroundColor: isSelected ? currentTheme.newButtonBackground : currentTheme.white
+            }
+          ]}
           // disabled={option.isOutOfStock}
         >
           <View style={styles(currentTheme).leftContainer}>
@@ -47,6 +55,7 @@ function RadioComponent(props) {
             <TextDefault
               textColor={currentTheme.fontMainColor}
               style={styles(currentTheme).title}
+              uppercase
               bolder
               isRTL
             >
@@ -61,7 +70,8 @@ function RadioComponent(props) {
             >{`${configuration.currencySymbol ?? ''}${option.price}`}</TextDefault>
           </View>
         </TouchableOpacity>
-      ))}
+        )
+      })}
     </View>
   )
 }

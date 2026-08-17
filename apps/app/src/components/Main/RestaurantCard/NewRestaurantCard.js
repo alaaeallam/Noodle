@@ -106,18 +106,18 @@ function NewRestaurantCard(props) {
       props?.fullWidth && { width: '100%' },
       { position: 'relative' }
     ]}>
-      <Ripple 
-        rippleColor={'#F5F5F5'} 
+      <Ripple
+        rippleColor={'#F5F5F5'}
         style={[
           { width: '100%', height: '100%' },
           Platform.OS === 'android' && {
             overflow: 'hidden',
-            borderRadius: 15
+            borderRadius: 0
           }
-        ]} 
-        activeOpacity={0.8} 
+        ]}
+        activeOpacity={0.8}
         onPress={handleRestaurantClick}
-        rippleContainerBorderRadius={15}
+        rippleContainerBorderRadius={0}
         rippleDuration={Platform.OS === 'android' ? 300 : 400}
         rippleSize={Platform.OS === 'android' ? 150 : 200}
         disabled={false}
@@ -125,17 +125,11 @@ function NewRestaurantCard(props) {
         <View
           style={[
             styles().container,
-            themeContext.ThemeValue === 'Pink' && {
+            {
               backgroundColor: 'white',
-              borderRadius: 8,
-
-              // iOS shadow
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.05,
-              shadowRadius: 8,
-              // Android shadow
-              elevation: 2,
+              borderRadius: 0,
+              borderWidth: 2,
+              borderColor: currentTheme.borderColor,
               marginBottom: 5
             }
           ]}

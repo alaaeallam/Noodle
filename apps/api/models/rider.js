@@ -63,7 +63,31 @@ const riderSchema = new Schema(
       bussinessRegNo: { type: String },
       companyRegNo: { type: String },
       taxRate: { type: Number }
-    }
+    },
+    licenseDetails: {
+      number: { type: String },
+      image: { type: String },
+      expiryDate: { type: String }
+    },
+    vehicleDetails: {
+      number: { type: String },
+      image: { type: String }
+    },
+    timeZone: { type: String },
+    workSchedule: [
+      {
+        _id: false,
+        day: { type: String, required: true },
+        enabled: { type: Boolean, default: false },
+        slots: [
+          {
+            _id: false,
+            startTime: { type: String, required: true },
+            endTime: { type: String, required: true }
+          }
+        ]
+      }
+    ]
   },
   { timestamps: true }
 )

@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient'
 import LottieView from 'lottie-react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import { Animated, StyleSheet, View, Image } from 'react-native'
@@ -107,11 +106,8 @@ const ShimmerImage = ({ imageUrl, style, resizeMode = 'cover', defaultSource }) 
               }
             ]}
           >
-            <LinearGradient
-              colors={['#f0f0f0', '#e0e0e0', '#f0f0f0']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFill}
+            <View
+              style={[StyleSheet.absoluteFill, { backgroundColor: '#e0e0e0' }]}
             />
           </Animated.View>
         </View>

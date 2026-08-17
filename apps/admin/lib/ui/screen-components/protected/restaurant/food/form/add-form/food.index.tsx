@@ -159,6 +159,7 @@ export default function FoodDetails({
       subCategory: values.subCategory,
       image: values.image,
       isOutOfStock: false,
+      isFeatured: foodContextData?.food?.data?.isFeatured ?? false,
       isActive: true,
       __typename: foodContextData?.food?.data?.__typename ?? 'Food',
       variations:

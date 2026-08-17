@@ -48,8 +48,7 @@ export default function WithdrawModal({
         maxHeight: 370,
         width: "100%",
         height: "100%",
-        backgroundColor: appTheme.themeBackground,
-        borderRadius: 20,
+        backgroundColor: appTheme.white,
         padding: 5,
         alignItems: "center",
         shadowColor: "#000",
@@ -65,26 +64,28 @@ export default function WithdrawModal({
     >
       <View className="flex flex-col justify-between h-[75%] p-2 items-center w-full">
         <View
-          className="flex flex-row justify-between w-full border-b"
-          style={{ borderBottomColor: appTheme.borderLineColor }}
+          className="flex flex-row justify-between w-full pb-3"
+          style={{ borderBottomWidth: 2, borderBottomColor: appTheme.borderLineColor }}
         >
           <Text
-            className="font-bold text-lg py-2"
-            style={{ color: appTheme.fontMainColor }}
+            style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800", fontSize: 16 }}
           >
             {t("Available Amount")}
           </Text>
           <Text
-            className="font-bold text-lg"
-            style={{ color: appTheme.fontMainColor }}
+            style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 18 }}
           >
             ${currentTotal}
           </Text>
         </View>
         <View className=" flex flex-col gap-3 w-full">
           <Text
-            className="font-bold text-lg"
-            style={{ color: appTheme.fontMainColor }}
+            style={{
+              color: appTheme.fontMainColor,
+              fontFamily: "Anton",
+              fontSize: 18,
+              textTransform: "uppercase",
+            }}
           >
             {t("Enter Amount")}
           </Text>
@@ -97,14 +98,18 @@ export default function WithdrawModal({
             placeholder="$0.00"
             keyboardType="number-pad"
             returnKeyType="done"
-            style={{ color: appTheme.fontMainColor }}
-            className={`${amountErrMsg ? "border-red-600" : "border-gray-300"} border w-full h-12 rounded p-3  placeholder:text-gray-500`}
+            style={{
+              color: appTheme.fontMainColor,
+              borderWidth: 2,
+              borderColor: amountErrMsg ? appTheme.textErrorColor : appTheme.borderLineColor,
+            }}
+            className="w-full h-[52px] p-3 placeholder:text-gray-500"
           />
           {amountErrMsg && (
-            <Text className="text-red-500 text-sm">{amountErrMsg}</Text>
+            <Text style={{ color: appTheme.textErrorColor, fontSize: 13 }}>{amountErrMsg}</Text>
           )}
         </View>
-        <View>
+        <View className="w-full">
           <CustomContinueButton
             title={
               !withdrawRequestLoading ? t("Confirm Withdraw") : t("Please wait")

@@ -1,0 +1,61 @@
+diff --git a/lib/module/platform-specific/findHostInstance.js b/lib/module/platform-specific/findHostInstance.js
+index a4bfe9c..b0461be 100644
+--- a/lib/module/platform-specific/findHostInstance.js
++++ b/lib/module/platform-specific/findHostInstance.js
+@@ -1,7 +1,6 @@
+ /* eslint-disable camelcase */
+ 'use strict';
+ 
+-import { ReanimatedError } from "../errors.js";
+ import { isFabric } from "../PlatformChecker.js";
+ function findHostInstanceFastPath(maybeNativeRef) {
+   if (!maybeNativeRef) {
+@@ -30,13 +29,17 @@ function resolveFindHostInstance_DEPRECATED() {
+       // access it first, then fallback on named export
+       findHostInstance_DEPRECATED = ReactFabric?.default?.findHostInstance_DEPRECATED ?? ReactFabric?.findHostInstance_DEPRECATED;
+     } catch (e) {
+-      throw new ReanimatedError('Failed to resolve findHostInstance_DEPRECATED');
++      findHostInstance_DEPRECATED = null;
+     }
+   } else {
+-    const ReactNative = require('react-native/Libraries/Renderer/shims/ReactNative');
+-    // Since RN 0.77 ReactFabric exports findHostInstance_DEPRECATED in default object so we're trying to
+-    // access it first, then fallback on named export
+-    findHostInstance_DEPRECATED = ReactNative?.default?.findHostInstance_DEPRECATED ?? ReactNative?.findHostInstance_DEPRECATED;
++    try {
++      const ReactNative = require('react-native/Libraries/Renderer/shims/ReactNative');
++      // Since RN 0.77 ReactFabric exports findHostInstance_DEPRECATED in default object so we're trying to
++      // access it first, then fallback on named export
++      findHostInstance_DEPRECATED = ReactNative?.default?.findHostInstance_DEPRECATED ?? ReactNative?.findHostInstance_DEPRECATED;
++    } catch (e) {
++      findHostInstance_DEPRECATED = null;
++    }
+   }
+ }
+ let findHostInstance_DEPRECATED;
+@@ -47,12 +50,20 @@ export function findHostInstance(component) {
+     return hostInstance;
+   }
+   resolveFindHostInstance_DEPRECATED();
++  const ref = !isFabric() || component._hasAnimatedRef ? component._componentRef : component;
++  // This RN version's renderer shim doesn't export findHostInstance_DEPRECATED
++  // (removed from the legacy/Paper shim on some 0.7x releases). Rather than
++  // crash the whole tree, fall back to the raw ref - callers only use this to
++  // measure/attach native handles, and most of that still works off the ref.
++  if (typeof findHostInstance_DEPRECATED !== 'function') {
++    return ref;
++  }
+   /*
+     The Fabric implementation of `findHostInstance_DEPRECATED` requires a React ref as an argument
+-    rather than a native ref. If a component implements the `getAnimatableRef` method, it must use 
+-    the ref provided by this method. It is the component's responsibility to ensure that this is 
++    rather than a native ref. If a component implements the `getAnimatableRef` method, it must use
++    the ref provided by this method. It is the component's responsibility to ensure that this is
+     a valid React ref.
+   */
+-  return findHostInstance_DEPRECATED(!isFabric() || component._hasAnimatedRef ? component._componentRef : component);
++  return findHostInstance_DEPRECATED(ref);
+ }
+-//# sourceMappingURL=findHostInstance.js.map
+\ No newline at end of file
++//# sourceMappingURL=findHostInstance.js.map

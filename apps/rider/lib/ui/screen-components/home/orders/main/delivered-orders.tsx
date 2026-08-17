@@ -9,10 +9,16 @@ import { IOrderTabsComponentProps } from "@/lib/utils/interfaces";
 import { IOrder } from "@/lib/utils/interfaces/order.interface";
 import { ORDER_TYPE } from "@/lib/utils/types";
 import { NetworkStatus } from "@apollo/client";
-import { FlashList } from "@shopify/flash-list";
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  FlatList,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 const { height } = Dimensions.get("window");
 
@@ -70,9 +76,8 @@ function HomeDeliveredOrdersMain(props: IOrderTabsComponentProps) {
       style={[style.contaienr, { backgroundColor: appTheme.screenBackground }]}
     >
       {orders?.length > 0 ? (
-        <FlashList
+        <FlatList
           data={orders}
-          estimatedItemSize={orders?.length}
           keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}
           refreshing={networkStatusAssigned === NetworkStatus.loading}

@@ -423,11 +423,12 @@ export default function WorkScheduleMain() {
               bottom: -80,
               left: 5,
               right: 5,
-              backgroundColor: appTheme.themeBackground,
+              backgroundColor: appTheme.white,
+              borderWidth: 2,
+              borderColor: appTheme.horizontalLine,
               shadowColor: "#000",
               shadowOpacity: 0.2,
               shadowRadius: 5,
-              borderRadius: 8,
               padding: 10,
               opacity: fadeAnim,
 
@@ -444,8 +445,13 @@ export default function WorkScheduleMain() {
             }}
           >
             <Text
-              className="font-[Inter] text-lg font-bold mb-2"
-              style={{ color: appTheme.fontMainColor }}
+              className="mb-2"
+              style={{
+                color: appTheme.fontMainColor,
+                fontFamily: "Anton",
+                fontSize: 17,
+                textTransform: "uppercase",
+              }}
             >
               {t("Select Time Slot")}
             </Text>

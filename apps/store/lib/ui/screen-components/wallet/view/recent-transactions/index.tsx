@@ -55,19 +55,25 @@ export default function RecentTransaction({
         />
         <View className="flex flex-col justify-between gap-1">
           <Text
-            className="font-semibold"
-            style={{ color: appTheme.fontMainColor }}
+            style={{
+              color: appTheme.fontMainColor,
+              fontFamily: "Archivo800",
+              fontSize: 13,
+              textTransform: "uppercase",
+              letterSpacing: 0.4,
+            }}
           >
             {t(transaction.status)}
           </Text>
-          <Text style={{ color: appTheme.fontSecondColor }}>
+          <Text style={{ color: "#6B6B6B", fontSize: 12 }}>
             {date.toDateString()}
           </Text>
         </View>
       </View>
       <Text
-        className="font-bold text-md"
         style={{
+          fontFamily: "Anton",
+          fontSize: 17,
           color:
             transaction.status === "REQUESTED"
               ? "#0EA5E9"

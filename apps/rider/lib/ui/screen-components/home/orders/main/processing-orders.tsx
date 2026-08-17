@@ -3,7 +3,14 @@
 import { useContext, useEffect, useState } from "react";
 
 import { NetworkStatus } from "@apollo/client";
-import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  FlatList,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 // Components
 import Order from "@/lib/ui/useable-components/order";
@@ -18,7 +25,6 @@ import { IOrder } from "@/lib/utils/interfaces/order.interface";
 // Types
 import { useApptheme } from "@/lib/context/global/theme.context";
 import { ORDER_TYPE } from "@/lib/utils/types";
-import { FlashList } from "@shopify/flash-list";
 import { useTranslation } from "react-i18next";
 
 const { height } = Dimensions.get("window");
@@ -79,9 +85,8 @@ function HomeProcessingOrdersMain(props: IOrderTabsComponentProps) {
       style={[style.contaienr, { backgroundColor: appTheme.screenBackground }]}
     >
       {orders?.length > 0 ? (
-        <FlashList
+        <FlatList
           data={orders}
-          estimatedItemSize={orders?.length}
           keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}
           refreshing={networkStatusAssigned === NetworkStatus.loading}
@@ -99,7 +104,8 @@ function HomeProcessingOrdersMain(props: IOrderTabsComponentProps) {
               paymentStatus={item.paymentStatus}
               acceptedAt={item.acceptedAt}
               user={item.user}
-        
+              isReadyToPickUp={item.isReadyToPickUp}
+              hasUnreadChatForRider={item.hasUnreadChatForRider}
               isLast={index === orders.length - 1}
             />
           )}

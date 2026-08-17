@@ -65,18 +65,16 @@ const styles = (props = null) =>
       alignItems: 'flex-end'
     },
     subContainerButton: {
-      backgroundColor: props !== null ? props?.newheaderColor : '#90E36D',
+      backgroundColor: props !== null ? props?.newheaderColor : '#FF1D02',
       ...alignment.MTxSmall,
-      borderRadius: 40,
       width: '70%',
-      height: verticalScale(30),
+      height: verticalScale(38),
       alignItems: 'center',
       justifyContent: 'center'
     },
     subContainerReviewButton: {
       backgroundColor: props !== null ? props?.secondaryBackground : 'grey',
       ...alignment.MTxSmall,
-      borderRadius: 10,
       width: scale(80),
       height: verticalScale(25),
       alignItems: 'center',
@@ -104,9 +102,8 @@ const styles = (props = null) =>
       flex: 1,
       backgroundColor: props !== null ? props?.cardBackground : '#F3F4F6',
       borderColor: props !== null ? props?.customBorder : '#fff',
-      borderWidth:scale(1),
-      borderRadius: scale(8),
-      elevation: 1,
+      borderWidth: scale(2),
+      elevation: 0,
       ...alignment.MRmedium,
       ...alignment.MLmedium,
       ...alignment.MTsmall,
@@ -114,13 +111,11 @@ const styles = (props = null) =>
     },
     restaurantImage: {
       height: 85,
-      width: 85,
-      borderRadius: 10,
+      width: 85
     },
     restaurantImage1: {
       height: 85,
-      width: 85,
-      borderRadius: 10
+      width: 85
     },
     orderInfo: {
       ...alignment.MBxSmall
@@ -159,7 +154,7 @@ const styles = (props = null) =>
       //backgroundColor: props !== null ? props?.gray200 : '#F3F4F6'
     },
     starsStyle: {
-      borderColor: props !== null ? props?.newheaderColor : '#90E36D',
+      borderColor: props !== null ? props?.newheaderColor : '#FF1D02',
       borderWidth: 1,
       borderRadius: 5,
       justifyContent: 'center',

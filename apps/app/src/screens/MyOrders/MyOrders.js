@@ -16,6 +16,7 @@ import OrdersContext from '../../context/Orders'
 import { HeaderBackButton } from '@react-navigation/elements'
 import { useTranslation } from 'react-i18next'
 import ReviewModal from '../../components/Review'
+import { fontStyles } from '../../utils/fontStyles'
 
 const orderStatusActive = ['PENDING', 'PICKED', 'ACCEPTED', 'ASSIGNED']
 const orderStatusInactive = ['DELIVERED', 'COMPLETED','CANCELLED','CANCELLEDBYREST']
@@ -87,7 +88,9 @@ function MyOrders(props) {
       headerTitleAlign: 'center',
       headerTitleStyle: {
         color: currentTheme.newFontcolor,
-        fontWeight: 'bold'
+        fontFamily: fontStyles.Anton,
+        textTransform: 'uppercase',
+        letterSpacing: 0.2
       },
       headerTitleContainerStyle: {
         marginTop: '2%',
@@ -114,7 +117,8 @@ function MyOrders(props) {
         <TouchableOpacity onPress={onPress}>
           <TextDefault
             H4
-            bold
+            bolder
+            uppercase
             textColor={isSelected ? currentTheme.newFontcolor : currentTheme.gray500}>
             {t(text)}
           </TextDefault>

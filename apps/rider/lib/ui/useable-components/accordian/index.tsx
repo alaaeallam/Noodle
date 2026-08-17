@@ -26,21 +26,25 @@ export default function AccordionItem({
   return (
     <View>
       <TouchableOpacity
-        className="bg-transparent flex-1 flex-row justify-between"
+        className="bg-transparent flex-1 flex-row justify-between items-center py-2"
         onPress={toggleItem}
       >
         <Text
-          className="font-[Inter] text-[14px] font-semibold text-left"
-          style={{ color: appTheme.fontMainColor }}
+          style={{
+            color: appTheme.fontMainColor,
+            fontFamily: "Anton",
+            fontSize: 16,
+            textTransform: "uppercase",
+            letterSpacing: 0.4,
+          }}
         >
           {t(title)}
         </Text>
         <MaterialIcons
-  name={expanded ? "expand-less" : "expand-more"}
-  size={30}
-  color={appTheme.primary}
-/>
-
+          name={expanded ? "expand-less" : "expand-more"}
+          size={26}
+          color={appTheme.primary}
+        />
       </TouchableOpacity>
       {expanded && children}
     </View>

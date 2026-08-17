@@ -6,14 +6,14 @@ export default StyleSheet.create({
     justifyContent: 'center',
     borderColor: theme.red600,
     borderWidth: 1,
-    borderRadius: scale(25),
+    borderRadius: 0,
     width: scale(200)
   }),
   dismissButtonContainer: theme => ({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderRadius: scale(25),
+    borderRadius: 0,
     width: scale(200),
     borderColor: theme.newIconColor
   }),
@@ -22,7 +22,7 @@ export default StyleSheet.create({
     borderColor:theme.white,
     margin: 10,
     backgroundColor: theme.themeBackground,
-    borderRadius: 20,
+    borderRadius: 0,
     padding: 35,
     // alignItems: 'center',
     shadowColor: '#000',

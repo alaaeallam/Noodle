@@ -33,7 +33,6 @@ const styles = (props = null) =>
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 1,
-      borderRadius: scale(16),
       backgroundColor: props != null ? props.menuBar : 'white',
       borderWidth: 1,
       borderColor: props != null ? props.newBorderColor : '#F3F4F6'
@@ -77,7 +76,6 @@ const styles = (props = null) =>
       backgroundColor: props != null ? props.themeBackground : 'white',
       width: '45%',
       alignItems: 'center',
-      borderRadius: scale(50),
       padding: scale(5),
       marginVertical: scale(3),
     },
@@ -105,15 +103,13 @@ const styles = (props = null) =>
       justifyContent: 'space-evenly',
       alignSelf: 'center',
       backgroundColor: '#F3F4F6',
-      borderRadius: 10,
       padding: 10,
       marginBottom: 10,
       width: '100%'
     },
     restaurantImg: {
       width: scale(60),
-      height: scale(60),
-      borderRadius: 12
+      height: scale(60)
     },
     restaurantAbout: {
       fontSize: scale(14),
@@ -121,7 +117,6 @@ const styles = (props = null) =>
     },
     fixedText: {
       padding: 10,
-      borderRadius: 10,
       borderColor: 'white',
       borderWidth: 1,
       backgroundColor: 'rgba(0, 0, 0, 0.74)',
@@ -131,7 +126,6 @@ const styles = (props = null) =>
     },
     deliveryBox: {
       color: props != null ? props.fontWhite : 'white',
-      borderRadius: scale(5),
       ...alignment.PxSmall
     },
     ratingBox: {
@@ -141,9 +135,24 @@ const styles = (props = null) =>
       ...alignment.PLmedium,
       ...alignment.PRmedium,
     },
+    lastOrderBanner: {
+      flexDirection: props?.isRTL ? 'row-reverse' : 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: scale(10),
+      marginTop: scale(10),
+      padding: scale(10),
+      backgroundColor: props != null ? props.black : '#0A0A0A'
+    },
+    lastOrderBtn: {
+      height: scale(30),
+      paddingHorizontal: scale(12),
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: props != null ? props.primary : '#FF1D02'
+    },
     seeReviewsBtn: {
       backgroundColor: props != null ? props.newButtonBackground : '#F3FFEE',
-      borderRadius: 4,
       paddingTop: 8,
       paddingBottom: 8,
       paddingLeft: 16,
@@ -166,8 +175,8 @@ const styles = (props = null) =>
       ...alignment.PRlarge
     },
     activeHeader: {
-      backgroundColor: props != null ? props.newButtonBackground : '#F3FFEE',
-      borderRadius: scale(50),
+      borderBottomWidth: scale(3),
+      borderBottomColor: props != null ? props.primary : '#FF1D02'
     },
     heading: {
       fontWeight: 'bold'

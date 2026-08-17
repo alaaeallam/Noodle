@@ -29,7 +29,7 @@ const styles = (props = null) =>
       },
       shadowOpacity: 0.5,
       shadowRadius: verticalScale(2),
-      borderRadius: 20,
+      borderRadius: 0,
       backgroundColor: theme.white
     }),
 
@@ -46,7 +46,7 @@ const styles = (props = null) =>
       padding: 7,
       width: '60%',
       alignItems: 'center',
-      borderRadius: 20,
+      borderRadius: 0,
       backgroundColor: 'black',
       margin: 15
     },
@@ -67,14 +67,14 @@ const styles = (props = null) =>
       justifyContent: 'center',
       borderColor: theme.red600,
       borderWidth: 1,
-      borderRadius: scale(25)
+      borderRadius: 0
     }),
     dismissButtonContainer: theme => ({
       alignItems: 'center',
       justifyContent: 'center',
       borderColor: theme.red600,
       borderWidth: 1,
-      borderRadius: scale(25)
+      borderRadius: 0
     })
   })
 export default styles

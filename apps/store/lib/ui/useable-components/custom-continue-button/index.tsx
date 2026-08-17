@@ -13,13 +13,24 @@ export default function CustomContinueButton({
   return (
     <TouchableOpacity
       {...props}
-      className="py-5 min-w-96 lg:px-52 rounded-[80] items-center justify-center my-auto mt-8"
-      style={{ backgroundColor: appTheme.primary }}
+      className="h-[58px] w-full items-center justify-center my-auto mt-8"
+      style={[
+        { backgroundColor: appTheme.primary },
+        props.disabled ? { opacity: 0.5 } : null,
+      ]}
     >
       {isLoading ? (
         <CustomSpinner />
       ) : (
-        <Text className="text-[16px]" style={{ color: appTheme.black }}>
+        <Text
+          style={{
+            color: appTheme.white,
+            fontFamily: "Anton",
+            fontSize: 19,
+            letterSpacing: 0.4,
+            textTransform: "uppercase",
+          }}
+        >
           {title}
         </Text>
       )}

@@ -97,6 +97,21 @@ module.exports = {
         console.log('storeCurrentWithdrawRequest error', err)
         throw err
       }
+    },
+    riderCurrentWithdrawRequest: async(_, args, { req }) => {
+      console.log('riderCurrentWithdrawRequest', args)
+      try {
+        const { userId } = requireWalletAccess(req, USER_TYPE.RIDER, args.riderId)
+        const request = await WithdrawRequest.findOne({
+          rider: userId,
+          status: WITHDRAW_REQUEST_STATUS.REQUESTED
+        }).sort({ createdAt: -1 })
+        if (!request) return null
+        return await transformWithDrawRequest(request)
+      } catch (err) {
+        console.log('riderCurrentWithdrawRequest error', err)
+        throw err
+      }
     }
   },
   Mutation: {

@@ -3,11 +3,10 @@ import { StyleSheet } from 'react-native'
 const styles = (props = null) =>
   StyleSheet.create({
     mainContainer: {
-      borderColor: props !== null ? props?.color9 : 'gray',
-      borderWidth: scale(1),
+      borderColor: props !== null ? props?.borderColor : '#E4E1DD',
+      borderWidth: scale(2),
       width: scale(20),
       height: scale(20),
-      borderRadius: scale(4),
       justifyContent: 'center',
       alignItems: 'center'
     }

@@ -1,65 +1,50 @@
-import { verticalScale, scale } from '../../../utils/scaling'
-import { alignment } from '../../../utils/alignment'
+import { scale } from '../../../utils/scaling'
 import { StyleSheet } from 'react-native'
-import { Dimensions } from 'react-native'
-const { width } = Dimensions.get('window')
 
 const styles = (props = null) =>
   StyleSheet.create({
+    wrapper: {
+      paddingHorizontal: scale(16)
+    },
     banner: {
+      flexDirection: props?.isRTL ? 'row-reverse' : 'row',
+      height: scale(126),
+      backgroundColor: props != null ? props?.primary : '#FF1D02',
+      overflow: 'hidden'
+    },
+    textCol: {
       flex: 1,
-      height: scale(200),
-      shadowColor: props !== null ? props?.shadow : '#707070',
-      shadowOffset: {
-        width: 0,
-        height: 3
-      },
-      margin:0,
-      borderRadius: 8,
+      minWidth: 0,
+      padding: scale(14),
+      justifyContent: 'space-between'
+    },
+    eyebrow: {
+      letterSpacing: 1
+    },
+    cta: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: scale(12),
+      paddingVertical: scale(6),
+      backgroundColor: props != null ? props?.black : '#0A0A0A'
     },
     image: {
-      width: '90%',
-      alignSelf:"center",
-      resizeMode: 'cover',
-      flex: 1,
-      justifyContent: 'center',
-      overflow: 'hidden',
-      borderRadius: 8,
-      objectFit: 'cover'
-    },
-    container: {
-      height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.3)',
-      alignItems: props?.isRTL ? 'flex-end' : 'flex-start',
-      justifyContent: 'flex-end',
+      width: scale(132),
+      height: '100%'
     },
     pagination: {
       position: 'relative',
-      gap: -8
+      marginTop: scale(8)
     },
-    paginationItem: {
-      height: 10,
-      width: 10
+    paginationItemActive: {
+      width: scale(16),
+      height: scale(4),
+      marginHorizontal: scale(2)
     },
-    imgs1:
-    {
-      overflow:"hidden",
-      resizeMode: "cover",
-      alignSelf: 'center',
-      width: "100%",
-      height:"100%",
-      borderRadius: 8,
-    
-    },
-    csd:
-    {
-
-    flex: 1,
-    justifyContent: 'center', // Centers vertically
-    alignItems: 'center', // Centers horizontally
-    width: '100%',
-      height: "100%",
-    paddingHorizontal:'5%',
+    paginationItemInactive: {
+      width: scale(4),
+      height: scale(4),
+      marginHorizontal: scale(2)
     }
   })
+
 export default styles

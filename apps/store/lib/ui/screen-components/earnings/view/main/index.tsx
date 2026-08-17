@@ -168,11 +168,12 @@ export default function EarningsMain() {
         }}
         yAxisTextStyle={{ fontSize: 8, color: appTheme.fontSecondColor }}
       />
-      <View className="flex flex-row justify-between w-full px-4 py-4">
+      <View className="flex flex-row justify-between items-baseline w-full px-4 py-4">
         <Text
           style={{
+            fontFamily: "Anton",
             fontSize: 20,
-            fontWeight: "bold",
+            textTransform: "uppercase",
             color: appTheme.fontMainColor,
           }}
         >
@@ -196,9 +197,11 @@ export default function EarningsMain() {
         >
           <Text
             style={{
-              fontSize: 14,
-              fontWeight: "bold",
-              color: appTheme.linkColor,
+              fontFamily: "Archivo800",
+              fontSize: 12,
+              letterSpacing: 0.6,
+              textTransform: "uppercase",
+              color: appTheme.primary,
             }}
           >
             {t("See More")}
@@ -214,8 +217,13 @@ export default function EarningsMain() {
           style={{ height: "55%" }}
           ListEmptyComponent={
             <Text
-              className="block mx-auto font-bold text-center w-full my-12 "
-              style={{ color: appTheme.fontSecondColor }}
+              className="block mx-auto text-center w-full my-12"
+              style={{
+                color: appTheme.fontMainColor,
+                fontFamily: "Anton",
+                fontSize: 16,
+                textTransform: "uppercase",
+              }}
             >
               {t("No record found")}
             </Text>

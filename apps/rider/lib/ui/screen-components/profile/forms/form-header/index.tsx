@@ -10,11 +10,16 @@ export default function FormHeader({ title }: { title: string }) {
   const { t } = useTranslation();
   const { appTheme } = useApptheme();
   return (
-    <View className="w-full my-auto h-auto items-start self-start border-b-2 border-b-gray-300 p-3">
+    <View
+      className="w-full items-start self-start p-3"
+      style={{ borderBottomWidth: 2, borderBottomColor: appTheme.borderLineColor }}
+    >
       <Text
-        className="text-lg"
         style={{
           color: appTheme.fontMainColor,
+          fontFamily: "Anton",
+          fontSize: 18,
+          textTransform: "uppercase",
         }}
       >
         {t(title)}

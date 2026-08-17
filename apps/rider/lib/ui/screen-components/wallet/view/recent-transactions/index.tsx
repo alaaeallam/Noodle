@@ -22,53 +22,64 @@ export default function RecentTransaction({
 
   // Constants
   const date = new Date(transaction.createdAt);
+  const isCredit = ["TRANSFERRED", "PAID"].includes(transaction.status);
   return (
     <View
-      className={`flex flex-row justify-between p-4 w-full ${isLast && "mb-24"}`}
+      className={`flex flex-row items-center gap-3 px-5 py-[13px] w-full ${isLast && "mb-24"}`}
+      style={{ borderTopWidth: 2, borderColor: appTheme.borderLineColor }}
     >
-      <View className="flex flex-row gap-3 items-center">
+      <View
+        style={{
+          width: 38,
+          height: 38,
+          backgroundColor: isCredit ? "#FFF0ED" : appTheme.themeBackground,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Ionicons
-          size={20}
+          size={17}
           name={
             transaction.status === "TRANSFERRED"
-              ? "cash-outline"
+              ? "arrow-down"
               : transaction.status === "PAID"
-                ? "cash-sharp"
+                ? "arrow-down"
                 : transaction.status === "CANCELLED"
-                  ? "remove-circle-outline"
-                  : "arrow-down-circle"
-          }
-          color={
-            transaction.status === "TRANSFERRED"
-              ? "#90E36D"
-              : transaction.status === "PAID"
-                ? "orange"
-                : transaction.status === "CANCELLED"
-                  ? "red"
+                  ? "close"
                   : transaction.status === "REQUESTED"
-                    ? "#0EA5E9"
-                    : "arrow-down-circle"
+                    ? "time-outline"
+                    : "arrow-up"
           }
+          color={isCredit ? appTheme.primary : appTheme.fontMainColor}
         />
-        <View className="flex flex-col justify-between gap-1">
-          <Text
-            className="font-semibold"
-            style={{ color: appTheme.fontMainColor }}
-          >
-            {t(transaction.status)}
-          </Text>
-          <Text style={{ color: appTheme.fontSecondColor }}>
-            {date.toDateString()}
-          </Text>
-        </View>
+      </View>
+      <View className="flex-1 gap-0.5">
+        <Text
+          style={{
+            color: appTheme.fontMainColor,
+            fontFamily: "Archivo800",
+            fontSize: 15,
+          }}
+        >
+          {t(transaction.status)}
+        </Text>
+        <Text
+          style={{
+            color: appTheme.fontSecondColor,
+            fontFamily: "Archivo700",
+            fontSize: 12,
+            letterSpacing: 0.6,
+            textTransform: "uppercase",
+          }}
+        >
+          {date.toDateString()}
+        </Text>
       </View>
       <Text
-        className="font-bold text-md"
         style={{
-          color:
-            transaction.status === "REQUESTED"
-              ? "#0EA5E9"
-              : appTheme.fontMainColor,
+          color: isCredit ? appTheme.primary : appTheme.fontMainColor,
+          fontFamily: "Anton",
+          fontSize: 19,
         }}
       >
         ${transaction?.amountTransferred}

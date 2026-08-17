@@ -48,86 +48,94 @@ const CustomDrawerHeader = () => {
 
   return (
     <View
-      className="w-full -mt-0 h-[150px] flex-row justify-between p-4 pt-8"
-      style={{ backgroundColor: appTheme.primary, marginTop: 1 }}
+      className="w-full -mt-0 flex-col gap-4 px-5 pb-5"
+      style={{ backgroundColor: appTheme.primary, paddingTop: 52 }}
     >
-      <View className="justify-between flex-1">
+      <View className="flex-row items-start justify-between">
         <View
-          className="w-[54px] h-[54px] rounded-full items-center justify-center overflow-hidden"
-          style={{ backgroundColor: appTheme.white }}
+          className="w-[60px] h-[60px] items-center justify-center overflow-hidden"
+          style={{ backgroundColor: appTheme.black }}
         >
           {dataProfile?.logo ? (
-        <Image
-          source={{ uri: dataProfile.logo }}
-          width={100}
-          height={100}
-          resizeMode="cover"
-        />
+            <Image
+              source={{ uri: dataProfile.logo }}
+              width={60}
+              height={60}
+              resizeMode="cover"
+            />
           ) : (
-        <Text
-          className="text-[16px] font-semibold"
-          style={{
-            color: appTheme.primary,
-          }}
-        >
-          {(() => {
-            const name = dataProfile?.name;
-            if (!name || typeof name !== "string") return "JS";
-
-            const nameParts = name.split(" ");
-            const firstInitial =
-          nameParts[0]?.substring(0, 1)?.toUpperCase() || "";
-            const secondInitial =
-          nameParts[1]?.substring(0, 1)?.toUpperCase() || "";
-
-            return firstInitial + secondInitial || "JS";
-          })()}
-        </Text>
+            <Text
+              style={{
+                color: appTheme.white,
+                fontFamily: "Anton",
+                fontSize: 20,
+                letterSpacing: 0.4,
+              }}
+            >
+              BTB
+            </Text>
           )}
         </View>
-        <View className="flex-1 pr-2">
+
+        <View className="items-end gap-1.5">
           <Text
-        className="font-semibold text-[16px]"
-        style={{
-          color: appTheme.black,
-        }}
-        numberOfLines={2}
-        ellipsizeMode="tail"
+            style={{
+              color: appTheme.white,
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1.5,
+              textTransform: "uppercase",
+            }}
           >
-        {dataProfile?.name ?? t("store name")}
+            {t("Availability")}
           </Text>
+          {loading || loadingProfile ? (
+            <SpinnerComponent color={appTheme.white} height={10} />
+          ) : (
+            <CustomSwitch
+              value={!!dataProfile?.isAvailable}
+              isDisabled={loading}
+              onToggle={handleToggleAvailability}
+            />
+          )}
           <Text
-        className="font-medium"
-        style={{
-          color: appTheme.secondaryTextColor,
-        }}
+            style={{
+              color: appTheme.white,
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
           >
-        {dataProfile?._id?.substring(0, 9)?.toUpperCase() ?? t("store id")}
+            {dataProfile?.isAvailable ? t("available") : t("notAvailable")}
           </Text>
         </View>
       </View>
 
-      <View className="items-end justify-end gap-2">
+      <View className="gap-0.5">
         <Text
-          className="text-md"
-          style={{ color: appTheme.secondaryTextColor }}
+          style={{
+            color: appTheme.black,
+            fontFamily: "Anton",
+            fontSize: 26,
+            textTransform: "uppercase",
+            lineHeight: 28,
+          }}
+          numberOfLines={2}
+          ellipsizeMode="tail"
         >
-          {t("Availability")}
+          {dataProfile?.name ?? t("store name")}
         </Text>
-        {loading || loadingProfile ? (
-          <SpinnerComponent color={appTheme.secondaryTextColor} height={10} />
-        ) : (
-          <CustomSwitch
-        value={!!dataProfile?.isAvailable}
-        isDisabled={loading}
-        onToggle={handleToggleAvailability}
-          />
-        )}
         <Text
-          className="text-xs font-medium"
-          style={{ color: appTheme.secondaryTextColor }}
+          style={{
+            color: appTheme.black,
+            fontFamily: "Archivo800",
+            fontSize: 12,
+            letterSpacing: 1,
+            opacity: 0.85,
+          }}
         >
-          {dataProfile?.isAvailable ? t("available") : t("notAvailable")}
+          {dataProfile?._id?.substring(0, 9)?.toUpperCase() ?? t("store id")}
         </Text>
       </View>
     </View>

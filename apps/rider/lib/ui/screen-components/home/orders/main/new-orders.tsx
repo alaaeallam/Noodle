@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { NetworkStatus } from "@apollo/client";
 import { useContext, useEffect, useState } from "react";
-import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  FlatList,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 // Context
 import UserContext from "@/lib/context/global/user.context";
@@ -17,7 +24,6 @@ import { ORDER_TYPE } from "@/lib/utils/types";
 // Icon
 import { useApptheme } from "@/lib/context/global/theme.context";
 import { WalletIcon } from "@/lib/ui/useable-components/svg";
-import { FlashList } from "@shopify/flash-list";
 import { useTranslation } from "react-i18next";
 
 const { height } = Dimensions.get("window");
@@ -74,9 +80,8 @@ export default function HomeNewOrdersMain(props: IOrderTabsComponentProps) {
       style={[style.contaienr, { backgroundColor: appTheme.screenBackground }]}
     >
       {orders?.length > 0 ? (
-        <FlashList
+        <FlatList
           data={orders}
-          estimatedItemSize={orders?.length}
           keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}
           refreshing={networkStatusAssigned === NetworkStatus.loading}

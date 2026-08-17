@@ -16,8 +16,8 @@ function CheckboxBtn(props) {
       style={[
         styles(currentTheme).mainContainer,
         props?.checked
-          ? { backgroundColor: currentTheme.main, borderColor: 'transparent' }
-          : { backgroundColor: currentTheme.themeBackground }
+          ? { backgroundColor: currentTheme.main, borderColor: currentTheme.main }
+          : { backgroundColor: 'transparent' }
       ]}>
       {props?.checked ? (
         <FontAwesome

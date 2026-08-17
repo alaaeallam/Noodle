@@ -8,7 +8,7 @@ import ActionMenu from '../../action-menu';
 import { ApolloError, useMutation, useApolloClient } from '@apollo/client';
 import { useContext, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { UPDATE_FOOD_OUT_OF_STOCK } from '@/lib/api/graphql/mutations/food';
+import { UPDATE_FOOD_OUT_OF_STOCK, UPDATE_FOOD_FEATURED } from '@/lib/api/graphql/mutations/food';
 import { GET_RESTAURANT_FOODS_LIST } from '@/lib/api/graphql/queries/restaurants';
 import { GET_FOODS_BY_RESTAURANT_ID } from '@/lib/api/graphql/queries/food';
 import { ToastContext } from '@/lib/context/global/toast.context';
@@ -32,6 +32,7 @@ export const FOODS_TABLE_COLUMNS = ({
 
   // State
   const [isFoodLoading, setIsFoodLoading] = useState<string>('');
+  const [isFeaturedLoading, setIsFeaturedLoading] = useState<string>('');
 
   // API
   const [updateFoodOutOfStock] = useMutation(UPDATE_FOOD_OUT_OF_STOCK, {
@@ -101,6 +102,72 @@ export const FOODS_TABLE_COLUMNS = ({
     },
   });
 
+  const [updateFoodFeatured] = useMutation(UPDATE_FOOD_FEATURED, {
+    refetchQueries: [
+      {
+        query: GET_RESTAURANT_FOODS_LIST,
+        variables: { id: restaurantId },
+      },
+      {
+        query: GET_FOODS_BY_RESTAURANT_ID,
+        variables: { id: restaurantId },
+      },
+    ],
+    optimisticResponse: {
+      updateFoodFeatured: true,
+    },
+    update: (cache, { data }, { variables }) => {
+      if (!data?.updateFoodFeatured) return;
+      const flipFeatured = (existing: any) => {
+        if (!existing?.restaurant) return existing;
+        const updatedCategories = existing.restaurant.categories.map((ctg: any) => ({
+          ...ctg,
+          foods: ctg.foods.map((fd: any) =>
+            fd._id === variables?.id ? { ...fd, isFeatured: !fd.isFeatured } : fd
+          ),
+        }));
+        return {
+          ...existing,
+          restaurant: { ...existing.restaurant, categories: updatedCategories },
+        };
+      };
+      try {
+        cache.updateQuery(
+          { query: GET_RESTAURANT_FOODS_LIST, variables: { id: restaurantId } },
+          flipFeatured
+        );
+      } catch {}
+      try {
+        cache.updateQuery(
+          { query: GET_FOODS_BY_RESTAURANT_ID, variables: { id: restaurantId } },
+          flipFeatured
+        );
+      } catch {}
+    },
+    onCompleted: () => {
+      showToast({
+        type: 'success',
+        title: t('Featured Item'),
+        message: t(`Featured status has been changed`),
+      });
+      setIsFeaturedLoading('');
+      client.refetchQueries({
+        include: [GET_RESTAURANT_FOODS_LIST, GET_FOODS_BY_RESTAURANT_ID],
+      });
+    },
+    onError: ({ networkError, graphQLErrors }: ApolloError) => {
+      showToast({
+        type: 'error',
+        title: t('Featured Item'),
+        message:
+          networkError?.message ??
+          graphQLErrors[0]?.message ??
+          t('Featured status failed'),
+      });
+      setIsFeaturedLoading('');
+    },
+  });
+
   // Handlers
   const onUpdateFoodOutOfStock = async (foodId: string, categoryId: string) => {
     try {
@@ -120,6 +187,27 @@ export const FOODS_TABLE_COLUMNS = ({
         message: t('Food Stock status failed'),
       });
       setIsFoodLoading('');
+    }
+  };
+
+  const onUpdateFoodFeatured = async (foodId: string, categoryId: string) => {
+    try {
+      setIsFeaturedLoading(foodId);
+
+      await updateFoodFeatured({
+        variables: {
+          id: foodId,
+          categoryId,
+          restaurant: restaurantId,
+        },
+      });
+    } catch (err) {
+      showToast({
+        type: 'error',
+        title: t('Featured Item'),
+        message: t('Featured status failed'),
+      });
+      setIsFeaturedLoading('');
     }
   };
 
@@ -151,6 +239,21 @@ export const FOODS_TABLE_COLUMNS = ({
             isActive={item.isOutOfStock}
             onChange={() =>
               onUpdateFoodOutOfStock(item._id, item.category?.code ?? '')
+            }
+          />
+        );
+      },
+    },
+    {
+      headerName: t('Featured'),
+      propertyName: 'isFeatured',
+      body: (item: IFoodNew) => {
+        return (
+          <CustomInputSwitch
+            loading={isFeaturedLoading === item._id}
+            isActive={item.isFeatured}
+            onChange={() =>
+              onUpdateFoodFeatured(item._id, item.category?.code ?? '')
             }
           />
         );

@@ -16,6 +16,7 @@ import { ProgressBar } from '../Main/ActiveOrders/ProgressBar'
 import { calulateRemainingTime } from '../../utils/customFunctions'
 import Spinner from '../Spinner/Spinner'
 import EmptyView from '../EmptyView/EmptyView'
+import { fontStyles } from '../../utils/fontStyles'
 
 const ActiveOrders = ({ navigation, loading, error, activeOrders }) => {
   const { i18n } = useTranslation()
@@ -113,7 +114,7 @@ const Item = ({ item, navigation, currentTheme, configuration }) => {
       <View style={{ flex: 1 }}>
         <View style={styles(currentTheme).subContainer}>
           <View style={styles().orderDescriptionContainer}>
-            <TextDefault h5 bold textColor={currentTheme.gray500} isRTL>
+            <TextDefault H5 bolder uppercase textColor={currentTheme.gray500} isRTL>
               {t('estimatedDeliveryTime')}
             </TextDefault>
           </View>
@@ -144,7 +145,7 @@ const Item = ({ item, navigation, currentTheme, configuration }) => {
               ...alignment.PTxSmall
             }}
           >
-            <TextDefault h5 bold textColor={currentTheme.secondaryText} isRTL>
+            <TextDefault H5 bold textColor={currentTheme.secondaryText} isRTL>
               {item.orderStatus === 'PENDING'
                 ? t('PenddingText')
                 : t('PenddingText1')}
@@ -171,19 +172,16 @@ const Item = ({ item, navigation, currentTheme, configuration }) => {
                 <TextDefault
                   textColor={currentTheme.fontMainColor}
                   uppercase
-                  bolder
                   numberOfLines={2}
-                  style={styles(currentTheme).orderInfo}
+                  style={[styles(currentTheme).orderInfo, { fontFamily: fontStyles.Anton, fontSize: scale(16) }]}
                   isRTL
                 >
                   {item?.restaurant?.name}
                 </TextDefault>
                 <TextDefault
                   numberOfLines={2}
-                  // style={{ ...alignment.MTxSmall }}
                   style={styles(currentTheme).orderInfo}
-                  textColor={currentTheme.fontMainColor}
-                  bolder
+                  textColor={currentTheme.fontSecondColor}
                   small
                   isRTL
                 >
@@ -193,9 +191,8 @@ const Item = ({ item, navigation, currentTheme, configuration }) => {
             </View>
             <View style={styles(currentTheme).subContainerRight}>
               <TextDefault
-                //numberOfLines={1}
                 textColor={currentTheme.fontMainColor}
-                bolder
+                style={{ fontFamily: fontStyles.Anton, fontSize: scale(15) }}
                 isRTL
               >
                 {configuration.currencySymbol}

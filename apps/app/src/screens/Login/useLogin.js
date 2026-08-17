@@ -134,7 +134,7 @@ export const useLogin = () => {
           name: data.login.name,
           email: data.login.email
         })
-        setTokenAsync(data.login.token)
+        await setTokenAsync(data.login.token)
         navigation.navigate({
           name: 'Main',
           merge: true

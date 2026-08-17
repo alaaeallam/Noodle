@@ -22,75 +22,48 @@ export default function ProfileHeader() {
       resizeMode="cover"
       className="backdrop-blur-3xl"
     >
-      <View
-        className={`justify-between flex-row h-[130px] w-[40%] items-center p-4 shadow-xl sticky top-5`}
-      >
+      <View className="flex-row h-[130px] w-full items-center gap-x-3.5 p-4">
         <View
-          className="p-1 rounded-[100px]"
-          style={{ backgroundColor: appTheme.themeBackground }}
+          className="w-[60px] h-[60px] items-center justify-center overflow-hidden"
+          style={{ backgroundColor: appTheme.black }}
         >
-          <View
-            className="w-[54px] h-[54px] rounded-full items-center justify-center overflow-hidden"
-            style={{ backgroundColor: appTheme.white }}
-          >
-            {dataProfile?.logo ? (
-              <Image
-                source={{ uri: dataProfile.logo }}
-                width={100}
-                height={100}
-                resizeMode="cover"
-                style={{ backgroundColor: "white" }}
-              />
-            ) : (
-              <Text
-                className="text-[16px] font-semibold"
-                style={{
-                  color: appTheme.primary,
-                  textShadowColor: appTheme.black,
-                  textShadowOffset: { width: 22, height: 22 },
-                  textShadowRadius: 40,
-                }}
-              >
-                {(() => {
-                  const name = dataProfile?.name;
-                  if (!name || typeof name !== "string") return "JS";
-
-                  const nameParts = name.split(" ");
-                  const firstInitial =
-                    nameParts[0]?.substring(0, 1)?.toUpperCase() || "";
-                  const secondInitial =
-                    nameParts[1]?.substring(0, 1)?.toUpperCase() || "";
-
-                  return firstInitial + secondInitial || "JS";
-                })()}
-              </Text>
-            )}
-          </View>
+          {dataProfile?.logo ? (
+            <Image
+              source={{ uri: dataProfile.logo }}
+              width={60}
+              height={60}
+              resizeMode="cover"
+            />
+          ) : (
+            <Text style={{ color: appTheme.white, fontFamily: "Anton", fontSize: 20 }}>
+              BTB
+            </Text>
+          )}
         </View>
-        <View className="left-1">
+        <View className="flex-1 pr-4 gap-y-1">
           <Text
-            className={`font-semibold xs`}
+            numberOfLines={1}
             style={{
               color: appTheme.fontMainColor,
-              fontWeight: "semibold",
-              padding: 3,
-              borderRadius: 70,
-              backgroundColor: appTheme.themeBackground,
+              fontFamily: "Anton",
+              fontSize: 22,
+              textTransform: "uppercase",
             }}
           >
             {dataProfile?.name ?? t("store name")}
           </Text>
           <Text
-            className="font-medium my-1"
+            numberOfLines={1}
             style={{
               color: appTheme.fontMainColor,
-              fontWeight: "semibold",
-              padding: 3,
-              borderRadius: 70,
-              backgroundColor: appTheme.themeBackground,
+              fontFamily: "Archivo800",
+              fontSize: 12,
+              letterSpacing: 1,
             }}
           >
-            {dataProfile?._id.substring(0, 9).toUpperCase() ?? t("store id")}
+            {dataProfile?._id
+              ? dataProfile._id.substring(0, 9).toUpperCase()
+              : t("store id")}
           </Text>
         </View>
       </View>

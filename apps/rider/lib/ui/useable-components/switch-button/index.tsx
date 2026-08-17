@@ -1,11 +1,12 @@
 import { useApptheme } from "@/lib/context/global/theme.context";
 import { CustomSwitchProps } from "@/lib/utils/interfaces/custom-input-switch";
-import { MaterialIcons } from "@expo/vector-icons";
 import { Switch, TouchableOpacity, View } from "react-native";
 
+// BTB switch: a plain black track with a square white knob that slides
+// side to side — no rounded pill, no check/x icon (see mockup screen 07).
 const CustomSwitch = ({ value, onToggle, isDisabled }: CustomSwitchProps) => {
-  // Hooks
   const { appTheme } = useApptheme();
+
   return (
     <TouchableOpacity
       disabled={isDisabled}
@@ -14,36 +15,22 @@ const CustomSwitch = ({ value, onToggle, isDisabled }: CustomSwitchProps) => {
       activeOpacity={0.8}
     >
       <View
-        className="w-16 h-8 rounded-full flex-row items-center px-1"
+        className="w-16 h-8 flex-row items-center px-1"
         style={{
-          backgroundColor: value
-            ? appTheme.switchButtonColor
-            : appTheme.secondaryTextColor,
+          backgroundColor: appTheme.black,
+          justifyContent: value ? "flex-end" : "flex-start",
         }}
       >
-        {value ? (
-          <View className="ml-auto mr-[1px] bg-white rounded-full h-[20px] w-[20px]">
-            <MaterialIcons
-              name="check"
-              size={20}
-              color={appTheme.switchButtonColor}
-            />
-          </View>
-        ) : (
-          <View className="ml-[1px] bg-white rounded-full h-[20px] w-[20px]">
-            <MaterialIcons
-              name="close"
-              size={20}
-              color={appTheme.secondaryTextColor}
-            />
-          </View>
-        )}
+        <View
+          className="h-[22px] w-[22px]"
+          style={{ backgroundColor: appTheme.white }}
+        />
 
         <Switch
           value={value}
           onValueChange={onToggle}
           trackColor={{ false: "transparent", true: "transparent" }}
-          thumbColor={"white"}
+          thumbColor={appTheme.white}
           className="absolute inset-0 w-full h-full opacity-0"
         />
       </View>

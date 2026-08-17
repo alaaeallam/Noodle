@@ -20,11 +20,11 @@ const styles = (props = null) =>
       ...alignment.PxSmall
     },
     tagItem: {
-      backgroundColor: props !== null ? props?.main : '#90E36D',
+      backgroundColor: props !== null ? props?.main : '#FF1D02',
       margin: scale(5),
       paddingVertical: scale(10),
       paddingHorizontal: scale(15),
-      borderRadius: scale(10)
+      borderRadius: 0
     },
     emptyViewContainer:{
       flex: 1,
@@ -33,7 +33,7 @@ const styles = (props = null) =>
     },
     emptyViewBox: {
       backgroundColor: props != null ? props?.newBackground : '#f0f0f0',
-      borderRadius: scale(10),
+      borderRadius: 0,
       width: '85%',
       height: verticalScale(130),
       justifyContent: 'center',
@@ -42,7 +42,7 @@ const styles = (props = null) =>
       marginTop: scale(30),
       borderColor: props !== null ? props?.gray200 : '#E5E7EB',
       borderWidth:scale(1),
-      borderRadius:scale(10)
+      borderRadius: 0
     },
     searchList: {
       marginBottom: 70,

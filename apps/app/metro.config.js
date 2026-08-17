@@ -7,11 +7,20 @@ const workspaceRoot = path.resolve(projectRoot, '../..')
 const defaultConfig = getDefaultConfig(projectRoot)
 defaultConfig.resolver.sourceExts.push('cjs')
 
+// apps/store and apps/rider share a near-identical Metro setup and have
+// been observed serving each other's cached module graph when run from
+// the same machine (default cacheVersion is "1.0" for every Metro project
+// unless overridden). Giving this app its own cacheVersion too, for the
+// same reason, even though its config differs more from the other two.
+defaultConfig.cacheVersion = 'enatega-app-1.0'
+
 // pnpm workspace: hoisted deps (e.g. react-async-hook, a transitive dep of
 // react-native-country-picker-modal) live inside the monorepo root's pnpm
 // virtual store, which Metro never crawls unless it's an explicit watchFolder.
+// Appended to (not replacing) the auto-detected monorepo watchFolders, which
+// already include apps/app itself and each sibling app.
 defaultConfig.watchFolders = [
-  workspaceRoot,
+  ...defaultConfig.watchFolders,
   path.resolve(workspaceRoot, 'node_modules/.pnpm'),
 ]
 defaultConfig.resolver.nodeModulesPaths = [

@@ -46,8 +46,15 @@ export default function EarningStack({
       }}
     >
       <View className="flex flex-row gap-2 items-center flex-2">
-        <Text style={{ color: appTheme.fontMainColor }}>{date}</Text>
-        <Text className="font-bold" style={{ color: appTheme.fontMainColor }}>
+        <Text style={{ color: "#6B6B6B", fontSize: 13 }}>{date}</Text>
+        <Text
+          style={{
+            color: appTheme.fontMainColor,
+            fontFamily: "Archivo800",
+            fontSize: 13,
+            textTransform: "uppercase",
+          }}
+        >
           {t("Total Earnings")}
         </Text>
       </View>
@@ -55,10 +62,10 @@ export default function EarningStack({
         className="flex flex-row gap-2 items-center flex-2"
         onPress={handleForwardPress}
       >
-        <Text className="font-bold " style={{ color: appTheme.linkColor }}>
-          ${Number(earning)}
+        <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 17 }}>
+          ${Number(earning ?? 0).toFixed(2)}
         </Text>
-        <RightArrowIcon color={appTheme.linkColor} />
+        <RightArrowIcon color={appTheme.primary} />
       </TouchableOpacity>
     </View>
   );

@@ -18,19 +18,20 @@ import StarIcon from '../../../src/assets/SVG/imageComponents/starIcon'
 import { scale } from '../../utils/scaling'
 import EmptyView from '../EmptyView/EmptyView'
 import { ORDER_STATUS_ENUM } from '../../utils/enums'
+import { fontStyles } from '../../utils/fontStyles'
 
 function emptyViewPastOrders() {
   const orderStatusActive = ['PENDING', 'PICKED', 'ACCEPTED', 'ASSIGNED']
   const orderStatusInactive = ['DELIVERED', 'COMPLETED']
   const { orders, loadingOrders, errorOrders } = useContext(OrdersContext)
-  if (loadingOrders)
+  if (loadingOrders) {
     return (
       <Spinner
         visible={loadingOrders}
         backColor='transparent'
-        spinnerColor={currentTheme.main}
       />
     )
+  }
   if (errorOrders) return <TextError text={errorOrders.message} />
   else {
     const hasActiveOrders =
@@ -228,9 +229,8 @@ const Item = ({
                   <TextDefault
                     textColor={currentTheme.fontMainColor}
                     uppercase
-                    bolder
                     numberOfLines={2}
-                    style={styles(currentTheme).restaurantName}
+                    style={{ fontFamily: fontStyles.Anton, fontSize: scale(16) }}
                     isRTL
                   >
                     {item.restaurant.name}
@@ -239,7 +239,7 @@ const Item = ({
                 <View style={styles(currentTheme).subContainerRight}>
                   <TextDefault
                     textColor={currentTheme.fontMainColor}
-                    bolder
+                    style={{ fontFamily: fontStyles.Anton, fontSize: scale(15) }}
                     isRTL
                   >
                     {configuration.currencySymbol}
@@ -250,14 +250,17 @@ const Item = ({
               <View style={{ marginTop: 'auto' }}>
                 <TextDefault
                   numberOfLines={1}
+                  uppercase
+                  small
+                  bolder
                   style={{
-                    ...alignment.MTxSmall
-                    // width: '122%'
+                    ...alignment.MTxSmall,
+                    letterSpacing: 0.5
                   }}
-                  textColor={currentTheme.secondaryText}
+                  textColor={currentTheme.fontSecondColor}
                   isRTL
                 >
-                  {(item.orderStatus === 'CANCELLED' || item.orderStatus === 'CANCELLEDBYREST') 
+                  {(item.orderStatus === 'CANCELLED' || item.orderStatus === 'CANCELLEDBYREST')
                     ? `${t('cancelledOn')} ${formatDeliveredAt(item.cancelledAt || item.completionTime)}`
                     : `${t('deliveredOn')} ${formatDeliveredAt(item.deliveredAt)}`
                   }
@@ -265,7 +268,7 @@ const Item = ({
                 <TextDefault
                   numberOfLines={1}
                   style={{ ...alignment.MTxSmall }}
-                  textColor={currentTheme.secondaryText}
+                  textColor={currentTheme.fontSecondColor}
                   isRTL
                 >
                   {getItems(item.items)}
@@ -279,8 +282,7 @@ const Item = ({
               style={styles(currentTheme).subContainerButton}
               onPress={() => navigation.navigate('Reorder', { item })}
             >
-              <TextDefault textColor={currentTheme.black} H5 bolder B700 center>
-                {' '}
+              <TextDefault textColor={currentTheme.white} uppercase center style={{ fontFamily: fontStyles.Anton, fontSize: scale(15), letterSpacing: 0.3 }}>
                 {t('reOrder')}
               </TextDefault>
             </TouchableOpacity>
@@ -292,9 +294,11 @@ const Item = ({
             <View style={styles(currentTheme).starsContainer}>
               <View>
                 <TextDefault
-                  H5
+                  small
                   bolder
+                  uppercase
                   textColor={currentTheme.newFontcolor}
+                  style={{ letterSpacing: 0.5 }}
                   isRTL
                 >
                   {t('tapToRate')}
@@ -304,6 +308,7 @@ const Item = ({
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 {[1, 2, 3, 4, 5].map((index) => (
                   <StarIcon
+                    color={currentTheme.primary}
                     disabled={Boolean(item?.review)}
                     key={`star-icon-${index}`}
                     isFilled={index <= item?.review?.rating}

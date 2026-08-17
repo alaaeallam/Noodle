@@ -59,32 +59,33 @@ export default function VehicleTypeMainScreen() {
     const isSelected = item.code === selectedCode;
     return (
       <TouchableOpacity
-        className={`flex-row items-center p-4  border-b my-1`}
+        className="flex-row items-center p-4 my-1"
         style={{
           width: width * 0.95,
-          borderColor: isSelected ? appTheme.primary : appTheme.gray,
+          borderWidth: 2,
+          borderColor: isSelected ? appTheme.primary : appTheme.borderLineColor,
         }}
         onPress={() => setSelectedCode(item.code)}
       >
         <View
-          className="mr-2"
+          className="mr-3 w-10 h-10 items-center justify-center"
           style={{ backgroundColor: appTheme.themeBackground }}
         >
           {vehicleMap[item.code as string]}
         </View>
         <Text
-          className="flex-1 font-inter font-semibold leading-5 tracking-normal"
-          style={{ color: appTheme.mainTextColor }}
+          className="flex-1"
+          style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800", fontSize: 15, textTransform: "uppercase" }}
         >
           {t(item.label)}
         </Text>
         <View
-          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center `}
-          style={{ borderColor: isSelected ? appTheme.primary : appTheme.gray }}
+          className="w-5 h-5 border-2 flex items-center justify-center"
+          style={{ borderColor: isSelected ? appTheme.primary : appTheme.borderLineColor }}
         >
           {isSelected && (
             <View
-              className="w-2.5 h-2.5 rounded-full"
+              className="w-2.5 h-2.5"
               style={{ backgroundColor: appTheme.primary }}
             />
           )}
@@ -135,14 +136,22 @@ export default function VehicleTypeMainScreen() {
 
       <View className="h-[20%]">
         <TouchableOpacity
-          className="h-12 rounded-3xl py-3 mt-2"
-          style={{ width: width * 0.9, backgroundColor: appTheme.primary }}
+          className="items-center justify-center mt-2"
+          style={{ width: width * 0.9, height: 56, backgroundColor: appTheme.primary }}
           onPress={() => onHandlerSubmit()}
         >
           {mutationLoading ? (
             <SpinnerComponent color={appTheme.white} />
           ) : (
-            <Text className="text-center text-white text-lg font-medium">
+            <Text
+              style={{
+                color: appTheme.white,
+                fontFamily: "Anton",
+                fontSize: 18,
+                textTransform: "uppercase",
+                letterSpacing: 0.4,
+              }}
+            >
               {t("Update")}
             </Text>
           )}

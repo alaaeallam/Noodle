@@ -52,7 +52,6 @@ import Checkout from '../screens/Checkout/Checkout'
 import Menu from '../screens/Menu/Menu'
 import Reviews from '../screens/Reviews'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import BottomTabIcon from '../components/BottomTabIcon/BottomTabIcon'
 import { useTranslation } from 'react-i18next'
 import Collection from '../screens/Collection/Collection'
 import MapSection from '../screens/MapSection'
@@ -60,7 +59,8 @@ import Account from '../screens/Account/Account'
 import EditName from '../components/Account/EditName/EditName'
 import SearchScreen from '../screens/Search/SearchScreen'
 import UserContext from '../context/User'
-import { Easing, Platform } from 'react-native'
+import { Easing } from 'react-native'
+import BottomTabBar from '../components/BottomTabBar/BottomTabBar'
 import CategoryPage from '../components/SubCategoryPage/SubCategoryPage'
 // import HypCheckout from '../screens/Hyp/HypCheckout'
 import NewRestaurantDetailDesign from '../components/NewRestaurantDetailDesign/RestaurantDetailDesign'
@@ -172,7 +172,7 @@ function MainNavigator() {
       <NavigationStack.Screen name='AddNewAddress' component={AddNewAddress} />
       <NavigationStack.Screen name='SaveAddress' component={SaveAddress} />
       <NavigationStack.Screen name='Favourite' component={Favourite} options={SLIDE_RIGHT_WITH_CURVE_ANIM} />
-      <NavigationStack.Screen name='ChatWithRider' component={ChatScreen} />
+      <NavigationStack.Screen name='ChatWithRider' component={ChatScreen} options={{ headerShown: false }} />
       <NavigationStack.Screen name='Collection' component={Collection} options={SLIDE_RIGHT_WITH_CURVE_ANIM} />
       <NavigationStack.Screen name='MapSection' component={MapSection} options={SLIDE_UP_RIGHT_ANIMATION} />
       <NavigationStack.Screen name='Account' component={Account} options={SLIDE_RIGHT_WITH_CURVE_ANIM} />
@@ -209,37 +209,24 @@ function BottomTabNavigator() {
   const { profile: userProfile } = useContext(UserContext)
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          // synced with BottomTabIcon, make sure to have the same name as icon in BottomTabIcon
-          return <BottomTabIcon name={route.name.toLowerCase()} size={focused ? '28' : size} color={color} />
-        },
-        tabBarStyle: {
-          paddingHorizontal: 15,
-          paddingVertical: 10,
-          paddingBottom: Platform.OS === 'ios' ? 25 : 15,
-          height: Platform.OS === 'ios' ? 90 : 70,
-          backgroundColor: currentTheme.cardBackground
-        },
-        tabBarActiveTintColor: '#0EA5E9',
-        tabBarInactiveTintColor: currentTheme.fontNewColor,
-        tabBarLabelStyle: { fontSize: 12 },
+      tabBar={(props) => <BottomTabBar {...props} currentTheme={currentTheme} />}
+      screenOptions={{
         headerRight: () => <RightButton icon='cart' iconColor={currentTheme.iconColor} menuHeader={false} t={t} />
-      })}
+      }}
     >
       <Tab.Screen
         name='Discovery'
         component={Main}
         options={{
-          tabBarLabel: t('Discovery')
+          tabBarLabel: t('Discovery'),
+          headerShown: false
         }}
       />
       <Tab.Screen
         name='Restaurants'
         component={Menu}
         options={{
-          tabBarLabel: t('Stores'),
-          tabBarIcon: ({ focused, color, size }) => <BottomTabIcon name='store' size={focused ? '28' : size} color={color} />
+          tabBarLabel: t('Stores')
         }}
         initialParams={{
           selectedType: 'restaurant',

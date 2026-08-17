@@ -9,39 +9,32 @@ import { useTranslation } from 'react-i18next'
 function TitleComponent(props) {
   const { i18n } = useTranslation()
   const themeContext = useContext(ThemeContext)
-  const currentTheme = {isRTL: i18n.dir() === 'rtl', ...theme[themeContext.ThemeValue]}
-
+  const currentTheme = { isRTL: i18n.dir() === 'rtl', ...theme[themeContext.ThemeValue] }
 
   return (
     <View style={styles(currentTheme).mainContainer}>
-      <View>
-        <TextDefault
-          numberOfLines={1}
-          textColor={currentTheme.fontMainColor}
-          H6
-          bolder
-          isRTL>
-          {props?.title}
-        </TextDefault>
-        <TextDefault
-          numberOfLines={1}
-          textColor={currentTheme.fontSecondColor}
-          small
-          isRTL
-        >
-          {props?.subTitle}
-        </TextDefault>
+      <View style={styles().left}>
+        <View style={styles(currentTheme).labelRow}>
+          <TextDefault numberOfLines={1} uppercase bolder small textColor={currentTheme.black} isRTL>
+            {props?.title}
+          </TextDefault>
+          {!props?.required && !!props?.status && (
+            <TextDefault small textColor={currentTheme.fontSecondColor}> · {props?.status}</TextDefault>
+          )}
+        </View>
+        {!!props?.subTitle && (
+          <TextDefault numberOfLines={1} textColor={currentTheme.fontSecondColor} small isRTL>
+            {props?.subTitle}
+          </TextDefault>
+        )}
       </View>
-      <View style={styles(currentTheme).rightContainer}>
-        <TextDefault
-          textColor={
-            currentTheme.color2
-          }
-          H6
-          center>
-          {props?.status}
-        </TextDefault>
-      </View>
+      {props?.required && !!props?.status && (
+        <View style={styles(currentTheme).badge}>
+          <TextDefault uppercase bolder textColor={currentTheme.white} style={styles().badgeText}>
+            {props?.status}
+          </TextDefault>
+        </View>
+      )}
     </View>
   )
 }

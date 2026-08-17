@@ -69,55 +69,76 @@ export default function EarningDetailsHeader() {
   if (isRiderEarningsLoading) return <SpinnerComponent />;
   return (
     <View
-      className=" py-3 border"
+      className="py-3"
       style={{
+        borderBottomWidth: 2,
         borderColor: appTheme.borderLineColor,
-        backgroundColor: appTheme.themeBackground,
+        backgroundColor: appTheme.white,
       }}
     >
       <Text
-        className="left-5 text-xl font-semibold"
-        style={{ color: appTheme.fontMainColor }}
+        className="px-5"
+        style={{
+          color: appTheme.fontMainColor,
+          fontFamily: "Anton",
+          fontSize: 20,
+          textTransform: "uppercase",
+        }}
       >
         {t("Summary")}
       </Text>
-      <View className="flex flex-row justify-between items-center p-5">
-        <View className="flex gap-2 items-center">
-          <Text className="text-lg" style={{ color: appTheme.fontMainColor }}>
+      <View className="flex flex-row justify-between items-start px-5 pt-4 pb-2">
+        <View className="gap-1.5">
+          <Text
+            style={{
+              color: appTheme.fontSecondColor,
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
             {t("Total Earnings")}
           </Text>
-          <Text
-            className="font-semibold text-lg text-start self-start"
-            style={{ color: appTheme.mainTextColor }}
-          >
+          <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 20 }}>
             ${Number(riderEarningsGrandTotal.earnings).toFixed(2)}
           </Text>
         </View>
         <View
-          className="flex gap-2 items-center border-l-2 pl-3"
-          style={{ borderLeftColor: appTheme.borderLineColor }}
+          className="gap-1.5 pl-4"
+          style={{ borderLeftWidth: 2, borderLeftColor: appTheme.borderLineColor }}
         >
-          <Text className="text-lg" style={{ color: appTheme.fontMainColor }}>
+          <Text
+            style={{
+              color: appTheme.fontSecondColor,
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
             {t("Total Tips")}
           </Text>
-          <Text
-            className="font-semibold text-lg text-start self-start"
-            style={{ color: appTheme.mainTextColor }}
-          >
+          <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 20 }}>
             ${Number(riderEarningsGrandTotal.tips).toFixed(2)}
           </Text>
         </View>
         <View
-          className="flex gap-2 items-center border-l-2 pl-3"
-          style={{ borderLeftColor: appTheme.borderLineColor }}
+          className="gap-1.5 pl-4"
+          style={{ borderLeftWidth: 2, borderLeftColor: appTheme.borderLineColor }}
         >
-          <Text className="text-lg" style={{ color: appTheme.fontMainColor }}>
+          <Text
+            style={{
+              color: appTheme.fontSecondColor,
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
             {t("Total Deliveries")}
           </Text>
-          <Text
-            className="font-semibold text-lg text-start self-start"
-            style={{ color: appTheme.mainTextColor }}
-          >
+          <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 20 }}>
             {riderEarningsGrandTotal.totalDeliveries}
           </Text>
         </View>

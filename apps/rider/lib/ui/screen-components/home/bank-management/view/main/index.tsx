@@ -152,14 +152,23 @@ export default function BankManagementMain() {
         <View className="flex flex-col justify-between items-center w-full h-[75%] my-6 px-4">
           <View className="flex flex-col w-full items-start justify-start gap-2">
             <Text
-              className="text-lg font-normal"
-              style={{ color: appTheme.fontMainColor }}
+              style={{
+                color: appTheme.fontSecondColor,
+                fontFamily: "Archivo800",
+                fontSize: 11,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
             >
               {t("Bank Name")}
             </Text>
             <TextInput
-              className={`min-w-[100%] rounded-md border ${isError.field === "bankName" ? "border-red-600 border-2" : "border-2 border-gray-300"} p-3 my-2`}
-              style={{ color: appTheme.fontSecondColor }}
+              className="min-w-[100%] p-3 my-2"
+              style={{
+                color: appTheme.fontMainColor,
+                borderWidth: 2,
+                borderColor: isError.field === "bankName" ? appTheme.textErrorColor : appTheme.borderLineColor,
+              }}
               value={formData.bankName}
               placeholder={t("Swiss Bank")}
               placeholderTextColor={appTheme.fontSecondColor}
@@ -171,14 +180,23 @@ export default function BankManagementMain() {
           </View>
           <View className="flex flex-col w-full items-start justify-start gap-2">
             <Text
-              className="text-lg font-normal"
-              style={{ color: appTheme.fontMainColor }}
+              style={{
+                color: appTheme.fontSecondColor,
+                fontFamily: "Archivo800",
+                fontSize: 11,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
             >
               {t("Account holder name")}
             </Text>
             <TextInput
-              className={`min-w-[100%] rounded-md border ${isError.field === "accountName" ? "border-red-600 border-2" : "border-2 border-gray-300"} p-3 my-2`}
-              style={{ color: appTheme.fontSecondColor }}
+              className="min-w-[100%] p-3 my-2"
+              style={{
+                color: appTheme.fontMainColor,
+                borderWidth: 2,
+                borderColor: isError.field === "accountName" ? appTheme.textErrorColor : appTheme.borderLineColor,
+              }}
               value={formData.accountName}
               placeholderTextColor={appTheme.fontSecondColor}
               placeholder="Micheal Kim"
@@ -190,14 +208,23 @@ export default function BankManagementMain() {
           </View>
           <View className="flex flex-col w-full items-start justify-start gap-2">
             <Text
-              className="text-lg font-normal"
-              style={{ color: appTheme.fontMainColor }}
+              style={{
+                color: appTheme.fontSecondColor,
+                fontFamily: "Archivo800",
+                fontSize: 11,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
             >
               IBAN / Swift / BSB
             </Text>
             <TextInput
-              className={`min-w-[100%] rounded-md border ${isError.field === "accountCode" ? "border-red-600 border-2" : "border-2 border-gray-300"} p-3 my-2`}
-              style={{ color: appTheme.fontSecondColor }}
+              className="min-w-[100%] p-3 my-2"
+              style={{
+                color: appTheme.fontMainColor,
+                borderWidth: 2,
+                borderColor: isError.field === "accountCode" ? appTheme.textErrorColor : appTheme.borderLineColor,
+              }}
               value={formData.accountCode}
               placeholderTextColor={appTheme.fontSecondColor}
               placeholder="PK33"
@@ -209,14 +236,23 @@ export default function BankManagementMain() {
           </View>
           <View className="flex flex-col w-full items-start justify-start gap-2">
             <Text
-              className="text-lg font-normal"
-              style={{ color: appTheme.fontMainColor }}
+              style={{
+                color: appTheme.fontSecondColor,
+                fontFamily: "Archivo800",
+                fontSize: 11,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
             >
               {t("Account Number")}
             </Text>
             <TextInput
-              className={`min-w-[100%] rounded-md border ${isError.field === "accountNumber" ? "border-red-600 border-2" : "border-2 border-gray-300"} p-3 my-2`}
-              style={{ color: appTheme.fontSecondColor }}
+              className="min-w-[100%] p-3 my-2"
+              style={{
+                color: appTheme.fontMainColor,
+                borderWidth: 2,
+                borderColor: isError.field === "accountNumber" ? appTheme.textErrorColor : appTheme.borderLineColor,
+              }}
               value={formData.accountNumber}
               placeholderTextColor={appTheme.fontSecondColor}
               placeholder="7838246824682346"

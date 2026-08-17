@@ -7,7 +7,10 @@ import { Alert } from "react-native";
 import UserContext from "../context/global/user.context";
 
 // API
-import { SEND_CHAT_MESSAGE } from "@/lib/apollo/mutations/chat.mutation";
+import {
+  MARK_ORDER_CHAT_READ_BY_RIDER,
+  SEND_CHAT_MESSAGE,
+} from "@/lib/apollo/mutations/chat.mutation";
 import { CHAT } from "@/lib/apollo/queries";
 import { SUBSCRIPTION_NEW_MESSAGE } from "@/lib/apollo/subscriptions";
 import { IMessage } from "react-native-gifted-chat";
@@ -19,7 +22,7 @@ export const useChatScreen = () => {
 
   const { id: orderId } = route.params as { id: string };
 
-  const { dataProfile } = useContext(UserContext);
+  const { dataProfile, refetchAssigned } = useContext(UserContext);
 
   // States
   const [messages, setMessages] = useState([]);
@@ -38,6 +41,7 @@ export const useChatScreen = () => {
   const [send] = useMutation(SEND_CHAT_MESSAGE, {
     onCompleted /* , onError */,
   });
+  const [markChatRead] = useMutation(MARK_ORDER_CHAT_READ_BY_RIDER);
 
   function onCompleted({
     sendChatMessage: messageResult,
@@ -53,12 +57,27 @@ export const useChatScreen = () => {
   } */
 
   //Handler
-  const onSend = () => {
+  const sendMessage = (text: string) => {
+    if (!text.trim()) return;
+    // Optimistic: don't wait on the subscription echo to show the rider's
+    // own message - the subscription is only needed for the other party's.
+    setMessages((prev) => [
+      {
+        _id: `local-${Date.now()}`,
+        text,
+        createdAt: new Date(),
+        user: {
+          _id: String(dataProfile?._id),
+          name: String(dataProfile?.name),
+        },
+      },
+      ...prev,
+    ]);
     send({
       variables: {
         orderId: String(orderId),
         messageInput: {
-          message: String(inputMessage),
+          message: text,
           user: {
             id: String(dataProfile?._id),
             name: String(dataProfile?.name),
@@ -66,12 +85,30 @@ export const useChatScreen = () => {
         },
       },
     });
+  };
+
+  const onSend = () => {
+    sendMessage(inputMessage);
     setInputMessage("");
     setImage([]);
   };
 
   // Use Effect
+  // Clear the rider's unread badge for this order as soon as the chat
+  // screen opens, then refresh the order list so the icon updates too.
   useEffect(() => {
+    if (!orderId) return;
+    markChatRead({ variables: { orderId: String(orderId) } }).then(() =>
+      refetchAssigned?.(),
+    );
+  }, [orderId]);
+
+  // No deps array here would resubscribe on every render (every keystroke
+  // in the composer, every message sent) - Apollo tears down and
+  // re-establishes the websocket subscription each time, which meant new
+  // messages very often arrived during a dead window and never rendered.
+  useEffect(() => {
+    if (!orderId) return;
     const unsubscribe = subscribeToMessages({
       document: SUBSCRIPTION_NEW_MESSAGE,
       variables: { order: orderId },
@@ -83,7 +120,7 @@ export const useChatScreen = () => {
       },
     });
     return unsubscribe;
-  });
+  }, [orderId]);
 
   useEffect(() => {
     if (chatData) {
@@ -104,6 +141,7 @@ export const useChatScreen = () => {
   return {
     messages,
     onSend,
+    sendMessage,
     image,
     setImage,
     inputMessage,

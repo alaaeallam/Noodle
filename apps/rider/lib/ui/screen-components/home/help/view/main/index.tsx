@@ -98,11 +98,19 @@ export default function HelpMain() {
       <View className="w-full flex items-center mt-4">
         <TouchableOpacity
           activeOpacity={0.7}
-          className="w-[90%] h-12 rounded-full bg-green-500 flex flex-row items-center justify-center gap-2 shadow-lg"
+          className="w-[90%] h-[54px] bg-[#25D366] flex flex-row items-center justify-center gap-2"
           onPress={openWhatsAppChat}
         >
-          <FontAwesome name="whatsapp" size={24} color="white" />
-          <Text className="text-white font-semibold text-lg">
+          <FontAwesome name="whatsapp" size={22} color="white" />
+          <Text
+            style={{
+              color: "#FFF",
+              fontFamily: "Anton",
+              fontSize: 16,
+              textTransform: "uppercase",
+              letterSpacing: 0.3,
+            }}
+          >
             {t("whatsAppText")}
           </Text>
         </TouchableOpacity>

@@ -26,10 +26,19 @@
   margin-bottom: 15px;
 }
 
+.item-row-wrapper {
+  margin-bottom: 10px;
+}
+
 .item-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+}
+
+.item-options {
+  font-size: 13px;
+  color: #5a5a5a;
+  margin-top: 2px;
 }
 
 .item-price {

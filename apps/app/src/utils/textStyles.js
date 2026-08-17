@@ -2,14 +2,28 @@ import { scale } from './scaling'
 import { fontStyles } from './fontStyles'
 
 export const textStyles = {
+  // H1-H3 are the "headline" sizes — the BTB brand uses the condensed Anton
+  // display face for these regardless of bold/bolder, since Anton only ships
+  // one weight. H4 and below stay on Archivo (Regular/Bold/Bolder below) to
+  // match the mockup, which reserves Anton for actual headlines and uses
+  // Archivo (heavier weights, uppercase where needed) for item names/labels.
   H1: {
-    fontSize: scale(35)
+    fontSize: scale(35),
+    fontFamily: fontStyles.Anton,
+    textTransform: 'uppercase',
+    letterSpacing: 0.2
   },
   H2: {
-    fontSize: scale(24)
+    fontSize: scale(24),
+    fontFamily: fontStyles.Anton,
+    textTransform: 'uppercase',
+    letterSpacing: 0.2
   },
   H3: {
-    fontSize: scale(20)
+    fontSize: scale(20),
+    fontFamily: fontStyles.Anton,
+    textTransform: 'uppercase',
+    letterSpacing: 0.2
   },
   H4: {
     fontSize: scale(16)
@@ -27,13 +41,13 @@ export const textStyles = {
     fontSize: scale(8)
   },
   Regular: {
-    fontFamily: fontStyles.MuseoSans300
+    fontFamily: fontStyles.Archivo400
   },
   Bold: {
-    fontFamily: fontStyles.MuseoSans500
+    fontFamily: fontStyles.Archivo700
   },
   Bolder: {
-    fontFamily: fontStyles.MuseoSans700
+    fontFamily: fontStyles.Archivo900
   },
   Center: {
     textAlign: 'center'

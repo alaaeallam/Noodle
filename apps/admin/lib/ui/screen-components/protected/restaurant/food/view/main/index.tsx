@@ -166,6 +166,7 @@ export default function FoodsMain() {
           image: fd.image,
           isActive: fd.isActive,
           isOutOfStock: fd.isOutOfStock,
+          isFeatured: fd.isFeatured,
           subCategory: {
             code: fd.subCategory,
             label: sub_categories?.subCategories.find(

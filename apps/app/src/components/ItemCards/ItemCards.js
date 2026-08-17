@@ -9,7 +9,6 @@ import TextDefault from '../Text/TextDefault/TextDefault'
 import ThemeContext from '../../ui/ThemeContext/ThemeContext'
 import { theme } from '../../utils/themeColors'
 import { formatNumber } from '../../utils/formatNumber'
-import { LinearGradient } from 'expo-linear-gradient'
 
 const ItemCard = ({ item, onPressItem, restaurant, tagCart }) => {
 
@@ -45,9 +44,8 @@ const ItemCard = ({ item, onPressItem, restaurant, tagCart }) => {
       // style={{ opacity: item.isOutOfStock ? 0.5 : 1 }}
       // disabled={item.isOutOfStock}
     >
-      <LinearGradient
-        style={styles(currentTheme).card}
-        colors={[currentTheme.gray100, currentTheme.white]}
+      <View
+        style={[styles(currentTheme).card, { backgroundColor: currentTheme.white }]}
       >
         {tagCart(item?._id)}
         <TextDefault
@@ -86,7 +84,7 @@ const ItemCard = ({ item, onPressItem, restaurant, tagCart }) => {
             )}
           </View>
         </View>
-      </LinearGradient>
+      </View>
     </TouchableOpacity>
   )
 }

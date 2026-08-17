@@ -17,7 +17,7 @@ import {
 // Components
 
 // Icon
-import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 
 
 // Schemas
@@ -32,7 +32,20 @@ import setupApollo from "@/lib/apollo";
 import { useApptheme } from "@/lib/context/global/theme.context";
 import { ILoginInitialValues } from "@/lib/utils/interfaces";
 import { CustomContinueButton } from "../../useable-components";
-import { set } from "lodash";
+
+// BTB brand mark reused from the drawer header — black square, Anton "BTB".
+function BrandMark({ appTheme }: { appTheme: { black: string; white: string } }) {
+  return (
+    <View
+      className="w-[64px] h-[64px] items-center justify-center"
+      style={{ backgroundColor: appTheme.black }}
+    >
+      <Text style={{ color: appTheme.white, fontFamily: "Anton", fontSize: 22 }}>
+        BTB
+      </Text>
+    </View>
+  );
+}
 
 const initial: ILoginInitialValues = {
   username: "",
@@ -109,23 +122,25 @@ const LoginScreen = () => {
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors }) => {
               return (
-                <View className="mt-24 p-5 items-center justify-between gap-y-2">
-                  {/* Icon */}
-                  <FontAwesome
-                    name="envelope"
-                    size={30}
-                    color={appTheme.fontMainColor}
-                  />
+                <View className="mt-24 px-6 items-center gap-y-3">
+                  <BrandMark appTheme={appTheme} />
 
                   {/* Title */}
                   <Text
-                    className="text-center text-xl font-semibold "
-                    style={{ color: appTheme.fontMainColor }}
+                    style={{
+                      color: appTheme.fontMainColor,
+                      fontFamily: "Anton",
+                      fontSize: 26,
+                      textTransform: "uppercase",
+                      textAlign: "center",
+                      lineHeight: 28,
+                      marginTop: 8,
+                    }}
                   >
                     {t("Enter Your Credentials to login")}
                   </Text>
                   <Text
-                    className="text-center text-sm mb-5"
+                    className="text-center text-sm mb-4"
                     style={{ color: appTheme.fontSecondColor }}
                   >
                     {t("We'll check if you have an account")}
@@ -134,45 +149,57 @@ const LoginScreen = () => {
                   {/* Email Input */}
 
                   <View
-                    className="flex-row items-center border rounded-lg px-3  mb-[-4]"
+                    className="flex-row items-center w-full px-3.5"
                     style={{
-                      borderColor: appTheme.borderLineColor,
-                      backgroundColor: appTheme.themeBackground,
+                      backgroundColor: appTheme.white,
+                      borderWidth: 2,
+                      borderColor: appTheme.horizontalLine,
                     }}
                   >
                     <TextInput
-                      className="flex-1 h-12 text-base"
-                      style={{ color: appTheme.fontMainColor }}
-                      placeholder={t("Email")}
-                      placeholderTextColor={appTheme.fontSecondColor}
+                      className="flex-1 h-[52px]"
+                      style={{ color: appTheme.fontMainColor, fontSize: 15 }}
+                      placeholder={t("Email") ?? ""}
+                      placeholderTextColor="#A6A6A6"
                       keyboardType="email-address"
                       inputMode="email"
+                      autoCapitalize="none"
+                      autoCorrect={false}
                       value={values.username}
                       onChangeText={handleChange("username")}
                       onBlur={handleBlur("username")}
                     />
                   </View>
                   {errors.username && (
-                    <Text className="mb-2 text-sm text-red-500">
+                    <Text
+                      style={{
+                        color: appTheme.textErrorColor,
+                        marginBottom: 8,
+                        fontSize: 14,
+                        alignSelf: "flex-start",
+                      }}
+                    >
                       {errors?.username}
                     </Text>
                   )}
 
                   {/* Password Input */}
                   <View
-                    className="flex-row items-center border  rounded-lg px-3  mb-[-4]"
+                    className="flex-row items-center w-full px-3.5"
                     style={{
-                      backgroundColor: appTheme.themeBackground,
-                      borderColor: appTheme.borderLineColor,
+                      backgroundColor: appTheme.white,
+                      borderWidth: 2,
+                      borderColor: appTheme.horizontalLine,
                     }}
                   >
                     <TextInput
-                      className="flex-1 h-12 text-base"
-                      style={{ color: appTheme.fontMainColor }}
-                      placeholder={t("Password")}
+                      className="flex-1 h-[52px]"
+                      style={{ color: appTheme.fontMainColor, fontSize: 15 }}
+                      placeholder={t("Password") ?? ""}
+                      placeholderTextColor="#A6A6A6"
                       secureTextEntry={!passwordVisible}
-                      placeholderTextColor={appTheme.fontSecondColor}
-
+                      autoCapitalize="none"
+                      autoCorrect={false}
                       value={values.password}
                       onChangeText={handleChange("password")}
                       onBlur={handleBlur("password")}
@@ -189,32 +216,25 @@ const LoginScreen = () => {
                     </TouchableOpacity>
                   </View>
                   {errors.password && (
-                    <Text className="mb-2 text-sm text-red-500">
+                    <Text
+                      style={{
+                        color: appTheme.textErrorColor,
+                        marginBottom: 8,
+                        fontSize: 14,
+                        alignSelf: "flex-start",
+                      }}
+                    >
                       {errors?.password}
                     </Text>
                   )}
 
                   {/* Login Button */}
-                  <CustomContinueButton
-                    title={t("Login")}
-                    onPress={() => handleSubmit()}
-                    className="self-center"
-                  />
-                  {/* <TouchableOpacity
-                    className="h-12 rounded-3xl py-2 mt-10 w-full"
-                    style={{ backgroundColor: appTheme.primary }}
-                    onPress={() => handleSubmit()}
-                  >
-                    {isLogging ?
-                      <SpinnerComponent />
-                    : <Text
-                        className="text-center text-lg font-medium"
-                        style={{ color: appTheme.black }}
-                      >
-                        {t("Login")}
-                      </Text>
-                    }
-                  </TouchableOpacity> */}
+                  <View className="w-full">
+                    <CustomContinueButton
+                      title={t("Login")}
+                      onPress={() => handleSubmit()}
+                    />
+                  </View>
                 </View>
               );
             }}

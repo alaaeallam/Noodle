@@ -26,6 +26,12 @@ const foodSchema = new Schema(
       type: Boolean,
       default: false
     },
+    // admin-curated "featured" flag — drives the customer app Home hero's
+    // "Today's drop" pick (first featured item in a restaurant's menu)
+    isFeatured: {
+      type: Boolean,
+      default: false
+    },
     isActive: {
       type: Boolean,
       default: true

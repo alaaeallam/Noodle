@@ -16,25 +16,46 @@ export default function OrderStack({
   const { t } = useTranslation();
   return (
     <View
-      className="border-b-2 flex flex-row items-center justify-between p-3"
+      className="flex flex-row items-center justify-between p-4"
       style={{
-        borderBottomColor: appTheme.borderLineColor,
-        backgroundColor: appTheme.screenBackground,
+        borderTopWidth: 2,
+        borderTopColor: appTheme.borderLineColor,
+        backgroundColor: appTheme.white,
         marginBottom: isLast ? 100 : 0,
       }}
     >
-      <View className="flex flex-col gap-3 p-1 justify-center  float-start">
-        <Text style={{ color: appTheme.fontMainColor }}>
+      <View className="gap-1.5">
+        <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 16 }}>
           {t("Order ID")}
           {orderId.slice(0, orderId.length - orderId.length / 2)}
         </Text>
-        <Text style={{ color: appTheme.fontSecondColor }}>{t("Payment")}</Text>
-      </View>
-      <View className="flex flex-col gap-3 p-1 justify-center  items-end">
-        <Text className="bg-[#D1FAE5] rounded-xl p-1 text-[#065F46]">
-          {t("Completed")}
+        <Text
+          style={{
+            color: appTheme.fontSecondColor,
+            fontFamily: "Archivo800",
+            fontSize: 11,
+            letterSpacing: 1,
+            textTransform: "uppercase",
+          }}
+        >
+          {t("Payment")}
         </Text>
-        <Text className="font-bold" style={{ color: appTheme.fontMainColor }}>
+      </View>
+      <View className="gap-1.5 items-end">
+        <View className="px-2.5 py-1" style={{ backgroundColor: appTheme.themeBackground }}>
+          <Text
+            style={{
+              color: appTheme.fontMainColor,
+              fontFamily: "Archivo900",
+              fontSize: 11,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
+            {t("Completed")}
+          </Text>
+        </View>
+        <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 17 }}>
           ${amount}
         </Text>
       </View>

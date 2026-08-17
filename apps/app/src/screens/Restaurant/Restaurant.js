@@ -1,13 +1,15 @@
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
 import React, { useState, useContext, useEffect, useRef } from 'react'
 import { View, TouchableOpacity, Alert, StatusBar, Platform, Image, Dimensions, SectionList } from 'react-native'
-import Animated, { Extrapolation, interpolate, useSharedValue, Easing as EasingNode, withTiming, withRepeat, useAnimatedStyle, useAnimatedScrollHandler } from 'react-native-reanimated'
+import Animated, { Extrapolation, interpolate, useSharedValue, Easing as EasingNode, withTiming, useAnimatedStyle, useAnimatedScrollHandler } from 'react-native-reanimated'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Placeholder, PlaceholderMedia, PlaceholderLine, Fade } from 'rn-placeholder'
+import { v1 as uuidv1 } from 'uuid'
 import ImageHeader from '../../components/Restaurant/ImageHeader'
 import TextDefault from '../../components/Text/TextDefault/TextDefault'
 import ConfigurationContext from '../../context/Configuration'
 import UserContext from '../../context/User'
+import OrdersContext from '../../context/Orders'
 import { useRestaurant } from '../../ui/hooks'
 import ThemeContext from '../../ui/ThemeContext/ThemeContext'
 import { scale } from '../../utils/scaling'
@@ -59,7 +61,6 @@ function Restaurant(props) {
   const propsData = route.params
   const animation = useSharedValue(0)
   const translationY = useSharedValue(0)
-  const circle = useSharedValue(0)
   const themeContext = useContext(ThemeContext)
 
   const currentTheme = {
@@ -73,7 +74,8 @@ function Restaurant(props) {
   const [search, setSearch] = useState('')
   const [filterData, setFilterData] = useState([])
   const [showSearchResults, setShowSearchResults] = useState(false)
-  const { restaurant: restaurantCart, setCartRestaurant, cartCount, addCartItem, addQuantity, clearCart, checkItemCart } = useContext(UserContext)
+  const { restaurant: restaurantCart, setCartRestaurant, cart, updateCart, cartCount, addCartItem, addQuantity, clearCart, checkItemCart } = useContext(UserContext)
+  const { orders } = useContext(OrdersContext)
   const { data, refetch, networkStatus, loading, error } = useRestaurant(propsData._id)
 
   const client = useApolloClient()
@@ -265,20 +267,6 @@ function Restaurant(props) {
     return null
   }
 
-  const scaleValue = useSharedValue(1)
-
-  const scaleStyles = useAnimatedStyle(() => ({
-    transform: [{ scale: Math.max(0.1, scaleValue.value) }] // Ensure minimum scale
-  }))
-
-  // Fixed button animation with safety checks
-  function animate() {
-    scaleValue.value = withRepeat(withTiming(1.5, { duration: 250 }), 2, true, () => {
-      // Ensure value returns to 1 after animation
-      scaleValue.value = 1
-    })
-  }
-
   const config = (to) => ({
     duration: 250,
     toValue: to,
@@ -369,32 +357,10 @@ function Restaurant(props) {
 
   const iconColor = currentTheme.white
   const iconBackColor = currentTheme.white
-  const iconRadius = scale(15)
+  const iconRadius = 0
   const iconSize = scale(20)
   const iconTouchHeight = scale(30)
   const iconTouchWidth = scale(30)
-
-  // Fixed circle size - using constants instead of interpolation to prevent precision errors
-  const circleSize = scale(18)
-  const radiusSize = scale(9)
-
-  // If you need animation for the circle, use transform scale instead
-  const animatedCircleStyles = useAnimatedStyle(() => {
-    const progress = circle.value
-    const scaleValue = interpolate(progress, [0, 0.5, 1], [1, 1.33, 1], Extrapolation.CLAMP)
-
-    return {
-      transform: [{ scale: Math.max(0.1, scaleValue) }] // Ensure minimum scale
-    }
-  })
-
-  // Fixed font styles with safer interpolation
-  const fontStyles = useAnimatedStyle(() => {
-    const fontSize = interpolate(circle.value, [0, 0.5, 1], [8, 12, 8], Extrapolation.CLAMP)
-    return {
-      fontSize: Math.max(8, Math.round(fontSize)) // Ensure minimum and integer font size
-    }
-  })
 
   if (loading) {
     return (
@@ -449,6 +415,53 @@ function Restaurant(props) {
         ]
       : [...deals]
 
+  const restaurantFoods = restaurant?.categories?.map((c) => c.foods.flat()).flat() || []
+  const restaurantAddons = restaurant?.addons || []
+  const restaurantOptions = restaurant?.options || []
+
+  function populateCartFood(cartItem) {
+    const foodItem = restaurantFoods.find((f) => f._id === cartItem._id)
+    if (!foodItem) return null
+    const variation = foodItem.variations.find((v) => v._id === cartItem.variation._id)
+    if (!variation) return null
+    let price = variation.price
+    ;(cartItem.addons || []).forEach((addon) => {
+      const cartAddon = restaurantAddons.find((a) => a._id === addon._id)
+      if (!cartAddon) return
+      ;(addon.options || []).forEach((option) => {
+        const cartOption = restaurantOptions.find((o) => o._id === option._id)
+        if (!cartOption) return
+        if (!option?.isDefault) price += cartOption.price
+      })
+    })
+    return { price, quantity: cartItem.quantity }
+  }
+
+  const cartSubtotal = cart.reduce((sum, cartItem) => {
+    const populated = populateCartFood(cartItem)
+    return populated ? sum + populated.price * populated.quantity : sum
+  }, 0)
+
+  const lastOrder = orders?.find((o) => o?.restaurant?._id === restaurant?._id)
+
+  const onAddLastOrder = async () => {
+    if (!lastOrder?.items?.length) return
+    const newCartItems = lastOrder.items.map((item) => ({
+      key: uuidv1(),
+      _id: item.food,
+      quantity: item.quantity,
+      variation: { _id: item.variation?._id },
+      addons: (item.addons || []).map((addon) => ({
+        _id: addon._id,
+        options: (addon.options || []).map((opt) => ({ _id: opt._id, isDefault: false }))
+      })),
+      specialInstructions: ''
+    }))
+    await updateCart(newCartItems)
+    await setCartRestaurant(restaurant._id)
+    navigation.navigate('Cart')
+  }
+
   return (
     <>
       <SafeAreaView style={styles(currentTheme).flex}>
@@ -478,6 +491,7 @@ function Restaurant(props) {
             searchHandler={searchHandler}
             searchPopupHandler={searchPopupHandler}
             translationY={translationY}
+            onAddLastOrder={lastOrder ? onAddLastOrder : undefined}
           />
 
           {showSearchResults || searchOpen ? (
@@ -512,46 +526,39 @@ function Restaurant(props) {
                     <View
                       style={{
                         flexDirection: currentTheme?.isRTL ? 'row-reverse' : 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        alignItems: 'flex-start',
+                        gap: scale(14),
                         padding: scale(10)
                       }}
                     >
-                      <View style={styles(currentTheme).deal}>
-                        {item?.image ? (
-                          <Image
-                            style={{
-                              height: scale(60),
-                              width: scale(60),
-                              borderRadius: 30
-                            }}
-                            source={{ uri: item?.image }}
-                          />
-                        ) : null}
-                        <View style={styles(currentTheme).flex}>
-                          <View style={styles(currentTheme).dealDescription}>
-                            <TextDefault textColor={currentTheme.fontMainColor} style={styles(currentTheme).headerText} numberOfLines={1} bolder isRTL>
-                              {item?.title}
+                      <View style={styles(currentTheme).flex}>
+                        <View style={styles(currentTheme).dealDescription}>
+                          <TextDefault textColor={currentTheme.fontMainColor} style={styles(currentTheme).headerText} numberOfLines={1} bolder uppercase isRTL>
+                            {item?.title}
+                          </TextDefault>
+                          <TextDefault style={styles(currentTheme).priceText} small isRTL>
+                            {wrapContentAfterWords(item?.description, 5)}
+                          </TextDefault>
+                          <View style={styles(currentTheme).dealPrice}>
+                            <TextDefault numberOfLines={1} textColor={currentTheme.primary} style={styles(currentTheme).priceText} bolder small isRTL>
+                              {configuration.currencySymbol} {parseFloat(item?.variations[0].price).toFixed(2)}
                             </TextDefault>
-                            <TextDefault style={styles(currentTheme).priceText} small isRTL>
-                              {wrapContentAfterWords(item?.description, 5)}
-                            </TextDefault>
-                            <View style={styles(currentTheme).dealPrice}>
-                              <TextDefault numberOfLines={1} textColor={currentTheme.fontMainColor} style={styles(currentTheme).priceText} bolder small isRTL>
-                                {configuration.currencySymbol} {parseFloat(item?.variations[0].price).toFixed(2)}
+                            {item?.variations[0]?.discounted > 0 && (
+                              <TextDefault numberOfLines={1} textColor={currentTheme.fontSecondColor} style={styles(currentTheme).priceText} small lineOver isRTL>
+                                {configuration.currencySymbol} {(item?.variations[0].price + item?.variations[0].discounted).toFixed(2)}
                               </TextDefault>
-                              {item?.variations[0]?.discounted > 0 && (
-                                <TextDefault numberOfLines={1} textColor={currentTheme.fontSecondColor} style={styles(currentTheme).priceText} small lineOver isRTL>
-                                  {configuration.currencySymbol} {(item?.variations[0].price + item?.variations[0].discounted).toFixed(2)}
-                                </TextDefault>
-                              )}
-                            </View>
+                            )}
                           </View>
                         </View>
                       </View>
-                      <View style={styles(currentTheme).addToCart}>
-                        <MaterialIcons name='add' size={scale(20)} color={currentTheme.themeBackground} />
-                      </View>
+                      {item?.image && (
+                        <View style={styles(currentTheme).dealImageWrap}>
+                          <Image style={styles().dealImage} source={{ uri: item?.image }} />
+                          <View style={styles(currentTheme).addToCart}>
+                            <MaterialIcons name='add' size={scale(18)} color={currentTheme.white} />
+                          </View>
+                        </View>
+                      )}
                     </View>
                     {/* )} */}
                     {tagCart(item?._id)}
@@ -679,44 +686,37 @@ function Restaurant(props) {
                     <View
                       style={{
                         flexDirection: currentTheme?.isRTL ? 'row-reverse' : 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
+                        alignItems: 'flex-start',
+                        gap: scale(14)
                       }}
                     >
-                      <View style={styles(currentTheme).deal}>
-                        <Image
-                          style={{
-                            height: scale(60),
-                            width: scale(60),
-                            borderRadius: 30
-                          }}
-                          source={{ uri: imageUrl }}
-                        />
-                        <View style={styles(currentTheme).flex}>
-                          <View style={styles(currentTheme).dealDescription}>
-                            <TextDefault textColor={currentTheme.fontMainColor} style={styles(currentTheme).headerText} numberOfLines={1} bolder isRTL>
-                              {item?.title}
+                      <View style={styles(currentTheme).flex}>
+                        <View style={styles(currentTheme).dealDescription}>
+                          <TextDefault textColor={currentTheme.fontMainColor} style={styles(currentTheme).headerText} numberOfLines={1} bolder uppercase isRTL>
+                            {item?.title}
+                          </TextDefault>
+                          {item?.description && (
+                            <TextDefault style={styles(currentTheme).priceText} small isRTL>
+                              {wrapContentAfterWords(item?.description, 5)}
                             </TextDefault>
-                            {item?.description && (
-                              <TextDefault style={styles(currentTheme).priceText} small isRTL>
-                                {wrapContentAfterWords(item?.description, 5)}
+                          )}
+                          <View style={styles(currentTheme).dealPrice}>
+                            <TextDefault numberOfLines={1} textColor={currentTheme.primary} style={styles(currentTheme).priceText} bolder small isRTL>
+                              {configuration.currencySymbol} {parseFloat(item?.variations[0].price).toFixed(2)}
+                            </TextDefault>
+                            {item?.variations[0]?.discounted > 0 && (
+                              <TextDefault numberOfLines={1} textColor={currentTheme.fontSecondColor} style={styles(currentTheme).priceText} small lineOver isRTL>
+                                {configuration.currencySymbol} {(item?.variations[0].price + item?.variations[0].discounted).toFixed(2)}
                               </TextDefault>
                             )}
-                            <View style={styles(currentTheme).dealPrice}>
-                              <TextDefault numberOfLines={1} textColor={currentTheme.fontMainColor} style={styles(currentTheme).priceText} bolder small isRTL>
-                                {configuration.currencySymbol} {parseFloat(item?.variations[0].price).toFixed(2)}
-                              </TextDefault>
-                              {item?.variations[0]?.discounted > 0 && (
-                                <TextDefault numberOfLines={1} textColor={currentTheme.fontSecondColor} style={styles(currentTheme).priceText} small lineOver isRTL>
-                                  {configuration.currencySymbol} {(item?.variations[0].price + item?.variations[0].discounted).toFixed(2)}
-                                </TextDefault>
-                              )}
-                            </View>
                           </View>
                         </View>
                       </View>
-                      <View style={styles(currentTheme).addToCart}>
-                        <MaterialIcons name='add' size={scale(20)} color={currentTheme.themeBackground} />
+                      <View style={styles(currentTheme).dealImageWrap}>
+                        <Image style={styles().dealImage} source={{ uri: imageUrl }} />
+                        <View style={styles(currentTheme).addToCart}>
+                          <MaterialIcons name='add' size={scale(18)} color={currentTheme.white} />
+                        </View>
                       </View>
                     </View>
                     {/* )} */}
@@ -731,26 +731,12 @@ function Restaurant(props) {
           {cartCount > 0 && (
             <View style={styles(currentTheme).buttonContainer}>
               <TouchableOpacity activeOpacity={0.7} style={styles(currentTheme).button} onPress={() => navigation.navigate('Cart')}>
-                <View style={styles().buttontLeft}>
-                  <Animated.View
-                    style={[
-                      styles(currentTheme).buttonLeftCircle,
-                      {
-                        width: circleSize,
-                        height: circleSize,
-                        borderRadius: radiusSize
-                      },
-                      animatedCircleStyles, // Use the safer animation
-                      scaleStyles
-                    ]}
-                  >
-                    <Animated.Text style={[styles(currentTheme).buttonTextLeft, fontStyles]}>{cartCount}</Animated.Text>
-                  </Animated.View>
-                </View>
-                <TextDefault style={styles().buttonText} textColor={currentTheme.buttonTextPink} uppercase center bolder small>
-                  {t('viewCart')}
+                <TextDefault textColor={currentTheme.white} uppercase bolder H5>
+                  {t('viewCart')} · {cartCount} {cartCount === 1 ? t('item') : t('items')}
                 </TextDefault>
-                <View style={styles().buttonTextRight} />
+                <TextDefault textColor={currentTheme.primary} bolder H5>
+                  {configuration.currencySymbol} {cartSubtotal.toFixed(2)}
+                </TextDefault>
               </TouchableOpacity>
             </View>
           )}

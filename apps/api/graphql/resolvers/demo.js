@@ -1,24 +1,42 @@
 const Order = require('../../models/order')
 const Restaurant = require('../../models/restaurant')
 const Rider = require('../../models/rider')
+const Configuration = require('../../models/configuration')
 
 module.exports = {
   Mutation: {},
   Query: {
+    // Demo-mode convenience for auto-filling the store/rider login forms with
+    // the most recently active account. This is unauthenticated, so it must
+    // stay off (Configuration.enableRestaurantDemo / enableRiderDemo) outside
+    // a demo deployment, and must never throw on missing data in a real
+    // deployment where there's no seeded demo order.
     lastOrderCreds: async() => {
-      const order = await Order.findOne().sort({ createdAt: -1 })
-      const restaurant = await Restaurant.findById(order.restaurant)
-      const rider = await Rider.findOne({
-        zone: order.zone,
-        isActive: true,
-        available: true
-      })
+      try {
+        const configuration = await Configuration.findOne()
+        if (!configuration?.enableRestaurantDemo && !configuration?.enableRiderDemo) {
+          return null
+        }
 
-      return {
-        restaurantUsername: restaurant.username,
-        restaurantPassword: restaurant.password,
-        riderUsername: rider.username,
-        riderPassword: rider.password
+        const order = await Order.findOne().sort({ createdAt: -1 })
+        if (!order) return null
+
+        const restaurant = configuration?.enableRestaurantDemo
+          ? await Restaurant.findById(order.restaurant)
+          : null
+        const rider = configuration?.enableRiderDemo
+          ? await Rider.findOne({ zone: order.zone, isActive: true, available: true })
+          : null
+
+        return {
+          restaurantUsername: restaurant?.username ?? null,
+          restaurantPassword: restaurant?.password ?? null,
+          riderUsername: rider?.username ?? null,
+          riderPassword: rider?.password ?? null
+        }
+      } catch (err) {
+        console.log('lastOrderCreds error', err)
+        return null
       }
     }
   }

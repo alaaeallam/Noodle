@@ -19,9 +19,11 @@ export interface Items {
   };
   addons?: Array<{
     options: Array<{
+      _id: string;
       price: number;
       title: string;
     }>;
+    defaultOptions?: string[];
   }>;
   description: ReactNode;
   title: string;

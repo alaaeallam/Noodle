@@ -22,19 +22,18 @@ export default function Layout() {
             className="w-full"
             style={{
               alignItems: "center",
-              borderBottomWidth: focused ? 2 : 0,
+              borderBottomWidth: focused ? 4 : 4,
               borderBottomColor: focused ? appTheme.primary : "transparent",
-              paddingBottom: 8,
+              paddingBottom: 11,
             }}
           >
             <Text
               style={{
-                color: focused
-                  ? appTheme.fontMainColor
-                  : appTheme.fontSecondColor,
-                fontWeight: 500,
-                fontSize: 14,
-                fontFamily: "Inter",
+                color: focused ? appTheme.fontMainColor : "#9A9A9A",
+                fontFamily: focused ? "Archivo900" : "Archivo800",
+                fontSize: 13,
+                letterSpacing: 0.6,
+                textTransform: "uppercase",
               }}
             >
               {children}
@@ -65,8 +64,9 @@ export default function Layout() {
             position: "absolute",
             top: 0,
             height: 30,
-            backgroundColor: appTheme.themeBackground,
-            shadowColor: appTheme.themeBackground,
+            backgroundColor: appTheme.white,
+            borderBottomWidth: 2,
+            borderBottomColor: appTheme.horizontalLine,
             shadowOpacity: 0,
             paddingTop: 20,
           },
@@ -74,8 +74,9 @@ export default function Layout() {
             position: "absolute",
             top: 0,
             height: 50,
-            backgroundColor: appTheme.themeBackground,
-            shadowColor: appTheme.themeBackground,
+            backgroundColor: appTheme.white,
+            borderBottomWidth: 2,
+            borderBottomColor: appTheme.horizontalLine,
             shadowOpacity: 0,
             paddingTop: 20,
             elevation: 0,

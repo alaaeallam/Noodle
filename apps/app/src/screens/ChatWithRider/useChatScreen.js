@@ -1,23 +1,16 @@
-import React, { useState, useEffect, useContext, useLayoutEffect } from 'react'
-import ThemeContext from '../../ui/ThemeContext/ThemeContext'
-import { theme } from '../../utils/themeColors'
-import { Ionicons, FontAwesome5, Entypo } from '@expo/vector-icons'
-import { callNumber } from '../../utils/callNumber'
+import { useState, useEffect } from 'react'
 import gql from 'graphql-tag'
 import { chat } from '../../apollo/queries'
 import { subscriptionNewMessage } from '../../apollo/subscriptions'
 import { sendChatMessage } from '../../apollo/mutations'
 import { useMutation, useQuery } from '@apollo/client'
-import { Alert, Platform, StatusBar, View } from 'react-native'
+import { Alert, Platform, StatusBar } from 'react-native'
 import { useUserContext } from '../../context/User'
-import { useTranslation } from 'react-i18next'
-import { alignment } from '../../utils/alignment'
 import { useFocusEffect } from '@react-navigation/native'
 
-export const useChatScreen = ({ navigation, route }) => {
-  const { id: orderId, orderNo, total, riderPhone } = route.params
+export const useChatScreen = ({ route }) => {
+  const { id: orderId, orderNo, total, riderPhone, riderName } = route.params
 
-  const { t } = useTranslation()
   const { profile } = useUserContext()
   const { subscribeToMore: subscribeToMessages, data: chatData } = useQuery(
     gql`
@@ -65,59 +58,20 @@ export const useChatScreen = ({ navigation, route }) => {
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState(null)
   const [image, setImage] = useState([])
-  const themeContext = useContext(ThemeContext)
-  const currentTheme = theme[themeContext.ThemeValue]
+  // Header/chrome for this screen is always the BTB black bar, regardless
+  // of system light/dark mode, so the status bar text is always light.
   useFocusEffect(() => {
     if (Platform.OS === 'android') {
-      StatusBar.setBackgroundColor(currentTheme.themeBackground)
+      StatusBar.setBackgroundColor('#0A0A0A')
     }
-    StatusBar.setBarStyle(
-      themeContext.ThemeValue === 'Dark' ? 'light-content' : 'dark-content'
-    )
+    StatusBar.setBarStyle('light-content')
   })
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerStyle: {
-        backgroundColor: currentTheme.headerMenuBackground
-      },
-      headerTitleStyle: {
-        fontSize: 14,
-        // fontWeight: '700',
-        color: currentTheme.fontFourthColor
-      },
-      headerLeft: () => (
-        <View
-          style={{
-            borderRadius: 30,
-            borderWidth: 1,
-            borderColor: currentTheme.fontFourthColor,
-            ...alignment.MLmedium
-          }}>
-          <Entypo
-            name="cross"
-            size={20}
-            color={currentTheme.fontFourthColor}
-            onPress={() => navigation.goBack()}
-          />
-        </View>
-      ),
-      headerRight: () => (
-        <View
-          style={{
-            ...alignment.MRmedium
-          }}>
-          <Ionicons
-            name="call-outline"
-            size={24}
-            color={currentTheme.fontFourthColor}
-            onPress={() => callNumber(riderPhone)}
-          />
-        </View>
-      ),
-      headerTitle: t('contactYourRider')
-    })
-  }, [navigation])
+  // No deps array here would resubscribe on every render (every keystroke
+  // in the composer, every message sent) - Apollo tears down and
+  // re-establishes the websocket subscription each time, which meant new
+  // messages very often arrived during a dead window and never rendered.
   useEffect(() => {
+    if (!orderId) return
     const unsubscribe = subscribeToMessages({
       document: gql`
         ${subscriptionNewMessage}
@@ -132,28 +86,28 @@ export const useChatScreen = ({ navigation, route }) => {
       }
     })
     return unsubscribe
-  })
-  const onSend = () => {
-    if (!inputMessage?.trim()) return
-    
+  }, [orderId])
+  const sendMessage = text => {
+    if (!text?.trim()) return
+
     const newMessage = {
       _id: Date.now().toString(),
-      text: inputMessage.trim(),
+      text: text.trim(),
       createdAt: new Date(),
       user: {
         _id: profile._id,
         name: profile.name
       }
     }
-    
+
     // Optimistically update messages
     setMessages(previousMessages => [newMessage, ...previousMessages])
-    
+
     send({
       variables: {
         orderId: orderId,
         messageInput: {
-          message: inputMessage.trim(),
+          message: text.trim(),
           user: {
             id: profile._id,
             name: profile.name
@@ -161,6 +115,10 @@ export const useChatScreen = ({ navigation, route }) => {
         }
       }
     })
+  }
+
+  const onSend = () => {
+    sendMessage(inputMessage)
     setInputMessage('')
     setImage([])
   }
@@ -168,13 +126,15 @@ export const useChatScreen = ({ navigation, route }) => {
   return {
     messages,
     onSend,
-    currentTheme,
+    sendMessage,
     image,
     setImage,
     inputMessage,
     setInputMessage,
     profile,
     orderNo,
-    total
+    total,
+    riderName,
+    riderPhone
   }
 }

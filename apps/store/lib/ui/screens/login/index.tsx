@@ -1,6 +1,6 @@
 // Core
 import { Formik } from "formik";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 // React Native
 import {
@@ -25,7 +25,21 @@ import { ILoginInitialValues } from "@/lib/utils/interfaces";
 import { useTranslation } from "react-i18next";
 import { CustomContinueButton } from "../../useable-components";
 
-const initial: ILoginInitialValues = {
+// BTB brand mark reused from the drawer header — black square, Anton "BTB".
+function BrandMark({ appTheme }: { appTheme: { black: string; white: string } }) {
+  return (
+    <View
+      className="w-[64px] h-[64px] items-center justify-center"
+      style={{ backgroundColor: appTheme.black }}
+    >
+      <Text style={{ color: appTheme.white, fontFamily: "Anton", fontSize: 22 }}>
+        BTB
+      </Text>
+    </View>
+  );
+}
+
+const initialValues: ILoginInitialValues = {
   username: "",
   password: "",
 };
@@ -33,32 +47,20 @@ const initial: ILoginInitialValues = {
 const LoginScreen = () => {
   // States
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [initialValues, setInitialValues] = useState(initial);
 
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
-  const { onLogin, creds } = useLogin();
+  const { onLogin } = useLogin();
 
   // Handlers
   const onLoginHandler = async (creds: ILoginInitialValues) => {
-    // TODO: Implement login logic
     try {
       await onLogin(creds.username, creds.password);
     } catch (err: unknown) {
       console.log(err);
     }
   };
-
-  const onInit = () => {
-    if (!creds?.username) return;
-    setInitialValues(creds);
-  };
-
-  // Use Effect
-  useEffect(() => {
-    onInit();
-  }, [creds]);
 
   return (
     <KeyboardAvoidingView
@@ -77,26 +79,31 @@ const LoginScreen = () => {
         >
           <Formik
             initialValues={initialValues}
-            enableReinitialize={true}
             validationSchema={SignInSchema}
             onSubmit={onLoginHandler}
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors }) => {
               return (
-                <View className="mt-24 p-5 items-center gap-y-2">
-                  {/* Icon */}
-                  <Icon name="envelope" size={30} color={appTheme.primary} />
+                <View className="mt-24 px-6 items-center gap-y-3">
+                  <BrandMark appTheme={appTheme} />
 
                   {/* Title */}
                   <Text
-                    className="text-center text-xl font-semibold"
-                    style={{ color: appTheme.fontMainColor }}
+                    style={{
+                      color: appTheme.fontMainColor,
+                      fontFamily: "Anton",
+                      fontSize: 26,
+                      textTransform: "uppercase",
+                      textAlign: "center",
+                      lineHeight: 28,
+                      marginTop: 8,
+                    }}
                   >
                     {t("Enter Your Credentials to login")}
                   </Text>
                   <Text
-                    className="text-center text-sm mb-5"
-                    style={{ color: appTheme.fontSecondColor }}
+                    className="text-center text-sm mb-4"
+                    style={{ color: "#6B6B6B" }}
                   >
                     {t("We'll check if you have an account")}
                   </Text>
@@ -104,17 +111,21 @@ const LoginScreen = () => {
                   {/* Email Input */}
 
                   <View
-                    className="flex-row items-center border rounded-lg px-3  mb-[-4]"
+                    className="flex-row items-center w-full px-3.5"
                     style={{
-                      backgroundColor: appTheme.themeBackground,
-                      borderColor: appTheme.borderLineColor,
+                      backgroundColor: appTheme.white,
+                      borderWidth: 2,
+                      borderColor: appTheme.horizontalLine,
                     }}
                   >
                     <TextInput
-                      className="flex-1 h-12 text-bas"
-                      style={{ color: appTheme.fontMainColor }}
-                      placeholder={t("Email")}
+                      className="flex-1 h-[52px]"
+                      style={{ color: appTheme.fontMainColor, fontSize: 15 }}
+                      placeholder={t("Email") ?? ""}
+                      placeholderTextColor="#A6A6A6"
                       keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
                       value={values.username}
                       onChangeText={handleChange("username")}
                       onBlur={handleBlur("username")}
@@ -126,6 +137,7 @@ const LoginScreen = () => {
                         color: appTheme.textErrorColor,
                         marginBottom: 8,
                         fontSize: 14,
+                        alignSelf: "flex-start",
                       }}
                     >
                       {errors?.username}
@@ -134,17 +146,21 @@ const LoginScreen = () => {
 
                   {/* Password Input */}
                   <View
-                    className="flex-row items-center border rounded-lg px-3 mb-[-4]"
+                    className="flex-row items-center w-full px-3.5"
                     style={{
-                      backgroundColor: appTheme.themeBackground,
-                      borderColor: appTheme.borderLineColor,
+                      backgroundColor: appTheme.white,
+                      borderWidth: 2,
+                      borderColor: appTheme.horizontalLine,
                     }}
                   >
                     <TextInput
-                      className="flex-1 h-12 text-base"
-                      style={{ color: appTheme.fontMainColor }}
-                      placeholder={t("Password")}
+                      className="flex-1 h-[52px]"
+                      style={{ color: appTheme.fontMainColor, fontSize: 15 }}
+                      placeholder={t("Password") ?? ""}
+                      placeholderTextColor="#A6A6A6"
                       secureTextEntry={!passwordVisible}
+                      autoCapitalize="none"
+                      autoCorrect={false}
                       value={values.password}
                       onChangeText={handleChange("password")}
                       onBlur={handleBlur("password")}
@@ -167,6 +183,7 @@ const LoginScreen = () => {
                         color: appTheme.textErrorColor,
                         marginBottom: 8,
                         fontSize: 14,
+                        alignSelf: "flex-start",
                       }}
                     >
                       {errors?.password}
@@ -174,26 +191,12 @@ const LoginScreen = () => {
                   )}
 
                   {/* Login Button */}
-                  <CustomContinueButton
-                    title={t("Login")}
-                    onPress={() => handleSubmit()}
-                  />
-                  {/* <TouchableOpacity
-                    className="h-12 rounded-3xl py-3 mt-10 w-full"
-                    style={{ backgroundColor: appTheme.primary }}
-                    onPress={() => handleSubmit()}
-                  >
-                    {isLogging ? (
-                      <SpinnerComponent />
-                    ) : (
-                      <Text
-                        className="text-center  text-lg font-medium"
-                        style={{ color: appTheme.fontMainColor }}
-                      >
-                        {t("Login")}
-                      </Text>
-                    )}
-                  </TouchableOpacity> */}
+                  <View className="w-full">
+                    <CustomContinueButton
+                      title={t("Login")}
+                      onPress={() => handleSubmit()}
+                    />
+                  </View>
                 </View>
               );
             }}

@@ -1,6 +1,6 @@
 import "expo-dev-client";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
@@ -9,7 +9,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import SplashVideo from "./SplashVideo";
 
 export default function AnimatedSplashScreen({ children }:any) {
   const opacityAnimation = useSharedValue(1); // Shared value for opacity
@@ -52,15 +51,9 @@ export default function AnimatedSplashScreen({ children }:any) {
     }
   }, []);
 
-  const videoElement = useMemo(() => {
-    return (
-      <SplashVideo
-        onLoaded={onImageLoaded}
-        onFinish={() => {
-          setSplashVideoComplete(true); // Mark video as complete
-        }}
-      />
-    );
+  useEffect(() => {
+    onImageLoaded();
+    setSplashVideoComplete(true);
   }, [onImageLoaded]);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -80,9 +73,7 @@ export default function AnimatedSplashScreen({ children }:any) {
           animatedStyle,
           { backgroundColor: "black" },
         ]}
-      >
-        {videoElement}
-      </Animated.View>
+      />
     </View>
   );
 }

@@ -239,6 +239,7 @@ export const GET_RESTAURANT_FOODS_LIST = gql`
           image
           isActive
           isOutOfStock
+          isFeatured
           variations {
             _id
             title
@@ -249,7 +250,7 @@ export const GET_RESTAURANT_FOODS_LIST = gql`
           }
           createdAt
           updatedAt
-        } 
+        }
         createdAt
         updatedAt
       }

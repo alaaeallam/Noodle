@@ -228,17 +228,18 @@ export default function WalletMain() {
             // style={{ backgroundColor: appTheme.themeBackground }}
           >
             <Text
-              className="text-[18px] font-[600] mt-12"
+              className="mt-12"
               style={{
-                color: appTheme.fontSecondColor,
+                color: "#6B6B6B",
+                fontFamily: "Archivo800",
+                fontSize: 12,
+                letterSpacing: 1.4,
+                textTransform: "uppercase",
               }}
             >
               {t("Current Balance")}
             </Text>
-            <Text
-              className="font-semibold text-[32px]"
-              style={{ color: appTheme.fontMainColor }}
-            >
+            <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 36 }}>
               $
               {String(
                 storeProfileData?.restaurant?.currentWalletAmount?.toFixed(2) ??
@@ -246,10 +247,12 @@ export default function WalletMain() {
               )}
             </Text>
 
-            <CustomContinueButton
-              title={t("Withdraw Now")}
-              onPress={() => setIsBottomModalOpen((prev) => !prev)}
-            />
+            <View className="w-full px-6">
+              <CustomContinueButton
+                title={t("Withdraw Now")}
+                onPress={() => setIsBottomModalOpen((prev) => !prev)}
+              />
+            </View>
           </View>
         ) : (
           <NoRecordFound msg={t("Your wallet is currently empty")} />
@@ -257,10 +260,14 @@ export default function WalletMain() {
         {storeCurrentWithdrawRequestData?.storeCurrentWithdrawRequest && (
           <View className="w-full h-40 -top-8">
             <Text
-              className="font-bold text-lg p-5 mt-2"
+              className="p-5 mt-2"
               style={{
                 backgroundColor: appTheme.themeBackground,
                 color: appTheme.fontMainColor,
+                fontFamily: "Archivo800",
+                fontSize: 12,
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
               }}
             >
               {t("Pending Request")}
@@ -292,10 +299,14 @@ export default function WalletMain() {
             ListHeaderComponent={() => {
               return (
                 <Text
-                  className="font-bold text-lg p-5"
+                  className="p-5"
                   style={{
                     color: appTheme.fontMainColor,
                     backgroundColor: appTheme.themeBackground,
+                    fontFamily: "Archivo800",
+                    fontSize: 12,
+                    letterSpacing: 1.2,
+                    textTransform: "uppercase",
                   }}
                 >
                   {t("Recent Transactions")}

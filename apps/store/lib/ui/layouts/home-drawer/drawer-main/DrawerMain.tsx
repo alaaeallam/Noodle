@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions } from "@react-navigation/native";
 import { Drawer } from "expo-router/drawer";
 import { useTranslation } from "react-i18next";
-import { TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 
 export default function DrawerMain() {
   // Hooks
@@ -25,26 +25,39 @@ export default function DrawerMain() {
       screenOptions={({ navigation }) => ({
         swipeEnabled: false,
         lazy: true,
-        headerTintColor: appTheme.fontMainColor,
+        headerTintColor: appTheme.white,
         headerLeft: () => {
           return (
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(DrawerActions.toggleDrawer());
               }}
-              style={{ marginLeft: 16 }}
+              style={{
+                marginLeft: 16,
+                width: 38,
+                height: 38,
+                backgroundColor: appTheme.primary,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <Ionicons name="menu" size={24} color={appTheme.primary} />
+              <Ionicons name="menu" size={19} color={appTheme.white} />
             </TouchableOpacity>
           );
+        },
+        headerTitleStyle: {
+          fontFamily: "Anton",
+          fontSize: 22,
+          color: appTheme.white,
+          textTransform: "uppercase",
         },
         drawerHideStatusBarOnOpen: true,
         drawerActiveBackgroundColor: Colors.light.lowOpacityPrimaryColor,
         drawerActiveTintColor: Colors.light.mainTextColor,
         headerShadowVisible: false,
-        headerTitleAlign: "center",
+        headerTitleAlign: "left",
         headerStyle: {
-          backgroundColor: appTheme.screenBackground,
+          backgroundColor: appTheme.black,
         },
         drawerStatusBarAnimation: "slide",
         drawerItemStyle: {

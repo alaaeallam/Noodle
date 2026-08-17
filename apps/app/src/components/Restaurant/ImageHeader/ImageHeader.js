@@ -17,7 +17,6 @@ import { RectButton, TouchableOpacity } from 'react-native-gesture-handler'
 import { scale } from '../../../utils/scaling'
 import { alignment } from '../../../utils/alignment'
 import TextError from '../../Text/TextError/TextError'
-import { textStyles } from '../../../utils/textStyles'
 import { useTranslation } from 'react-i18next'
 import Search from '../../../components/Main/Search/Search'
 import { calculateDistance, isOpen } from '../../../utils/customFunctions'
@@ -482,6 +481,23 @@ function ImageTextCenterHeader(props, ref) {
                   {aboutObject.deliveryTime} {t('Min')}
                 </TextDefault>
               </View>
+
+              {props?.onAddLastOrder && (
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={styles(currentTheme).lastOrderBanner}
+                  onPress={props?.onAddLastOrder}
+                >
+                  <TextDefault uppercase bolder textColor={currentTheme.white}>
+                    {t('yourUsualIsReady')}
+                  </TextDefault>
+                  <View style={styles(currentTheme).lastOrderBtn}>
+                    <TextDefault uppercase bolder small textColor={currentTheme.white}>
+                      {t('addLastOrder')}
+                    </TextDefault>
+                  </View>
+                </TouchableOpacity>
+              )}
             </Animated.View>
           )}
         </Animated.View>
@@ -516,14 +532,11 @@ function ImageTextCenterHeader(props, ref) {
                   >
                     <View style={styles().navbarTextContainer}>
                       <TextDefault
-                        style={
-                          props?.selectedLabel === index
-                            ? textStyles.Bolder
-                            : textStyles.H5
-                        }
+                        uppercase
+                        bolder
                         textColor={
                           props?.selectedLabel === index
-                            ? currentTheme.newButtonText
+                            ? currentTheme.black
                             : currentTheme.gray500
                         }
                         center

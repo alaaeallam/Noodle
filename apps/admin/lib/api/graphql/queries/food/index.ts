@@ -12,6 +12,7 @@ export const GET_FOODS_BY_RESTAURANT_ID = gql`
           title
           description
           isOutOfStock
+          isFeatured
           subCategory
           variations {
             _id

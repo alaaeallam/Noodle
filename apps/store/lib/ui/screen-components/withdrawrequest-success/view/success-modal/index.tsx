@@ -23,27 +23,22 @@ const SuccessModal = ({ message }: IWalletSuccessModalProps) => {
   return (
     <View
       style={{
-        shadowRadius: 480,
-        shadowOpacity: 1,
-        shadowColor: "black",
-        borderWidth: 1,
-        borderColor: appTheme.borderLineColor,
-        backgroundColor: appTheme.themeBackground,
+        borderWidth: 2,
+        borderColor: appTheme.horizontalLine,
+        backgroundColor: appTheme.white,
         justifyContent: "center",
         alignItems: "center",
         maxHeight: 400,
         marginTop: 0,
-        borderRadius: 10,
         width: 350,
-        padding: 12,
-        boxShadow: `5px 5px 5px ${appTheme.secondaryTextColor}`,
+        padding: 16,
       }}
     >
       <View className="absolute right-3 top-3">
         <Ionicons
           name="close-circle-outline"
-          size={20}
-          color={appTheme.fontMainColor}
+          size={22}
+          color={appTheme.black}
           onPress={() => {
             router.back();
           }}
@@ -55,14 +50,20 @@ const SuccessModal = ({ message }: IWalletSuccessModalProps) => {
         style={{ width: 200, height: 200 }}
         resizeMode="contain"
       />
-      <View className="flex flex-col gap-3 items-center justify-center self-center mx-auto w-[80%]">
+      <View className="flex flex-col gap-2 items-center justify-center self-center mx-auto w-[80%]">
         <Text
-          className="text-lg font-bold text-center"
-          style={{ color: appTheme.fontMainColor }}
+          className="text-center"
+          style={{
+            color: appTheme.fontMainColor,
+            fontFamily: "Anton",
+            fontSize: 20,
+            textTransform: "uppercase",
+            lineHeight: 22,
+          }}
         >
           {message}
         </Text>
-        <Text style={{ color: appTheme.fontSecondColor }}>
+        <Text style={{ color: "#6B6B6B", textAlign: "center" }}>
           {t("Usually it takes 1-2 business days")}
         </Text>
       </View>

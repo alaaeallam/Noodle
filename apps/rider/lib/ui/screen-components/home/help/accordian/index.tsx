@@ -16,32 +16,43 @@ export default function HelpAccordian({
   const [open, setOpen] = useState(false);
   return (
     <View
-      className="flex w-full items-center justify-center border border-gray-300 rounded-lg p-2"
-      style={{ backgroundColor: appTheme.themeBackground }}
+      className="flex w-full items-center justify-between"
+      style={{
+        backgroundColor: appTheme.white,
+        borderWidth: 2,
+        borderColor: appTheme.borderLineColor,
+      }}
     >
       <TouchableOpacity
-        className="flex flex-row items-center justify-between w-full  px-4 py-4  active:opacity-80"
-        style={{ backgroundColor: appTheme.themeBackground }}
+        className="flex flex-row items-center justify-between w-full px-4 py-4 active:opacity-80"
         onPress={() => setOpen(!open)}
         activeOpacity={0.7}
       >
         <Text
-          className="text-lg font-semibold text-gray-800 "
-          style={{ color: appTheme.fontSecondColor }}
+          className="w-80"
+          style={{
+            color: appTheme.fontMainColor,
+            fontFamily: "Archivo800",
+            fontSize: 15,
+          }}
         >
           {t(heading)}
         </Text>
         <Entypo
           name={open ? "chevron-small-up" : "chevron-small-down"}
           size={24}
-          color={appTheme.fontSecondColor}
+          color={appTheme.primary}
         />
       </TouchableOpacity>
 
       {open && (
         <View
-          className="w-full p-3 rounded-b-lg"
-          style={{ backgroundColor: appTheme.themeBackground }}
+          className="w-full p-3"
+          style={{
+            backgroundColor: appTheme.themeBackground,
+            borderTopWidth: 2,
+            borderTopColor: appTheme.borderLineColor,
+          }}
         >
           {children}
         </View>

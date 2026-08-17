@@ -22,6 +22,7 @@ export const onTransformRetaurantsByIdToFoods = ({
         category: { label: category.title, code: category._id },
         image: food.image,
         isOutOfStock: food.isOutOfStock,
+        isFeatured: food.isFeatured,
         variations: food.variations ?? [],
         subCategory: {
           code: food.subCategory,

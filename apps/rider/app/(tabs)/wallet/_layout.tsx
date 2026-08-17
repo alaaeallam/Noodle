@@ -5,15 +5,13 @@ import { Stack } from "expo-router";
 // Hooks
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function StackLayout() {
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
-const {top} = useSafeAreaInsets()
   return (
-    <View style={{paddingTop: top+10, flex: 1, backgroundColor: appTheme.themeBackground}}>
+    <View style={{ flex: 1, backgroundColor: appTheme.screenBackground }}>
       <Stack>
         <Stack.Screen
           name="index"
@@ -22,10 +20,15 @@ const {top} = useSafeAreaInsets()
             headerTitle: t("Wallet"),
             headerTitleAlign: "center",
             headerShadowVisible: false,
-            headerStyle: { backgroundColor: appTheme.themeBackground },
-            headerTitleStyle: { color: appTheme.mainTextColor },
+            headerStyle: { backgroundColor: appTheme.black },
+            headerTitleStyle: {
+              color: appTheme.white,
+              fontFamily: "Anton",
+              fontSize: 20,
+              textTransform: "uppercase",
+            },
             contentStyle: {
-              backgroundColor: appTheme.fontMainColor,
+              backgroundColor: appTheme.screenBackground,
             },
             headerBackTitle: "Wallet",
           }}

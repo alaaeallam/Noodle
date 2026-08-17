@@ -77,3 +77,9 @@ export const UPDATE_FOOD_OUT_OF_STOCK = gql`
     updateFoodOutOfStock(id: $id, restaurant: $restaurant, categoryId: $categoryId)
   }
 `;
+
+export const UPDATE_FOOD_FEATURED = gql`
+  mutation UpdateFoodFeatured($id: String!, $restaurant: String!, $categoryId: String!) {
+    updateFoodFeatured(id: $id, restaurant: $restaurant, categoryId: $categoryId)
+  }
+`;

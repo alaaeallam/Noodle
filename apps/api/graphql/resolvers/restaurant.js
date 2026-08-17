@@ -27,7 +27,8 @@ const {
 const {
   publishToZoneRiders,
   publishOrder,
-  publishToUser
+  publishToUser,
+  publishToAssignedRider
 } = require('../../helpers/pubsub')
 const { sendNotificationToZoneRiders } = require('../../helpers/notifications')
 const { requireRole, requireRestaurantAccess, ADMIN_ROLES } = require('../../helpers/guards')
@@ -385,10 +386,20 @@ module.exports = {
       date.setDate(date.getDate() - 1)
       const orders = await Order.find({
         restaurant: req.restaurantId,
-        createdAt: {
-          $gte: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-        }
-      }) // today and yesterday instead of limit 50
+        $or: [
+          {
+            createdAt: {
+              $gte: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+            }
+          },
+          // Orders stuck in a non-terminal status must stay visible to the
+          // restaurant regardless of age, or they become permanently
+          // unreachable from the store app once they cross the day window.
+          {
+            orderStatus: { $nin: ['DELIVERED', 'CANCELLED', 'CANCELLEDBYREST'] }
+          }
+        ]
+      }) // today and yesterday, plus any still-active order regardless of age
       return orders.map(transformOrder)
     },
     recentOrderRestaurants: async(_, args, { req }) => {
@@ -642,12 +653,11 @@ module.exports = {
         const rawPass = args?.password || ''
         if (!rawUser || !rawPass) throw new Error('Invalid credentials')
 
-        // Look up by username or email (case-insensitive), but DO NOT include password in the query
+        // Look up by username (case-insensitive), but DO NOT include password in the query.
+        // Restaurant has no `email` schema field - a query condition on it would
+        // silently no-op under strictQuery and match every restaurant instead of none.
         const userQuery = {
-          $or: [
-            { username: { $regex: new RegExp('^' + rawUser.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } },
-            { email:    { $regex: new RegExp('^' + rawUser.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } }
-          ]
+          username: { $regex: new RegExp('^' + rawUser.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') }
         }
 
         const restaurant = await Restaurant.findOne(userQuery)
@@ -659,6 +669,11 @@ module.exports = {
 
         // Optional gate: inactive restaurants cannot login
         if (restaurant.isActive === false) throw new Error('Invalid credentials')
+
+        if (args.notificationToken && args.notificationToken !== restaurant.notificationToken) {
+          restaurant.notificationToken = args.notificationToken
+          await restaurant.save()
+        }
 
         const token = sign({ restaurantId: restaurant.id, userType: 'RESTAURANT' })
         return { token, restaurantId: restaurant.id }
@@ -686,20 +701,24 @@ module.exports = {
         )
         order.acceptedAt = new Date()
         const result = await order.save()
-        const user = await User.findById(result.user)
         const transformedOrder = await transformOrder(result)
-        if (!transformedOrder.isPickedUp) {
-          publishToZoneRiders(order.zone.toString(), transformedOrder, 'new')
-          sendNotificationToZoneRiders(order.zone.toString(), transformedOrder)
+        if (result.user) {
+          const user = await User.findById(result.user)
+          if (!transformedOrder.isPickedUp) {
+            publishToZoneRiders(order.zone.toString(), transformedOrder, 'new')
+            sendNotificationToZoneRiders(order.zone.toString(), transformedOrder)
+          }
+          publishToUser(result.user.toString(), transformedOrder, 'update')
+          if (user?.notificationTokenWeb) {
+            sendNotificationToCustomerWeb(
+              user.notificationTokenWeb,
+              `Order status: ${result.orderStatus}`,
+              `Order ID ${result.orderId}`
+            )
+          }
+          sendNotificationToUser(result.user.toString(), transformedOrder)
         }
-        publishToUser(result.user.toString(), transformedOrder, 'update')
-        sendNotificationToCustomerWeb(
-          user.notificationTokenWeb,
-          `Order status: ${result.orderStatus}`,
-          `Order ID ${result.orderId}`
-        )
         publishOrder(transformedOrder)
-        sendNotificationToUser(result.user.toString(), transformedOrder)
         return transformedOrder
       } catch (err) {
         console.log('acceptOrder', err)
@@ -718,21 +737,25 @@ module.exports = {
         order.reason = args.reason
         order.cancelledAt = new Date()
         const result = await order.save()
-        const user = await User.findById(result.user)
         const transformedOrder = await transformOrder(result)
-        publishToUser(result.user.toString(), transformedOrder, 'update')
+        if (result.user) {
+          const user = await User.findById(result.user)
+          publishToUser(result.user.toString(), transformedOrder, 'update')
+          sendNotificationToUser(result.user, transformedOrder)
+          if (user?.notificationTokenWeb) {
+            sendNotificationToCustomerWeb(
+              user.notificationTokenWeb,
+              `Order status: ${result.orderStatus}`,
+              `Order ID ${result.orderId}`
+            )
+          }
+        }
         publishOrder(transformedOrder)
 
         if (result.rider) {
           sendNotificationToRider(result.rider.toString(), transformedOrder)
         }
 
-        sendNotificationToUser(result.user, transformedOrder)
-        sendNotificationToCustomerWeb(
-          user.notificationTokenWeb,
-          `Order status: ${result.orderStatus}`,
-          `Order ID ${result.orderId}`
-        )
         return transformedOrder
       } catch (err) {
         throw err
@@ -822,20 +845,49 @@ module.exports = {
         )
         order.deliveredAt = new Date()
         const result = await order.save()
-        const user = await User.findById(result.user)
         const transformedOrder = await transformOrder(result)
-        if (!transformedOrder.isPickedUp) {
-          publishToZoneRiders(order.zone.toString(), transformedOrder, 'new')
-          sendNotificationToZoneRiders(order.zone.toString(), transformedOrder)
+        if (result.user) {
+          const user = await User.findById(result.user)
+          if (!transformedOrder.isPickedUp) {
+            publishToZoneRiders(order.zone.toString(), transformedOrder, 'new')
+            sendNotificationToZoneRiders(order.zone.toString(), transformedOrder)
+          }
+          publishToUser(result.user.toString(), transformedOrder, 'update')
+          sendNotificationToUser(result.user.toString(), transformedOrder)
+          if (user?.notificationTokenWeb) {
+            sendNotificationToCustomerWeb(
+              user.notificationTokenWeb,
+              `Order status: ${result.orderStatus}`,
+              `Order ID ${result.orderId}`
+            )
+          }
         }
-        publishToUser(result.user.toString(), transformedOrder, 'update')
         publishOrder(transformedOrder)
-        sendNotificationToUser(result.user.toString(), transformedOrder)
-        sendNotificationToCustomerWeb(
-          user.notificationTokenWeb,
-          `Order status: ${result.orderStatus}`,
-          `Order ID ${result.orderId}`
+        return transformedOrder
+      } catch (err) {
+        throw err
+      }
+    },
+    markOrderReadyForPickup: async(_, args, { req }) => {
+      console.log('markOrderReadyForPickup')
+      if (!req.restaurantId) {
+        throw new Error('Unauthenticated!')
+      }
+      try {
+        const order = await Order.findById(args._id)
+        if (!order.rider) {
+          throw new Error('Order has no rider assigned yet')
+        }
+        order.isReadyToPickUp = true
+        const result = await order.save()
+        const transformedOrder = await transformOrder(result)
+        sendNotificationToRider(
+          order.rider,
+          transformedOrder,
+          'Order is ready for pickup!',
+          'ready'
         )
+        publishToAssignedRider(order.rider.toString(), transformedOrder, 'update')
         return transformedOrder
       } catch (err) {
         throw err

@@ -1,4 +1,4 @@
-import { View, Alert, StatusBar, Platform, Dimensions, KeyboardAvoidingView } from 'react-native'
+import { View, Alert, StatusBar, Platform, Dimensions, KeyboardAvoidingView, TextInput } from 'react-native'
 import styles from './styles'
 import RadioComponent from '../../components/CustomizeComponents/RadioComponent/RadioComponent'
 import TitleComponent from '../../components/CustomizeComponents/TitleComponent/TitleComponent'
@@ -14,8 +14,10 @@ import { MaterialIcons } from '@expo/vector-icons'
 import navigationService from '../../routes/navigationService'
 import ThemeContext from '../../ui/ThemeContext/ThemeContext'
 import UserContext from '../../context/User'
+import ConfigurationContext from '../../context/Configuration'
 import useNetworkStatus from '../../utils/useNetworkStatus'
 import ErrorView from '../../components/ErrorView/ErrorView'
+import TextDefault from '../../components/Text/TextDefault/TextDefault'
 
 // Hooks
 import React, { useState, useContext, useLayoutEffect, useEffect, useRef, useCallback } from 'react'
@@ -26,7 +28,6 @@ import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnim
 import { IconButton } from 'react-native-paper'
 import { Text } from 'react-native'
 import { scale } from '../../utils/scaling'
-import { TextField } from 'react-native-material-textfield'
 
 // Utils
 import { truncateText } from '../../utils/customFunctions'
@@ -38,7 +39,13 @@ const HEADER_MIN_HEIGHT = TOP_BAR_HEIGHT
 const SCROLL_RANGE = HEADER_MAX_HEIGHT
 
 function ItemDetail(props) {
-  const { food, addons, options, restaurant, editCartItem } = props?.route?.params
+  const { food, addons, options, restaurant, editCartItem, postAddScreen } = props?.route?.params
+
+  // Reached from the restaurant menu, this returns you there so you can keep
+  // browsing/adding — that's the common case. Some entry points (e.g. Search)
+  // aren't a "browse a menu" flow, so they can ask to land somewhere specific
+  // (like Cart) instead of wherever the stack happens to go back to.
+  const goAfterAdd = () => (postAddScreen ? navigation.navigate(postAddScreen) : navigation.goBack())
 
   // States
   const [listZindex, setListZindex] = useState(0)
@@ -46,10 +53,13 @@ function ItemDetail(props) {
   const initialVariation = editCartItem
     ? food?.variations?.find((v) => v._id === editCartItem?.variation?._id) ?? food?.variations[0]
     : food?.variations[0]
-  const initialAddons = initialVariation?.addons?.map((fa) => {
+  // Dedupe by _id before mapping — a food/addon occasionally references the
+  // same addon/option id twice, which would otherwise render two list items
+  // sharing a React key.
+  const initialAddons = [...new Set(initialVariation?.addons || [])]?.map((fa) => {
     const addon = addons?.find((a) => a._id === fa)
     const editAddon = editCartItem?.addons?.find((ea) => ea._id === fa)
-    const addonOptions = addon?.options?.map((ao) => {
+    const addonOptions = [...new Set(addon?.options || [])]?.map((ao) => {
       const option = options?.find((o) => o._id === ao)
       const isDefault = !!addon?.defaultOptions?.includes(ao)
       const checked = editCartItem ? !!editAddon?.options?.some((eo) => eo._id === ao) : isDefault
@@ -78,6 +88,7 @@ function ItemDetail(props) {
   const navigation = useNavigation()
   const Analytics = analytics()
   const { restaurant: restaurantCart, setCartRestaurant, cart, addQuantity, addCartItem, updateCart } = useContext(UserContext)
+  const configuration = useContext(ConfigurationContext)
   const themeContext = useContext(ThemeContext)
   const inset = useSafeAreaInsets()
   const { isConnected: connect, setIsConnected: setConnect } = useNetworkStatus()
@@ -235,7 +246,7 @@ function ItemDetail(props) {
           : c
       )
       await updateCart(updatedCart)
-      navigation.goBack()
+      goAfterAdd()
       return
     }
 
@@ -271,7 +282,7 @@ function ItemDetail(props) {
     } else {
       await addQuantity(cartItem?.key, quantity)
     }
-    navigation.goBack()
+    goAfterAdd()
   }
 
   const onSelectVariation = (variation) => {
@@ -396,26 +407,32 @@ function ItemDetail(props) {
         >
           <View>
             {food?.image ? <ImageHeader image={food?.image} /> : <Text>No image to display</Text>}
-            <Text
-              style={[
-                styles(currentTheme).descriptionText,
-                {
-                  width: '90%',
-                  height: 'auto',
-                  fontSize: 14,
-                  alignSelf: 'center'
-                }
-              ]}
-            >
-              {food?.description}
-            </Text>
-            <HeadingComponent title={food?.title} price={calculatePrice()} discountedPrice={calculateDiscountedPrice()} />
+            <View style={styles().mainHeadingContainer}>
+              <TextDefault H2 bolder textColor={currentTheme.black}>
+                {food?.title}
+              </TextDefault>
+              {!!food?.description && (
+                <TextDefault textColor={currentTheme.fontSecondColor} isRTL>
+                  {food.description}
+                </TextDefault>
+              )}
+              <View style={styles().priceRow}>
+                <TextDefault H4 bolder textColor={currentTheme.primary}>
+                  {configuration.currencySymbol} {calculatePrice()}
+                </TextDefault>
+                {calculateDiscountedPrice() > 0 && (
+                  <TextDefault small bold textColor={currentTheme.fontSecondColor} style={{ textDecorationLine: 'line-through' }}>
+                    {configuration.currencySymbol} {calculateDiscountedPrice()}
+                  </TextDefault>
+                )}
+              </View>
+            </View>
           </View>
           <View style={[styles(currentTheme).subContainer]}>
             <View>
               {food?.variations?.length > 1 && (
                 <View key={"1223323"}>
-                  <TitleComponent title={t('SelectVariation')} subTitle={t('SelectOne')} status={t('Required')} />
+                  <TitleComponent title={t('SelectVariation')} required status={t('Required')} />
                   <RadioComponent
                     options={food?.variations}
                     selected={selectedVariation}
@@ -428,8 +445,9 @@ function ItemDetail(props) {
                 </View>
               )}
               {selectedVariation?.addons?.map((addon) => {
+                const isRequired = addon?.quantityMinimum !== 0
                 return (<View key={addon?._id}>
-                  <TitleComponent title={addon?.title} subTitle={addon?.description} error={addon.error} status={addon?.quantityMinimum === 0 ? t('optional') : `${addon?.quantityMinimum} ${t('Required')}`} />
+                  <TitleComponent title={addon?.title} subTitle={addon?.description} error={addon.error} required={isRequired} status={isRequired ? `${addon?.quantityMinimum} ${t('Required')}` : t('optional')} />
                   <Options addon={addon} onSelectOption={onSelectOption} addonRefs={addonRefs} />
                 </View>)
               })}
@@ -438,7 +456,7 @@ function ItemDetail(props) {
             <View style={styles(currentTheme).line}></View>
             <View style={styles(currentTheme).inputContainer}>
               <TitleComponent title={t('specialInstructions')} subTitle={t('anySpecificPreferences')} status={t('optional')} />
-              <TextField style={styles(currentTheme).input} placeholder={t('noMayo')} textAlignVertical='center' value={specialInstructions} onChangeText={setSpecialInstructions} maxLength={144} textColor={currentTheme.fontMainColor} baseColor={currentTheme.lightHorizontalLine} errorColor={currentTheme.textErrorColor} tintColor={themeContext.ThemeValue === 'Dark' ? "white" : "black"} placeholderTextColor={themeContext.ThemeValue === 'Dark' ? "white" : "black"} />
+              <TextInput style={styles(currentTheme).input} placeholder={t('noMayo')} value={specialInstructions} onChangeText={setSpecialInstructions} maxLength={144} placeholderTextColor={currentTheme.inputPlaceHolder} />
             </View>
             {/** frequently bought together */}
             <FrequentlyBoughtTogether itemId={food?._id} restaurantId={restaurant} />
@@ -449,7 +467,7 @@ function ItemDetail(props) {
           <HeadingComponent title={food?.title} price={calculatePrice()} />
         </Animated.View>
         <View style={{ backgroundColor: currentTheme.themeBackground, zIndex: 10 }}>
-          <CartComponent onPress={onPressAddToCart} disabled={validateButton()} initialQuantity={editCartItem?.quantity} />
+          <CartComponent onPress={onPressAddToCart} disabled={!validateButton()} initialQuantity={editCartItem?.quantity} unitPrice={calculatePrice()} />
         </View>
         <View
           style={{

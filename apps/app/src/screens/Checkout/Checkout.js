@@ -4,7 +4,7 @@ import { View, ScrollView, TouchableOpacity, StatusBar, Platform, Alert, TextInp
 import { useMutation, useQuery } from '@apollo/client'
 import gql from 'graphql-tag'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { AntDesign, EvilIcons, Feather, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
+import { AntDesign, EvilIcons, Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Placeholder, PlaceholderLine, Fade } from 'rn-placeholder'
 import { Modalize } from 'react-native-modalize'
 import { getTipping, orderFragment } from '../../apollo/queries'
@@ -77,7 +77,7 @@ function Checkout(props) {
     ...theme[themeContext.ThemeValue]
   }
   const voucherModalRef = useRef(null)
-  const tipModalRef = useRef(null)
+  const [showCustomTip, setShowCustomTip] = useState(false)
   const [loadingData, setLoadingData] = useState(true)
   const [minimumOrder, setMinimumOrder] = useState('')
   const [orderDate, setOrderDate] = useState(new Date())
@@ -186,7 +186,7 @@ function Checkout(props) {
     } else {
       setTip(tipAmount)
       setTipAmount(null)
-      onModalClose(tipModalRef)
+      setShowCustomTip(false)
     }
   }
 
@@ -233,34 +233,18 @@ function Checkout(props) {
   useEffect(() => {
     props?.navigation.setOptions({
       headerTitle: () => (
-        <View style={{ alignItems: 'center', gap: scale(2) }}>
-          <TextDefault
-            style={{
-              color: currentTheme.newFontcolor,
-              ...textStyles.H4,
-              ...textStyles.Bolder
-            }}
-          >
-            {t('titleCheckout')}
-          </TextDefault>
-          <TextDefault numberOfLines={1} style={{ color: currentTheme.newFontcolor, ...textStyles.H5 }}>
-            {data && data?.restaurant.name && data?.restaurant.address && (
-              <>
-                {data?.restaurant.name} {' - '}
-                {data.restaurant.address}
-              </>
-            )}
-          </TextDefault>
-        </View>
+        <TextDefault style={{ color: currentTheme.newFontcolor, ...textStyles.H3 }}>{t('titleCheckout')}</TextDefault>
       ),
-      headerRight: null,
-      headerTitleAlign: 'center',
-      headerTitleStyle: {
-        color: currentTheme.newFontcolor,
-        ...textStyles.H4,
-        ...textStyles.Bolder
+      headerRight: () =>
+        data && data?.restaurant.name ? (
+          <TextDefault numberOfLines={1} uppercase bolder small textColor={currentTheme.main} style={{ maxWidth: scale(110), marginRight: scale(16) }}>
+            {data.restaurant.name}
+          </TextDefault>
+        ) : null,
+      headerTitleAlign: 'left',
+      headerTitleContainerStyle: {
+        ...alignment.MLsmall
       },
-
       headerStyle: {
         backgroundColor: currentTheme.newheaderBG
       },
@@ -702,14 +686,14 @@ function Checkout(props) {
                   <View style={[styles(currentTheme).horizontalLine, styles().width100]} />
                 </View>
                 <FulfillmentMode theme={currentTheme} setIsPickup={setIsPickup} isPickup={isPickup} t={t} />
-                <View style={[styles(currentTheme).headerContainer]}>
+                <View style={[styles(currentTheme).sectionCard]}>
                   {!isPickup && (
-                    <View style={alignment.PLsmall}>
+                    <View>
                       <Location locationIcon={currentTheme.newIconColor} locationLabel={currentTheme.newFontcolor} location={currentTheme.newFontcolor} navigation={props?.navigation} addresses={profile?.addresses} forwardIcon={true} screenName={'checkout'} />
                     </View>
                   )}
 
-                  <View style={[styles(currentTheme).horizontalLine, styles().width100]} />
+                  <View style={[styles(currentTheme).horizontalLine2Thin]} />
                   <TouchableOpacity
                     onPress={() => {
                       onModalOpen(calenderModalRef)
@@ -748,8 +732,8 @@ function Checkout(props) {
 
                 {isLoggedIn && profile && (
                   <>
-                    <View style={styles().paymentSec}>
-                      <TextDefault numberOfLines={1} H5 bolder textColor={currentTheme.fontNewColor} isRTL>
+                    <View style={styles(currentTheme).sectionCard}>
+                      <TextDefault numberOfLines={1} normal bolder uppercase textColor={currentTheme.fontNewColor} isRTL style={{ marginBottom: scale(8) }}>
                         {t('titlePayment')}
                       </TextDefault>
                       <View>
@@ -786,7 +770,6 @@ function Checkout(props) {
                     </View>
                   </>
                 )}
-                <View style={[styles(currentTheme).horizontalLine2, { width: '92%', alignSelf: 'center' }]} />
 
                 <View style={styles().voucherSec}>
                   {!coupon ? (
@@ -840,39 +823,56 @@ function Checkout(props) {
                   )}
                 </View>
                 {!isPickup && (
-                  <View style={styles().tipSec}>
+                  <View style={styles(currentTheme).sectionCard}>
                     <View style={[styles(currentTheme).tipRow]}>
-                      <TextDefault numberOfLines={1} H5 bolder textColor={currentTheme.fontNewColor}>
-                        {t('AddTip')}
-                      </TextDefault>
-                      <TextDefault numberOfLines={1} normal bolder uppercase textItalic textColor={currentTheme.fontNewColor}>
-                        {t('optional')}
+                      <TextDefault numberOfLines={1} normal bolder uppercase textColor={currentTheme.fontNewColor}>
+                        {t('tipYourRider')}
                       </TextDefault>
                     </View>
                     {dataTip && (
-                      <View style={styles(currentTheme).buttonInline}>
-                        {dataTip.tips.tipVariations.map((label, index) => (
+                      <>
+                        <View style={styles(currentTheme).buttonInline}>
+                          {dataTip.tips.tipVariations.map((label, index) => (
+                            <TouchableOpacity
+                              activeOpacity={0.7}
+                              key={index}
+                              style={[selectedTip === label ? styles(currentTheme).activeLabel : styles(currentTheme).labelButton]}
+                              onPress={() => {
+                                props?.navigation.setParams({ tipAmount: null })
+                                setTip(null)
+                                setShowCustomTip(false)
+                                setSelectedTip((prevState) => (prevState === label ? null : label))
+                              }}
+                            >
+                              <TextDefault textColor={selectedTip === label ? currentTheme.white : currentTheme.fontGrayNew} normal bolder center>
+                                {label}
+                              </TextDefault>
+                            </TouchableOpacity>
+                          ))}
                           <TouchableOpacity
                             activeOpacity={0.7}
-                            key={index}
-                            style={[selectedTip === label ? styles(currentTheme).activeLabel : styles(currentTheme).labelButton]}
+                            style={tip || showCustomTip ? styles(currentTheme).activeLabel : styles(currentTheme).labelButton}
                             onPress={() => {
-                              props?.navigation.setParams({ tipAmount: null })
-                              setTip(null)
-                              setSelectedTip((prevState) => (prevState === label ? null : label))
+                              setSelectedTip(null)
+                              setShowCustomTip((prevState) => !prevState)
                             }}
                           >
-                            <TextDefault textColor={selectedTip === label ? currentTheme.black : currentTheme.fontFourthColor} normal bolder center>
-                              {configuration.currencySymbol} {label}
+                            <TextDefault textColor={tip || showCustomTip ? currentTheme.white : currentTheme.fontGrayNew} normal bolder center>
+                              {t('Other')}
                             </TextDefault>
                           </TouchableOpacity>
-                        ))}
-                        <TouchableOpacity activeOpacity={0.7} style={tip ? styles(currentTheme).activeLabel : styles(currentTheme).labelButton} onPress={() => onModalOpen(tipModalRef)}>
-                          <TextDefault textColor={tip ? currentTheme.black : currentTheme.fontFourthColor} normal bolder center>
-                            {t('Other')}
-                          </TextDefault>
-                        </TouchableOpacity>
-                      </View>
+                        </View>
+                        {showCustomTip && (
+                          <View style={styles(currentTheme).customTipRow}>
+                            <TextInput keyboardType='numeric' placeholder={'e.g. 25'} placeholderTextColor={currentTheme.inputPlaceHolder} value={tipAmount} onChangeText={(text) => setTipAmount(text)} style={[styles(currentTheme).modalInput, styles().customTipInput]} />
+                            <TouchableOpacity disabled={!tipAmount} activeOpacity={0.7} onPress={onTipping} style={styles(currentTheme).customTipApplyBtn}>
+                              <TextDefault textColor={currentTheme.black} bolder center>
+                                {t('apply')}
+                              </TextDefault>
+                            </TouchableOpacity>
+                          </View>
+                        )}
+                      </>
                     )}
                   </View>
                 )}
@@ -979,12 +979,18 @@ function Checkout(props) {
                       onPayment()
                     }
                   }}
-                  style={[styles(currentTheme).button, { opacity: loadingOrder ? 0.5 : 1 }]}
+                  style={[styles(currentTheme).button, { opacity: loadingOrder ? 0.5 : 1, justifyContent: 'space-between', paddingHorizontal: scale(20) }]}
                 >
                   {!loadingOrder && (
-                    <TextDefault textColor={currentTheme.color4} style={styles().checkoutBtn} bold H4>
-                      {t('placeOrder')}
-                    </TextDefault>
+                    <>
+                      <TextDefault textColor={currentTheme.color4} uppercase bolder H4>
+                        {t('placeOrder')}
+                      </TextDefault>
+                      <TextDefault textColor={currentTheme.color4} bolder H4>
+                        {configuration.currencySymbol}
+                        {calculateTotal()}
+                      </TextDefault>
+                    </>
                   )}
                   {loadingOrder && <Spinner backColor={'transparent'} />}
                 </TouchableOpacity>
@@ -993,46 +999,6 @@ function Checkout(props) {
           </>
         )}
 
-        {/* Tip Modal */}
-        <Modalize
-          ref={tipModalRef}
-          modalStyle={[styles(currentTheme).modal]}
-          overlayStyle={styles(currentTheme).overlay}
-          handleStyle={styles(currentTheme).handle}
-          modalHeight={550}
-          handlePosition='inside'
-          openAnimationConfig={{
-            timing: { duration: 400 },
-            spring: { speed: 20, bounciness: 10 }
-          }}
-          closeAnimationConfig={{
-            timing: { duration: 400 },
-            spring: { speed: 20, bounciness: 10 }
-          }}
-        >
-          <View style={styles().modalContainer}>
-            <View style={styles(currentTheme).modalHeader}>
-              <View activeOpacity={0.7} style={styles(currentTheme).modalheading}>
-                <FontAwesome name={paymentMethod?.icon} size={20} color={currentTheme.newIconColor} />
-                <TextDefault H4 bolder textColor={currentTheme.newFontcolor} center>
-                  {t('AddTip')}
-                </TextDefault>
-              </View>
-              <Feather name='x-circle' size={24} color={currentTheme.newIconColor} onPress={() => onModalClose(tipModalRef)} />
-            </View>
-            <View style={{ gap: 8 }}>
-              <TextDefault uppercase bold textColor={currentTheme.gray500} isRTL>
-                {t('enterAmount')}
-              </TextDefault>
-              <TextInput keyboardType='numeric' placeholder={'e.g. 25'} placeholderTextColor={currentTheme.inputPlaceHolder} value={tipAmount} onChangeText={(text) => setTipAmount(text)} style={styles(currentTheme).modalInput} />
-            </View>
-            <TouchableOpacity disabled={!tipAmount} activeOpacity={0.7} onPress={onTipping} style={[styles(currentTheme).button, { height: scale(40) }]}>
-              <TextDefault textColor={currentTheme.black} style={styles().checkoutBtn} bold H4>
-                {t('apply')}
-              </TextDefault>
-            </TouchableOpacity>
-          </View>
-        </Modalize>
         {/* Voucher Modal */}
         <Modalize
           ref={voucherModalRef}

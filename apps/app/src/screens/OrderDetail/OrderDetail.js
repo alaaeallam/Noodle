@@ -1,5 +1,4 @@
 import { View, ScrollView, Dimensions } from 'react-native'
-import TextDefault from '../../components/Text/TextDefault/TextDefault'
 import { scale } from '../../utils/scaling'
 import { alignment } from '../../utils/alignment'
 import styles from './styles'
@@ -20,7 +19,6 @@ import { mapStyle } from '../../utils/mapStyle'
 import { useTranslation } from 'react-i18next'
 import { HelpButton } from '../../components/Header/HeaderIcons/HeaderIcons'
 
-import { ProgressBar, checkStatus } from '../../components/Main/ActiveOrders/ProgressBar'
 import { useNavigation } from '@react-navigation/native'
 import { PriceRow } from '../../components/OrderDetail/PriceRow'
 import { ORDER_STATUS_ENUM } from '../../utils/enums'
@@ -34,9 +32,9 @@ import { Instructions } from '../../components/Checkout/Instructions'
 
 import MapViewDirections from 'react-native-maps-directions'
 import useEnvVars from '../../../environment'
-import LottieView from 'lottie-react-native'
-import { clearLogEntriesAsync } from 'expo-updates'
 import Taxes from './Taxes'
+import { TrackingHero } from '../../components/OrderDetail/TrackingHero/TrackingHero'
+import { Timeline } from '../../components/OrderDetail/Timeline/Timeline'
 const { height: HEIGHT, width: WIDTH } = Dimensions.get('screen')
 
 import useNetworkStatus from '../../utils/useNetworkStatus'
@@ -222,89 +220,40 @@ function OrderDetail(props) {
             {order?.rider && <TrackingRider id={order?.rider?._id} />}
           </MapView>
         )}
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            ...alignment.Pmedium
-          }}
-        >
-          <OrderStatusImage status={order?.orderStatus} />
-          {order?.orderStatus !== ORDER_STATUS_ENUM.DELIVERED && (
-            <View
-              style={{
-                ...alignment.MTxSmall,
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              {![ORDER_STATUS_ENUM.PENDING, ORDER_STATUS_ENUM.CANCELLED, ORDER_STATUS_ENUM.CANCELLEDBYREST].includes(order?.orderStatus) && (
-                <>
-                  <TextDefault style={{ ...alignment.MTxSmall }} textColor={currentTheme.gray500} H5>
-                    {t('estimatedDeliveryTime')}
-                  </TextDefault>
-                  <TextDefault style={{ ...alignment.MTxSmall }} Regular textColor={currentTheme.gray900} H1 bolder>
-                    {remainingTimeState}-{remainingTimeState + 5} {t('mins')}
-                  </TextDefault>
-                  <ProgressBar configuration={configuration} currentTheme={currentTheme} item={order} navigation={navigation} isPicked={order?.isPickedUp} />
-                </>
-              )}
-              <TextDefault H5 style={{ ...alignment.Mmedium }} textColor={currentTheme.gray600} bold center>
-                {' '}
-                {t(checkStatus(order?.orderStatus)?.statusText)}
-              </TextDefault>
-            </View>
-          )}
-        </View>
+        <TrackingHero theme={currentTheme} orderStatus={order?.orderStatus} remainingTimeState={remainingTimeState} t={t} />
+        <Timeline
+          theme={currentTheme}
+          orderStatus={order?.orderStatus}
+          restaurantName={restaurant?.name}
+          acceptedAt={order?.acceptedAt}
+          assignedAt={order?.assignedAt}
+          pickedAt={order?.pickedAt}
+          deliveredAt={order?.deliveredAt}
+          rider={order?.rider}
+          orderId={id}
+          orderNo={order?.orderId}
+          total={total}
+          t={t}
+        />
         <Instructions title={'Instructions'} theme={currentTheme} message={order?.instructions} />
         <Detail navigation={props?.navigation} currencySymbol={configuration.currencySymbol} items={items} from={restaurant?.name} orderNo={order?.orderId} deliveryAddress={deliveryAddress?.deliveryAddress} subTotal={subTotal} tip={tip} tax={tax} deliveryCharges={deliveryCharges} total={total} theme={currentTheme} id={id} rider={order?.rider} orderStatus={order?.orderStatus} />
         <Taxes tax={tax} deliveryCharges={deliveryCharges} currency={configuration.currencySymbol} />
       </ScrollView>
       <View style={styles().bottomContainer(currentTheme)}>
         <PriceRow theme={currentTheme} title={t('total')} currency={configuration.currencySymbol} price={total.toFixed(2)} />
-        
+        {isOrderCancelable && (
           <View style={{ margin: scale(20) }}>
-            <Button disabled={isOrderCancelable ? false : true} text={t('cancelOrder')} buttonProps={{ onPress: cancelModalToggle }} buttonStyles={styles().cancelButtonContainer(currentTheme)} textProps={{ textColor: currentTheme.red600 }} textStyles={{ ...alignment.Pmedium }} />
+            <Button disabled={false} text={t('cancelOrder')} buttonProps={{ onPress: cancelModalToggle }} buttonStyles={styles().cancelButtonContainer(currentTheme)} textProps={{ textColor: currentTheme.red600 }} textStyles={{ ...alignment.Pmedium }} />
           </View>
-        
+        )}
+        {[ORDER_STATUS_ENUM.ACCEPTED, ORDER_STATUS_ENUM.ASSIGNED, ORDER_STATUS_ENUM.PICKED].includes(order?.orderStatus) && (
+          <View style={{ margin: scale(20) }}>
+            <Button disabled={false} text={t('getHelp')} buttonProps={{ onPress: () => navigation.navigate('Help') }} buttonStyles={styles().dismissButtonContainer(currentTheme)} textProps={{ textColor: currentTheme.black }} textStyles={{ ...alignment.Pmedium }} />
+          </View>
+        )}
       </View>
       <CancelModal theme={currentTheme} modalVisible={cancelModalVisible} setModalVisible={cancelModalToggle} cancelOrder={cancelOrder} loading={loadingCancel} orderStatus={order?.orderStatus} />
     </View>
-  )
-}
-
-export const OrderStatusImage = ({ status }) => {
-  let imagePath = null
-  switch (status) {
-    case ORDER_STATUS_ENUM.PENDING:
-      imagePath = require('../../assets/SVG/order-placed.json')
-      break
-    case ORDER_STATUS_ENUM.ACCEPTED:
-      imagePath = require('../../assets/SVG/order-tracking-preparing.json')
-      break
-    case ORDER_STATUS_ENUM.ASSIGNED:
-      imagePath = require('../../assets/SVG/food-picked.json')
-      break
-    case ORDER_STATUS_ENUM.COMPLETED:
-      imagePath = require('../../assets/SVG/place-order.json')
-      break
-    case ORDER_STATUS_ENUM.DELIVERED:
-      imagePath = require('../../assets/SVG/place-order.json')
-      break
-  }
-
-  if (!imagePath) return null
-
-  return (
-    <LottieView
-      style={{
-        width: 250,
-        height: 250
-      }}
-      source={imagePath}
-      autoPlay
-      loop
-    />
   )
 }
 

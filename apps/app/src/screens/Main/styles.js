@@ -9,7 +9,7 @@ const MODAL_HEIGHT = Math.floor(SCREEN_HEIGHT / 4)
 const styles = (props = null, hasActiveOrders = false) =>
   StyleSheet.create({
     flex: {
-      // flex: 1
+      flex: 1
       // ...alignment.PBlarge
     },
     mainItemsContainer: {
@@ -39,7 +39,7 @@ const styles = (props = null, hasActiveOrders = false) =>
     },
     mainContentContainer: {
       width: '100%',
-      height: '100%',
+      flex: 1,
       alignSelf: 'center'
     },
     searchbar: {

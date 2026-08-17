@@ -68,9 +68,73 @@ module.exports = {
         }
       }
     },
+    // Groups a rider's earnings by day, mirroring storeEarningsGraph below —
+    // same Earnings collection, riderEarnings sub-document instead of
+    // storeEarnings. The rider app's Earnings screen needs this grouping too.
+    riderEarningsGraph: async(_, args, { req }) => {
+      console.log('riderEarningsGraph', args)
+      try {
+        const { userId: riderId } = requireWalletAccess(req, 'RIDER', args.riderId)
+
+        const match = { 'riderEarnings.riderId': new mongoose.Types.ObjectId(riderId) }
+        if (args.startDate || args.endDate) {
+          match.createdAt = {}
+          if (args.startDate) match.createdAt.$gte = new Date(args.startDate)
+          if (args.endDate) match.createdAt.$lte = new Date(args.endDate)
+        }
+
+        const grouped = await Earnings.aggregate([
+          { $match: match },
+          {
+            $group: {
+              _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+              totalEarningsSum: { $sum: '$riderEarnings.totalEarnings' },
+              totalTipsSum: { $sum: '$riderEarnings.tip' },
+              totalDeliveries: { $sum: 1 },
+              earningsArray: {
+                $push: {
+                  orderDetails: {
+                    orderType: '$orderType',
+                    orderId: '$orderId',
+                    paymentMethod: '$paymentMethod'
+                  },
+                  totalEarnings: '$riderEarnings.totalEarnings',
+                  deliveryFee: '$riderEarnings.deliveryFee',
+                  tip: '$riderEarnings.tip',
+                  date: '$createdAt'
+                }
+              }
+            }
+          },
+          { $sort: { _id: -1 } }
+        ])
+
+        const totalCount = grouped.length
+        const pageSize = args.limit || 10
+        const pageNo = args.page || 1
+        const paged = grouped.slice((pageNo - 1) * pageSize, (pageNo - 1) * pageSize + pageSize)
+
+        return {
+          totalCount,
+          earnings: paged.map(g => ({
+            _id: g._id,
+            date: g._id,
+            totalEarningsSum: g.totalEarningsSum,
+            totalTipsSum: g.totalTipsSum,
+            totalDeliveries: g.totalDeliveries,
+            earningsArray: g.earningsArray.map(e => ({
+              ...e,
+              date: e.date instanceof Date ? e.date.toISOString() : e.date
+            }))
+          }))
+        }
+      } catch (err) {
+        console.log('riderEarningsGraph error', err)
+        throw err
+      }
+    },
     // Groups a store's earnings by day, for the wallet's bar chart / daily
-    // breakdown. There's no equivalent for riders because only the store
-    // app's UI needs this grouping today.
+    // breakdown.
     storeEarningsGraph: async(_, args, { req }) => {
       console.log('storeEarningsGraph', args)
       try {

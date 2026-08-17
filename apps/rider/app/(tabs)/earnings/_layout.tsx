@@ -6,7 +6,6 @@ import { Stack, usePathname } from "expo-router";
 import { useApptheme } from "@/lib/context/global/theme.context";
 import EarningBottomBar from "@/lib/ui/screen-components/earnings/view/bottom-bar";
 import { useTranslation } from "react-i18next";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { View } from "react-native";
 
 export default function StackLayout() {
@@ -15,11 +14,10 @@ export default function StackLayout() {
   const pathname = usePathname();
   const { t } = useTranslation();
   const { appTheme } = useApptheme();
-  const {top} = useSafeAreaInsets()
 
   return (
     <>
-      <View style={{paddingTop: top+10, flex: 1, backgroundColor: appTheme.themeBackground}}>
+      <View style={{ flex: 1, backgroundColor: appTheme.screenBackground }}>
         <Stack
           screenOptions={{
             headerTitle:
@@ -31,11 +29,16 @@ export default function StackLayout() {
 
             headerTitleAlign: "center",
             headerShadowVisible: false,
-            headerTintColor: appTheme.fontMainColor,
-            headerTitleStyle: { color: appTheme.fontMainColor },
-            headerStyle: { backgroundColor: appTheme.themeBackground },
+            headerTintColor: appTheme.white,
+            headerTitleStyle: {
+              color: appTheme.white,
+              fontFamily: "Anton",
+              fontSize: 20,
+              textTransform: "uppercase",
+            },
+            headerStyle: { backgroundColor: appTheme.black },
             contentStyle: {
-              backgroundColor: appTheme.themeBackground,
+              backgroundColor: appTheme.screenBackground,
             },
           }}
         >

@@ -1,5 +1,5 @@
 import { useApptheme } from "@/lib/context/global/theme.context";
-import { View, ScrollView, RefreshControl, SafeAreaView } from "react-native";
+import { View, ScrollView, RefreshControl } from "react-native";
 import WalletMain from "../../screen-components/wallet/view/main";
 import React, { useCallback, useState } from "react";
 import {
@@ -15,7 +15,7 @@ export default function WalletScreen() {
     refetch,
   } = useQuery(
     RIDER_TRANSACTIONS_HISTORY,
-  )     
+  )
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -26,20 +26,17 @@ export default function WalletScreen() {
   }, [refetch]);
 
   return (
-    // fix background color of scrollview
-    <SafeAreaView style={{ flex: 1, backgroundColor: appTheme.screenBackground }}>
-    <ScrollView
-      contentContainerStyle={{ flex: 1, backgroundColor: appTheme.screenBackground }}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <View
-        className="w-full items-center"
+    <View style={{ flex: 1, backgroundColor: appTheme.screenBackground }}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, backgroundColor: appTheme.screenBackground }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        <WalletMain />
-      </View>
-    </ScrollView>
-    </SafeAreaView>
+        <View className="w-full items-center">
+          <WalletMain />
+        </View>
+      </ScrollView>
+    </View>
   );
 }

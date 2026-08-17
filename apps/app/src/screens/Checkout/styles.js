@@ -9,6 +9,15 @@ const styles = (props = null) =>
       flex: 1
     },
 
+    sectionCard: {
+      backgroundColor: props != null ? props?.white : '#FFF',
+      borderWidth: scale(2),
+      borderColor: props != null ? props?.borderColor : '#E4E1DD',
+      marginHorizontal: scale(16),
+      marginTop: scale(10),
+      padding: scale(14)
+    },
+
     pT10: {
       ...alignment.PTsmall
     },
@@ -66,14 +75,13 @@ const styles = (props = null) =>
       backgroundColor: props !== null ? props?.backgroundColor : 'transparent'
     },
     priceContainer: {
-      width: '100%',
-      backgroundColor: props !== null ? props?.themeBackground : 'transparent',
-      borderRadius: scale(20),
-      borderBottomColor:
-        props !== null ? props?.lightHorizontalLine : 'transparent',
-      ...alignment.PLmedium,
-      ...alignment.PRmedium,
-      marginVertical: scale(13)
+      backgroundColor: props != null ? props?.white : '#FFF',
+      borderWidth: scale(2),
+      borderColor: props != null ? props?.borderColor : '#E4E1DD',
+      borderRadius: 0,
+      marginHorizontal: scale(16),
+      marginTop: scale(10),
+      padding: scale(14)
     },
     modal: {
       backgroundColor: props != null ? props?.cardBackground : '#FFF',
@@ -117,6 +125,11 @@ const styles = (props = null) =>
     horizontalLine2: {
       marginVertical: scale(11)
     },
+    horizontalLine2Thin: {
+      height: scale(2),
+      backgroundColor: props != null ? props?.gray100 : '#F4F2EF',
+      marginVertical: scale(10)
+    },
     deliveryTime: {
       flexDirection: props?.isRTL ? 'row-reverse' : 'row',
       alignItems: 'center',
@@ -139,7 +152,7 @@ const styles = (props = null) =>
     suggestItemContainer: {
       borderWidth: 1,
       borderColor: '#D1D5DB',
-      borderRadius: 12,
+      borderRadius: 0,
       padding: scale(8),
       width: scale(120),
       marginTop: scale(14)
@@ -148,7 +161,7 @@ const styles = (props = null) =>
       backgroundColor: '#F3F4F6',
       borderWidth: 1,
       borderColor: '#E5E7EB',
-      borderRadius: 8,
+      borderRadius: 0,
       padding: scale(4)
     },
     suggestItemName: {
@@ -160,7 +173,7 @@ const styles = (props = null) =>
     addToCart: {
       width: scale(25),
       height: scale(25),
-      borderRadius: scale(12.5),
+      borderRadius: 0,
       backgroundColor: '#000',
       justifyContent: 'center',
       alignItems: 'center'
@@ -177,7 +190,7 @@ const styles = (props = null) =>
       alignItems: 'center',
       width: scale(80),
       height: scale(30),
-      borderRadius: 40
+      borderRadius: 0
     },
     changeBtnInner: {
       display: 'flex',
@@ -191,7 +204,7 @@ const styles = (props = null) =>
       alignItems: 'center',
       flexDirection: props?.isRTL ? 'row-reverse' : 'row',
       height: scale(50),
-      borderRadius: 40
+      borderRadius: 0
     },
     buttonDisabled: {
       backgroundColor: props !== null ? props?.white : 'white',
@@ -213,7 +226,7 @@ const styles = (props = null) =>
     //   alignItems: 'center',
     //   width: scale(18),
     //   height: scale(18),
-    //   borderRadius: scale(9)
+    //   borderRadius: 0
     // },
     // iconStyle: {
     //   height: verticalScale(18),
@@ -242,14 +255,14 @@ const styles = (props = null) =>
       backgroundColor: props !== null ? props?.newheaderColor : 'transparent',
       width: '70%',
       height: scale(40),
-      borderRadius: scale(20),
+      borderRadius: 0,
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center'
     },
     placeHolderContainer: {
       backgroundColor: props != null ? props?.cartContainer : '#B8B8B8',
-      borderRadius: 3,
+      borderRadius: 0,
       elevation: 3,
       marginBottom: 12,
       padding: 12
@@ -285,21 +298,41 @@ const styles = (props = null) =>
       // gap:scale(8),
     },
     labelButton: {
-      borderRadius: scale(40),
+      borderRadius: 0,
       width: '23%',
-      borderWidth: 1,
-      borderColor: props !== null ? props?.iconBackground : 'transparent',
-      backgroundColor: props !== null ? props?.color5 : 'transparent',
+      borderWidth: scale(2),
+      borderColor: props !== null ? props?.borderColor : '#E4E1DD',
+      backgroundColor: props !== null ? props?.white : '#FFF',
       justifyContent: 'center',
-      height: scale(37)
+      alignItems: 'center',
+      height: scale(42)
     },
     activeLabel: {
-      borderRadius: scale(40),
-      backgroundColor: props !== null ? props?.main : 'transparent',
+      borderRadius: 0,
+      backgroundColor: props !== null ? props?.black : '#0A0A0A',
       width: '23%',
       justifyContent: 'center',
-      borderColor: props !== null ? props?.main : 'transparent',
+      alignItems: 'center',
+      borderWidth: scale(2),
+      borderColor: props !== null ? props?.black : '#0A0A0A',
+      height: scale(42)
+    },
+    customTipRow: {
+      flexDirection: props?.isRTL ? 'row-reverse' : 'row',
+      alignItems: 'center',
+      gap: scale(8),
+      marginTop: scale(8)
+    },
+    customTipInput: {
+      flex: 1,
       height: scale(37)
+    },
+    customTipApplyBtn: {
+      height: scale(37),
+      paddingHorizontal: scale(16),
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: props !== null ? props?.main : 'transparent'
     },
     headerContainer: {
       backgroundColor: props !== null ? props?.themeBackground : '#6FCF97'
@@ -350,7 +383,7 @@ const styles = (props = null) =>
       padding: 6,
       backgroundColor: props != null ? props?.black : '#B8B8B8',
       width: '50%',
-      borderRadius: 6
+      borderRadius: 0
     },
     couponContainer: {
       flexDirection: props?.isRTL ? 'row-reverse' : 'row',
@@ -372,7 +405,7 @@ const styles = (props = null) =>
       alignItems: 'center'
     },
     changeAddressBtn: {
-      borderRadius: scale(10),
+      borderRadius: 0,
       backgroundColor: props != null ? props?.main : '#B8B8B8',
       width: '40%',
       justifyContent: 'center',
@@ -414,7 +447,7 @@ const styles = (props = null) =>
       borderWidth: 1,
       borderColor: props != null ? props?.verticalLine : '#B8B8B8',
       padding: 10,
-      borderRadius: 6,
+      borderRadius: 0,
       color: props !== null ? props?.newFontcolor : '#f9f9f9',
       textAlign: props?.isRTL ? 'right' : 'left'
     },
@@ -429,7 +462,7 @@ const styles = (props = null) =>
       backgroundColor: props != null ? props?.iconBackground : '#E5E7EB',
       width: scale(24),
       height: scale(24),
-      borderRadius: scale(24),
+      borderRadius: 0,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -439,7 +472,7 @@ const styles = (props = null) =>
       alignItems: 'center',
       flexDirection: props?.isRTL ? 'row-reverse' : 'row',
       height: scale(40),
-      borderRadius: 40,
+      borderRadius: 0,
       borderWidth: 1,
       borderColor: props !== null ? props?.iconColor : '#717171',
       width: '70%',

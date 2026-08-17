@@ -7,6 +7,7 @@ import { IRiderProfile } from "./user.interface";
 export interface IOrderComponentProps extends IGlobalComponentProps {
 
   tab: ORDER_TYPE;
+  isReadyToPickUp?: boolean;
 }
 
 export interface IOrder {
@@ -50,7 +51,9 @@ export interface IOrder {
   preparationTime: string;
   completionTime: string;
   isPickedUp: boolean;
+  isReadyToPickUp?: boolean;
   isRiderRinged: boolean;
+  hasUnreadChatForRider?: boolean;
   rider: IRiderProfile;
   restaurant: IRestaurantProfile;
 }

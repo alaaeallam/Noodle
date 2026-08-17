@@ -19,7 +19,6 @@ import {
   LogoutIcon,
   PageIcon,
   PrivacyIcon,
-  RightArrowIcon,
   UserIcon,
 } from "@/lib/ui/useable-components/svg";
 import { router } from "expo-router";
@@ -72,31 +71,33 @@ export default function CustomDrawerContent(
                 onPress={() => {
                   router.replace("/(tabs)/profile");
                 }}
-                className={`flex-row justify-between items-center px-4 py-4 border-b-[0.5px]`}
-                style={{ borderColor: appTheme.borderLineColor }}
+                className="flex-row justify-between items-center px-5 py-[13px] border-b-2"
+                style={{ borderColor: appTheme.themeBackground }}
               >
-                <View className="flex-row items-center gap-3">
+                <View className="flex-row items-center gap-3.5">
                   <View
-                    className="h-[30px] w-[40px] rounded-full items-center justify-center"
+                    className="h-[34px] w-[34px] items-center justify-center"
                     style={{
                       backgroundColor: appTheme.sidebarIconBackground,
                     }}
                   >
                     <UserIcon
-                      width={16}
-                      height={16}
+                      width={15}
+                      height={15}
                       color={appTheme.iconColor}
                     />
                   </View>
                   <Text
-                    className="text-sm font-semibold"
+                    className="text-[15px]"
                     style={{
-                      color: appTheme.buttonText,
+                      color: appTheme.fontMainColor,
+                      fontFamily: "Archivo800",
                     }}
                   >
                     {t("Profile")}
                   </Text>
                 </View>
+                <Text style={{ fontSize: 15, color: "#B4B0AB" }}>›</Text>
               </TouchableOpacity>
             );
           } else
@@ -104,18 +105,18 @@ export default function CustomDrawerContent(
               <TouchableOpacity
                 key={route.key}
                 onPress={() => props.navigation.navigate(route.name)}
-                className={`flex-row justify-between items-center px-4 py-3 border-b-[0.5px]`}
+                className="flex-row justify-between items-center px-5 py-[13px] border-b-2"
                 style={{
                   backgroundColor: isFocused
-                    ? appTheme.lowOpacityPrimaryColor
-                    : appTheme.themeBackground,
-                  borderColor: appTheme.borderLineColor,
+                    ? appTheme.themeBackground
+                    : appTheme.white,
+                  borderColor: appTheme.themeBackground,
                 }}
               >
                 {/* Left Icon and Label */}
-                <View className="flex-row items-center gap-3">
+                <View className="flex-row items-center gap-3.5">
                   <View
-                    className="h-[40px] w-[40px] rounded-full items-center justify-center"
+                    className="h-[34px] w-[34px] items-center justify-center"
                     style={{
                       backgroundColor: isFocused
                         ? appTheme.primary
@@ -124,19 +125,17 @@ export default function CustomDrawerContent(
                   >
                     {options.drawerIcon
                       ? options.drawerIcon({
-                          color: isFocused
-                            ? appTheme.primary
-                            : appTheme.iconColor,
-                          size: 16,
+                          color: isFocused ? appTheme.white : appTheme.iconColor,
+                          size: 15,
                           focused: true,
                         })
                       : null}
                   </View>
                   <Text
-                    className="text-sm font-semibold"
+                    className="text-[15px]"
                     style={{
-                      color: isFocused ? appTheme.primary : appTheme.buttonText,
-                      fontWeight: isFocused ? "bold" : "normal",
+                      color: isFocused ? appTheme.primary : appTheme.fontMainColor,
+                      fontFamily: "Archivo800",
                     }}
                   >
                     {(options.drawerLabel as string) ?? route.name}
@@ -144,11 +143,7 @@ export default function CustomDrawerContent(
                 </View>
 
                 {/* Right Arrow Icon */}
-                <RightArrowIcon
-                  color={isFocused ? appTheme.primary : appTheme.fontMainColor}
-                  height={20}
-                  width={20}
-                />
+                <Text style={{ fontSize: 15, color: "#B4B0AB" }}>›</Text>
               </TouchableOpacity>
             );
         })}
@@ -158,20 +153,21 @@ export default function CustomDrawerContent(
           onPress={() => {
             Linking.openURL("https://enatega.com/");
           }}
-          className="flex-row justify-between items-center px-4 py-4 border-b-[0.5px]"
-          style={{ borderColor: appTheme.borderLineColor }}
+          className="flex-row justify-between items-center px-5 py-[13px] border-b-2"
+          style={{ borderColor: appTheme.themeBackground }}
         >
-          <View className="flex-row items-center gap-3">
+          <View className="flex-row items-center gap-3.5">
             <View
-              className="h-[30px] w-[40px] rounded-full items-center justify-center"
+              className="h-[34px] w-[34px] items-center justify-center"
               style={{ backgroundColor: appTheme.sidebarIconBackground }}
             >
-              <AboutIcon width={16} height={16} color={appTheme.iconColor} />
+              <AboutIcon width={15} height={15} color={appTheme.iconColor} />
             </View>
             <Text
-              className="text-sm font-semibold"
+              className="text-[15px]"
               style={{
-                color: appTheme.buttonText,
+                color: appTheme.fontMainColor,
+                fontFamily: "Archivo800",
               }}
             >
               {t("About Us")}
@@ -182,20 +178,21 @@ export default function CustomDrawerContent(
           onPress={() => {
             Linking.openURL("https://multivendor.enatega.com/privacy");
           }}
-          className="flex-row justify-between items-center px-4 py-4 border-b-[0.5px]"
-          style={{ borderColor: appTheme.borderLineColor }}
+          className="flex-row justify-between items-center px-5 py-[13px] border-b-2"
+          style={{ borderColor: appTheme.themeBackground }}
         >
-          <View className="flex-row items-center gap-3">
+          <View className="flex-row items-center gap-3.5">
             <View
-              className="h-[30px] w-[40px] rounded-full items-center justify-center"
+              className="h-[34px] w-[34px] items-center justify-center"
               style={{ backgroundColor: appTheme.sidebarIconBackground }}
             >
-              <PrivacyIcon width={16} height={16} color={appTheme.iconColor} />
+              <PrivacyIcon width={15} height={15} color={appTheme.iconColor} />
             </View>
             <Text
-              className="text-sm font-semibold"
+              className="text-[15px]"
               style={{
-                color: appTheme.buttonText,
+                color: appTheme.fontMainColor,
+                fontFamily: "Archivo800",
               }}
             >
               {t("Privacy Policy")}
@@ -206,20 +203,21 @@ export default function CustomDrawerContent(
           onPress={() => {
             Linking.openURL("https://enatega-web.netlify.app/");
           }}
-          className="flex-row justify-between items-center px-4 py-4 border-b-[0.5px]"
-          style={{ borderColor: appTheme.borderLineColor }}
+          className="flex-row justify-between items-center px-5 py-[13px] border-b-2"
+          style={{ borderColor: appTheme.themeBackground }}
         >
-          <View className="flex-row items-center gap-3">
+          <View className="flex-row items-center gap-3.5">
             <View
-              className="h-[30px] w-[40px] rounded-full items-center justify-center"
+              className="h-[34px] w-[34px] items-center justify-center"
               style={{ backgroundColor: appTheme.sidebarIconBackground }}
             >
-              <PageIcon width={16} height={16} color={appTheme.iconColor} />
+              <PageIcon width={15} height={15} color={appTheme.iconColor} />
             </View>
             <Text
-              className="text-sm font-semibold"
+              className="text-[15px]"
               style={{
-                color: appTheme.buttonText,
+                color: appTheme.fontMainColor,
+                fontFamily: "Archivo800",
               }}
             >
               {t("Product Page")}
@@ -232,20 +230,21 @@ export default function CustomDrawerContent(
           onPress={() => {
             if (logout) logout();
           }}
-          className="flex-row justify-between items-center px-4 py-4 border-b-[0.5px]"
-          style={{ borderColor: appTheme.borderLineColor }}
+          className="flex-row justify-between items-center px-5 py-[13px] border-b-2"
+          style={{ borderColor: appTheme.themeBackground }}
         >
-          <View className="flex-row items-center gap-3">
+          <View className="flex-row items-center gap-3.5">
             <View
-              className="h-[30px] w-[40px] rounded-full items-center justify-center"
+              className="h-[34px] w-[34px] items-center justify-center"
               style={{ backgroundColor: appTheme.sidebarIconBackground }}
             >
-              <LogoutIcon width={16} height={16} color={appTheme.iconColor} />
+              <LogoutIcon width={15} height={15} color={appTheme.iconColor} />
             </View>
             <Text
-              className="text-sm font-semibold"
+              className="text-[15px]"
               style={{
-                color: appTheme.buttonText,
+                color: appTheme.fontMainColor,
+                fontFamily: "Archivo800",
               }}
             >
               {t("Logout")}

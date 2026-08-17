@@ -95,6 +95,7 @@ export const GET_ORDER_BY_RESTAURANT = gql`
             description
             price
           }
+          defaultOptions
           description
           title
           quantityMinimum
@@ -166,6 +167,7 @@ export const GET_ORDER_BY_RESTAURANT_WITHOUT_PAGINATION = gql`
             description
             price
           }
+          defaultOptions
           description
           title
           quantityMinimum
@@ -240,6 +242,7 @@ export const GET_ORDERS = gql`
             description
             price
           }
+          defaultOptions
           description
           title
           quantityMinimum
@@ -328,6 +331,7 @@ export const GET_ORDERS_WITHOUT_PAGINATION = gql`
             description
             price
           }
+          defaultOptions
           description
           title
           quantityMinimum

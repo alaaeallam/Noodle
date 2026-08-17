@@ -91,23 +91,33 @@ export default function LocationPermissionComponent({
       >
         <View className="h-fit w-full bg-transparent justify-around items-center">
           <View
-            className="h-fit w-[95%] p-4 items-center justify-around  rounded-[16px]"
+            className="h-fit w-[95%] p-5 items-center justify-around"
             style={{
-              backgroundColor: appTheme.themeBackground,
+              backgroundColor: appTheme.white,
               borderColor: appTheme.borderLineColor,
-              borderWidth: 1,
+              borderWidth: 2,
             }}
           >
-            <View className="gap-y-2">
+            <View className="gap-y-2.5">
               <Text
-                className="font-[Inter] font-semibold text-[20px] leading-[28px] tracking-[0px] text-center"
-                style={{ color: appTheme.fontMainColor }}
+                style={{
+                  color: appTheme.fontMainColor,
+                  fontFamily: "Anton",
+                  fontSize: 20,
+                  textTransform: "uppercase",
+                  textAlign: "center",
+                  lineHeight: 22,
+                }}
               >
                 {t("Enable Location For Better Experience")}
               </Text>
               <Text
-                className="font-[Inter] font-[400] text-[14px] leading-[28px] tracking-[0px] text-center"
-                style={{ color: appTheme.fontSecondColor }}
+                style={{
+                  color: appTheme.fontSecondColor,
+                  fontSize: 14,
+                  lineHeight: 20,
+                  textAlign: "center",
+                }}
               >
                 {t(
                   "We need your location to find nearby restaurants, ensure accurate delivery, and provide the best service possible",
@@ -116,20 +126,25 @@ export default function LocationPermissionComponent({
             </View>
 
             <TouchableOpacity
-              className="h-10 rounded-3xl py-2 mt-4 w-[90%]"
-              style={{ backgroundColor: appTheme.primary }}
+              className="items-center justify-center mt-4 w-full"
+              style={{ height: 52, backgroundColor: appTheme.primary }}
               onPress={() => {
                 askLocationPermission();
               }}
             >
               {isLoading ? (
-                <SpinnerComponent />
+                <SpinnerComponent color={appTheme.white} />
               ) : (
                 <Text
-                  className="text-center text-[14px] font-medium"
-                  style={{ color: appTheme.black }}
+                  style={{
+                    color: appTheme.white,
+                    fontFamily: "Anton",
+                    fontSize: 15,
+                    textTransform: "uppercase",
+                    letterSpacing: 0.4,
+                  }}
                 >
-                  Continue
+                  {t("Continue")}
                 </Text>
               )}
             </TouchableOpacity>

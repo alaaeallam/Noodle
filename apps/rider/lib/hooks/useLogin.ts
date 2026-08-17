@@ -88,14 +88,12 @@ function onDefaultCredsCompleted({ lastOrderCreds }: { lastOrderCreds: IRiderDef
       setIsLoading(true);
 
       const notificationToken = await getNotificationToken();
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       await login({
         variables: {
           username: username.toLowerCase(),
           password,
           notificationToken,
-          timeZone,
         },
       });
     } catch (err) {

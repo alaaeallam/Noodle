@@ -52,18 +52,19 @@ const CustomDrawerHeader = () => {
 
   return (
     <View
-      className={` w-full h-[15%] flex-row justify-between p-3 pt-6 top-0 bottom-4`}
-      style={{ backgroundColor: appTheme.primary }}
+      className="w-full flex-col gap-3 px-5 pb-[18px]"
+      style={{ backgroundColor: appTheme.primary, paddingTop: 48 }}
     >
-      <View className="justify-between flex-1">
+      <View className="flex-row items-start justify-between">
         <View
-          className="w-[32px] h-[32px] rounded-full items-center justify-center overflow-hidden"
-          style={{ backgroundColor: appTheme.white }}
+          className="w-[54px] h-[54px] items-center justify-center"
+          style={{ backgroundColor: appTheme.black }}
         >
           <Text
-            className="text-[16px] font-semibold"
+            className="text-[20px]"
             style={{
-              color: appTheme.primary,
+              color: appTheme.white,
+              fontFamily: "Anton",
             }}
           >
             {dataProfile?.name
@@ -81,74 +82,87 @@ const CustomDrawerHeader = () => {
               ) ?? "JS"}
           </Text>
         </View>
-        <View className="flex-1 pr-2">
+
+        <View className="items-end gap-1.5">
           <Text
-            className="font-semibold text-[16px]"
+            className="text-[11px] uppercase"
             style={{
-              color: appTheme.black,
+              color: appTheme.white,
+              fontFamily: "Archivo800",
+              letterSpacing: 1.4,
             }}
-            numberOfLines={1}
-            ellipsizeMode="tail"
           >
-            {dataProfile?.name ?? t("rider name")}
+            {t("Availability")}
           </Text>
+          {loading || loadingProfile ? (
+            <SpinnerComponent color={appTheme.white} />
+          ) : (
+            <CustomSwitch
+              value={isRiderAvailable}
+              isDisabled={loading}
+              onToggle={async () => {
+                try {
+                  if (!dataProfile?._id?.toString()) {
+                    showMessage({
+                      message: t("User ID is missing"),
+                      type: "danger",
+                    });
+                    return;
+                  }
+
+                  await toggleAvailablity({
+                    variables: { id: dataProfile?._id?.toString() ?? "" },
+                  });
+                } catch (error) {
+                  // Error is already handled in the mutation's onError callback
+                  console.error("Toggle availability error:", error);
+                }
+              }}
+            />
+          )}
           <Text
-            className="font-medium"
+            className="text-[11px] uppercase"
             style={{
-              color: appTheme.secondaryTextColor,
+              color: appTheme.white,
+              fontFamily: "Archivo800",
+              letterSpacing: 1,
             }}
-            numberOfLines={2}
-            ellipsizeMode="tail"
           >
-            {dataProfile?._id.substring(0, 9).toUpperCase() ?? "rider id"}{" "}
-            aklsdjaskldjaskldsjdaklsdjaskldjas
+            {isBoolean(dataProfile?.available)
+              ? dataProfile?.available
+                ? t("Available")
+                : t("Paused")
+              : ""}
           </Text>
         </View>
       </View>
 
-      <View className="items-end justify-end gap-2">
+      <View className="gap-0.5">
         <Text
-          className="text-md"
-          style={{ color: appTheme.secondaryTextColor }}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={{
+            color: appTheme.white,
+            fontFamily: "Anton",
+            fontSize: 26,
+            textTransform: "uppercase",
+            lineHeight: 30,
+          }}
         >
-          {t("Availability")}
+          {dataProfile?.name ?? t("rider name")}
         </Text>
-        {loading || loadingProfile ? (
-          <SpinnerComponent color={appTheme.secondaryTextColor} />
-        ) : (
-          <CustomSwitch
-            value={isRiderAvailable}
-            isDisabled={loading}
-            onToggle={async () => {
-              try {
-                if (!dataProfile?._id?.toString()) {
-                  showMessage({
-                    message: t("User ID is missing"),
-                    type: "danger",
-                  });
-                  return;
-                }
-
-                await toggleAvailablity({
-                  variables: { id: dataProfile?._id?.toString() ?? "" },
-                });
-              } catch (error) {
-                // Error is already handled in the mutation's onError callback
-                console.error("Toggle availability error:", error);
-              }
-            }}
-          />
-        )}
-
         <Text
-          className="text-xs font-medium"
-          style={{ color: appTheme.secondaryTextColor }}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={{
+            color: appTheme.white,
+            fontFamily: "Archivo800",
+            fontSize: 13,
+            letterSpacing: 1,
+            opacity: 0.85,
+          }}
         >
-          {isBoolean(dataProfile?.available)
-            ? dataProfile?.available
-              ? t("Available")
-              : t("Not Available")
-            : ""}
+          {dataProfile?._id.substring(0, 9).toUpperCase() ?? "rider id"}
         </Text>
       </View>
     </View>

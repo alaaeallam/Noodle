@@ -53,49 +53,62 @@ const SetTimeScreenAndAcceptOrder = ({
   };
 
   return (
-    <View className="flex-1 items-center justify-center px-4 pb-20">
-      <View className="mt-4 mb-4 text-center flex-row justify-between items-center">
+    <View className="flex-1 items-center justify-center px-5 pb-20">
+      <View className="mt-4 mb-6 w-full flex-row justify-between items-center">
         <Text
-          className="flex-1 text-center text-[16px] font-[600]"
-          style={{ color: appTheme.fontMainColor }}
+          style={{
+            flex: 1,
+            color: appTheme.fontMainColor,
+            fontFamily: "Anton",
+            fontSize: 22,
+            textTransform: "uppercase",
+          }}
         >
           {t("Set Preparation Time")}
         </Text>
-        <TouchableOpacity onPress={handleDismissModal}>
-          <CircleCrossIcon width={24} height={24} />
+        <TouchableOpacity
+          onPress={handleDismissModal}
+          className="w-9 h-9 items-center justify-center"
+          style={{ backgroundColor: appTheme.black }}
+        >
+          <CircleCrossIcon width={16} height={16} color={appTheme.white} />
         </TouchableOpacity>
       </View>
 
-      <View className="mb-6">
-        <View className="flex-row flex-wrap gap-2 justify-between">
-          {TIMES.map((time, index) => (
-            <Pressable
-              key={index}
-              onPress={() => setSelectedTime(time)}
-              className={`h-fit justify-center items-center  p-4 rounded-[8px] `}
-              style={{
-                backgroundColor:
-                  selectedTime === time ? appTheme.primary : appTheme.white,
-              }}
-            >
-              <Text
-                className={`text-[Inter] text-center items-center text-[14px] font-medium`}
+      <View className="mb-6 w-full">
+        <View className="flex-row flex-wrap gap-3 justify-between">
+          {TIMES.map((time, index) => {
+            const on = selectedTime === time;
+            return (
+              <Pressable
+                key={index}
+                onPress={() => setSelectedTime(time)}
+                className="justify-center items-center px-4 py-3.5"
                 style={{
-                  color:
-                    selectedTime === time ? appTheme.white : appTheme.black,
+                  borderWidth: 2,
+                  borderColor: on ? appTheme.primary : appTheme.horizontalLine,
+                  backgroundColor: on ? appTheme.primary : appTheme.white,
+                  minWidth: "30%",
                 }}
               >
-                {`${time} mins`}
-              </Text>
-            </Pressable>
-          ))}
+                <Text
+                  style={{
+                    color: on ? appTheme.white : appTheme.fontMainColor,
+                    fontFamily: "Archivo800",
+                    fontSize: 14,
+                  }}
+                >
+                  {`${time} mins`}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
       </View>
 
-      <View>
+      <View className="w-full">
         <CustomContinueButton
           isLoading={loadingAcceptOrder || loadingRing}
-          style={{ backgroundColor: appTheme.primary }}
           onPress={onAcceptOrderHandler}
           title={t("Done")}
         />

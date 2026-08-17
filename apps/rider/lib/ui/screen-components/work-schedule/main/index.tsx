@@ -310,17 +310,22 @@ export default function ScheduleScreen() {
             renderItem={({ item, index }) => {
               return (
                 <View
-                  className="border p-4 mb-3 rounded-lg"
+                  className="p-4 mb-3"
                   style={{
-                    backgroundColor: appTheme.themeBackground,
+                    backgroundColor: appTheme.white,
+                    borderWidth: 2,
                     borderColor: appTheme.borderLineColor,
                   }}
                 >
                   {/* Day Header with Toggle */}
                   <View className="flex-row justify-between items-center">
                     <Text
-                      className="text-lg font-bold"
-                      style={{ color: appTheme.fontMainColor }}
+                      style={{
+                        color: appTheme.fontMainColor,
+                        fontFamily: "Anton",
+                        fontSize: 16,
+                        textTransform: "uppercase",
+                      }}
                     >
                       {t(item.day)}
                     </Text>
@@ -364,17 +369,19 @@ export default function ScheduleScreen() {
                                   type: "start",
                                 })
                               }
-                              className={`w-[40%] bg-white p-2 rounded-md`}
+                              className="w-[40%] p-2"
                               style={
-                                isStartTapped ? style.tappedSlot : style.slot
+                                isStartTapped
+                                  ? { ...style.tappedSlot, backgroundColor: appTheme.white, borderColor: appTheme.primary }
+                                  : { ...style.slot, backgroundColor: appTheme.white, borderColor: appTheme.borderLineColor }
                               }
                             >
-                              <Text className="text-center">
+                              <Text style={{ color: appTheme.fontMainColor, textAlign: "center" }}>
                                 {slot.startTime}
                               </Text>
                             </TouchableOpacity>
 
-                            <Text>-</Text>
+                            <Text style={{ color: appTheme.fontSecondColor }}>-</Text>
 
                             {/* End Time Button */}
                             <TouchableOpacity
@@ -385,12 +392,14 @@ export default function ScheduleScreen() {
                                   type: "end",
                                 })
                               }
-                              className="w-[40%] bg-white p-2 rounded-md"
+                              className="w-[40%] p-2"
                               style={
-                                isEndTapped ? style.tappedSlot : style.slot
+                                isEndTapped
+                                  ? { ...style.tappedSlot, backgroundColor: appTheme.white, borderColor: appTheme.primary }
+                                  : { ...style.slot, backgroundColor: appTheme.white, borderColor: appTheme.borderLineColor }
                               }
                             >
-                              <Text className="text-center">
+                              <Text style={{ color: appTheme.fontMainColor, textAlign: "center" }}>
                                 {slot.endTime}
                               </Text>
                             </TouchableOpacity>
@@ -399,9 +408,10 @@ export default function ScheduleScreen() {
                             {item.slots.length > 1 && slotIndex !== 0 && (
                               <TouchableOpacity
                                 onPress={() => removeSlot(index, slotIndex)}
-                                className="w-8 h-8 justify-center items-center border border-red-600 rounded-full"
+                                className="w-8 h-8 justify-center items-center border"
+                                style={{ borderWidth: 2, borderColor: appTheme.textErrorColor }}
                               >
-                                <Text className="text-red-600 font-bold">
+                                <Text style={{ color: appTheme.textErrorColor, fontFamily: "Archivo900" }}>
                                   −
                                 </Text>
                               </TouchableOpacity>
@@ -411,8 +421,8 @@ export default function ScheduleScreen() {
                             {slotIndex === 0 && (
                               <TouchableOpacity
                                 onPress={() => addSlot(index)}
-                                className="w-8 h-8 justify-center items-center border rounded-full"
-                                style={{ borderColor: appTheme.primary }}
+                                className="w-8 h-8 justify-center items-center"
+                                style={{ borderWidth: 2, borderColor: appTheme.primary }}
                               >
                                 <Text
                                   className="font-bold text-center"
@@ -435,16 +445,21 @@ export default function ScheduleScreen() {
       </View>
 
       {!loadingProfile && <TouchableOpacity
-        className="h-12 w-full rounded-3xl py-3"
-        style={{ width: width * 0.9, backgroundColor: appTheme.primary }}
+        className="items-center justify-center"
+        style={{ width: width * 0.9, height: 56, backgroundColor: appTheme.primary }}
         onPress={onHandlerSubmit}
       >
         {isUpatingSchedule ? (
-          <SpinnerComponent />
+          <SpinnerComponent color={appTheme.white} />
         ) : (
           <Text
-            className="text-center text-lg font-medium"
-            style={{ color: appTheme.fontMainColor }}
+            style={{
+              color: appTheme.white,
+              fontFamily: "Anton",
+              fontSize: 18,
+              textTransform: "uppercase",
+              letterSpacing: 0.4,
+            }}
           >
             {t("Update Schedule")}
           </Text>

@@ -51,25 +51,48 @@ SplashScreen.preventAutoHideAsync();
 
 
 function RootLayout() {
+  console.log("DIAG: RootLayout called");
   // Hooks
   const { currentTheme, appTheme } = useApptheme();
-  const [loaded] = useFonts({
+  console.log("DIAG: useApptheme done");
+  const [loaded, fontError] = useFonts({
     SpaceMono: require("../lib/assets/fonts/SpaceMono-Regular.ttf"),
     Inter: require("../lib/assets/fonts/Inter.ttf"),
+    Anton: require("../lib/assets/fonts/Anton/Anton-Regular.ttf"),
+    Archivo400: require("../lib/assets/fonts/Archivo/Archivo-Regular.ttf"),
+    Archivo500: require("../lib/assets/fonts/Archivo/Archivo-Medium.ttf"),
+    Archivo600: require("../lib/assets/fonts/Archivo/Archivo-SemiBold.ttf"),
+    Archivo700: require("../lib/assets/fonts/Archivo/Archivo-Bold.ttf"),
+    Archivo800: require("../lib/assets/fonts/Archivo/Archivo-ExtraBold.ttf"),
+    Archivo900: require("../lib/assets/fonts/Archivo/Archivo-Black.ttf"),
   });
+  console.log("DIAG: useFonts done", { loaded, fontError });
 
   const client = setupApollo();
+  console.log("DIAG: setupApollo done");
 
-  // Use Effect
+  // A font load failure must never strand the app on a permanent blank
+  // screen - log it and fall back to the system font instead of blocking.
+  const ready = loaded || !!fontError;
+
   useEffect(() => {
-    if (loaded) {
+    if (fontError) {
+      console.error("Font load error:", fontError);
+    }
+  }, [fontError]);
+
+  useEffect(() => {
+    console.log("DIAG: ready effect fired, ready =", ready);
+    if (ready) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [ready]);
 
-  if (!loaded) {
+  if (!ready) {
+    console.log("DIAG: returning null (not ready)");
     return null;
   }
+  console.log("DIAG: rendering full tree");
 
   return (
     <ApolloProvider client={client}>

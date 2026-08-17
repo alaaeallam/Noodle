@@ -13,7 +13,7 @@ const styles = (props = null) =>
     mainContainer: {
       backgroundColor: props !== null ? props?.themeBackground : 'transparent',
       paddingBottom: scale(8),
-      borderRadius: scale(15),
+      borderRadius: 0,
       gap: 8,
       ...alignment.PLmedium,
       ...alignment.PRmedium,
@@ -29,11 +29,11 @@ const styles = (props = null) =>
       backgroundColor: props !== null ? props?.main : '#6FCF97',
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: scale(40)
+      borderRadius: 0
     },
     backButton: {
       backgroundColor: theme.Pink.white,
-      borderRadius: scale(50),
+      borderRadius: 0,
       marginLeft: scale(10),
       width: scale(55),
       alignItems: 'center'

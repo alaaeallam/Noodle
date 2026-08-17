@@ -1,0 +1,47 @@
+diff --git a/node_modules/react-native/Libraries/Core/setUpReactDevTools.js b/node_modules/react-native/Libraries/Core/setUpReactDevTools.js
+index 285ef93..48bca46 100644
+--- a/node_modules/react-native/Libraries/Core/setUpReactDevTools.js
++++ b/node_modules/react-native/Libraries/Core/setUpReactDevTools.js
+@@ -29,7 +29,12 @@ if (__DEV__) {
+   }
+ }
+ 
+-if (__DEV__) {
++// Guards against this whole block re-running if this module is evaluated
++// more than once in the same JS context (e.g. a monorepo/pnpm setup that
++// resolves more than one copy of react-native). Re-running it throws, since
++// setUpFuseboxReactDevToolsDispatcher's global binding is non-configurable.
++if (__DEV__ && global.__RN_DEVTOOLS_SETUP_DONE__ !== true) {
++  global.__RN_DEVTOOLS_SETUP_DONE__ = true;
+   // Register dispatcher on global, which can be used later by Chrome DevTools frontend
+   require('../../src/private/debugging/setUpFuseboxReactDevToolsDispatcher');
+   const {
+diff --git a/node_modules/react-native/src/private/debugging/setUpFuseboxReactDevToolsDispatcher.js b/node_modules/react-native/src/private/debugging/setUpFuseboxReactDevToolsDispatcher.js
+index aecc903..2441b5d 100644
+--- a/node_modules/react-native/src/private/debugging/setUpFuseboxReactDevToolsDispatcher.js
++++ b/node_modules/react-native/src/private/debugging/setUpFuseboxReactDevToolsDispatcher.js
+@@ -106,9 +106,18 @@ class FuseboxReactDevToolsDispatcher {
+   }
+ }
+ 
+-Object.defineProperty(global, '__FUSEBOX_REACT_DEVTOOLS_DISPATCHER__', {
+-  value: FuseboxReactDevToolsDispatcher,
+-  configurable: false,
+-  enumerable: false,
+-  writable: false,
+-});
++// This module can end up evaluated more than once in a single JS context
++// when a monorepo/pnpm setup resolves more than one copy of react-native
++// (e.g. via distinct peer-dependency-driven pnpm store paths). The original
++// unconditional defineProperty crashes on the second evaluation since the
++// property is non-configurable; guard it so re-evaluation is a no-op instead.
++if (
++  Object.getOwnPropertyDescriptor(global, '__FUSEBOX_REACT_DEVTOOLS_DISPATCHER__') == null
++) {
++  Object.defineProperty(global, '__FUSEBOX_REACT_DEVTOOLS_DISPATCHER__', {
++    value: FuseboxReactDevToolsDispatcher,
++    configurable: false,
++    enumerable: false,
++    writable: false,
++  });
++}

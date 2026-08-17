@@ -486,6 +486,7 @@ export const generateDummyFoods = (count: number = 10): IFoodNew[] => {
       __typename: 'Food',
       isActive: true,
       isOutOfStock: false,
+      isFeatured: false,
       subCategory: {
         code: `sub-category-${i + 1}`,
         label: `sub-category-${i + 2}`,

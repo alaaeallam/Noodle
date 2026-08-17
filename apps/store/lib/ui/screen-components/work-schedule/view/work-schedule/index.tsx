@@ -1,5 +1,5 @@
 // Core
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 // Hooks
 import { useApptheme } from "@/lib/context/theme.context";
@@ -44,17 +44,22 @@ export default function WorkScheduleStack({
   return (
     <TouchableOpacity
       onPress={() => setDropdown(null)}
-      className=" border p-4 my-2 rounded-lg"
+      className="p-4 my-2"
       style={{
-        backgroundColor: appTheme.themeBackground,
-        borderColor: appTheme.borderLineColor,
+        backgroundColor: appTheme.white,
+        borderWidth: 2,
+        borderColor: appTheme.horizontalLine,
       }}
     >
       {/* Day Header with Toggle */}
       <View className="flex-row justify-between items-center">
         <Text
-          className="text-lg font-bold"
-          style={{ color: appTheme.fontMainColor }}
+          style={{
+            color: appTheme.fontMainColor,
+            fontFamily: "Anton",
+            fontSize: 17,
+            textTransform: "uppercase",
+          }}
         >
           {t(item.day)}
         </Text>
@@ -100,23 +105,24 @@ export default function WorkScheduleStack({
                       type: "start",
                     })
                   }
-                  className={`w-[40%] p-2 rounded-md`}
-                  style={[
-                    isStartTapped ? style.tappedSlot : style.slot,
-                    { backgroundColor: appTheme.themeBackground },
-                  ]}
+                  className="w-[40%] p-2"
+                  style={{
+                    borderWidth: 2,
+                    borderColor: isStartTapped
+                      ? appTheme.primary
+                      : appTheme.horizontalLine,
+                    backgroundColor: appTheme.white,
+                  }}
                 >
                   <Text
                     className="text-center"
-                    style={{ color: appTheme.fontMainColor }}
+                    style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800" }}
                   >
                     {slot.startTime.join(":")}
                   </Text>
                 </TouchableOpacity>
 
-                <Text className="mx-" style={{ color: appTheme.fontMainColor }}>
-                  -
-                </Text>
+                <Text style={{ color: appTheme.fontMainColor }}>-</Text>
 
                 {/* End Time Button */}
                 <TouchableOpacity
@@ -127,15 +133,18 @@ export default function WorkScheduleStack({
                       type: "end",
                     })
                   }
-                  className="w-[40%] p-2 rounded-md"
-                  style={[
-                    isEndTapped ? style.tappedSlot : style.slot,
-                    { backgroundColor: appTheme.themeBackground },
-                  ]}
+                  className="w-[40%] p-2"
+                  style={{
+                    borderWidth: 2,
+                    borderColor: isEndTapped
+                      ? appTheme.primary
+                      : appTheme.horizontalLine,
+                    backgroundColor: appTheme.white,
+                  }}
                 >
                   <Text
                     className="text-center"
-                    style={{ color: appTheme.fontMainColor }}
+                    style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800" }}
                   >
                     {slot.endTime.join(":")}
                   </Text>
@@ -145,12 +154,10 @@ export default function WorkScheduleStack({
                 {item.times.length > 1 && slotIndex !== 0 && (
                   <TouchableOpacity
                     onPress={() => removeSlot(index, slotIndex)}
-                    className="w-8 h-8 justify-center items-center border rounded-full"
-                    style={{
-                      borderColor: "#dc2626",
-                    }}
+                    className="w-8 h-8 justify-center items-center"
+                    style={{ borderWidth: 2, borderColor: appTheme.primary }}
                   >
-                    <Text style={{ color: "#dc2626" }} className="font-bold">
+                    <Text style={{ color: appTheme.primary, fontWeight: "800" }}>
                       −
                     </Text>
                   </TouchableOpacity>
@@ -160,16 +167,12 @@ export default function WorkScheduleStack({
                 {slotIndex === 0 && (
                   <TouchableOpacity
                     onPress={() => addSlot(index)}
-                    className="w-8 h-8 justify-center items-center border rounded-full"
+                    className="w-8 h-8 justify-center items-center"
                     style={{
-                      backgroundColor: appTheme.themeBackground,
-                      borderColor: appTheme.primary,
+                      backgroundColor: appTheme.primary,
                     }}
                   >
-                    <Text
-                      className=" font-bold text-center"
-                      style={{ color: appTheme.primary }}
-                    >
+                    <Text style={{ color: appTheme.white, fontWeight: "800" }}>
                       +
                     </Text>
                   </TouchableOpacity>
@@ -182,13 +185,3 @@ export default function WorkScheduleStack({
     </TouchableOpacity>
   );
 }
-const style = StyleSheet.create({
-  slot: {
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-  },
-  tappedSlot: {
-    borderWidth: 1,
-    borderColor: "#22c55e",
-  },
-});

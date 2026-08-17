@@ -46,33 +46,47 @@ const DrawerMain = ({
         swipeEnabled: false,
         lazy: true,
         headerStyle: {
-          backgroundColor: appTheme.themeBackground,
+          backgroundColor: appTheme.black,
+          shadowOpacity: 0,
+          elevation: 0,
         },
-        headerTitleStyle: { color: appTheme.mainTextColor },
+        headerTitleStyle: {
+          color: appTheme.white,
+          fontFamily: "Anton",
+          fontSize: 20,
+          textTransform: "uppercase",
+          letterSpacing: 0.4,
+        },
         headerLeft: () => {
           return (
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(DrawerActions.toggleDrawer());
               }}
-              style={{ marginLeft: 16 }}
+              style={{
+                marginLeft: 22,
+                width: 38,
+                height: 38,
+                backgroundColor: appTheme.primary,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <Ionicons name="menu" size={24} color={appTheme.primary} />
+              <Ionicons name="menu" size={18} color={appTheme.white} />
             </TouchableOpacity>
           );
         },
         drawerHideStatusBarOnOpen: true,
-        drawerActiveBackgroundColor: appTheme?.lowOpacityPrimaryColor,
-        drawerActiveTintColor: appTheme?.mainTextColor,
+        drawerActiveBackgroundColor: appTheme?.themeBackground,
+        drawerActiveTintColor: appTheme?.primary,
         headerShadowVisible: false,
-        headerTitleAlign: "center",
+        headerTitleAlign: "left",
         drawerStatusBarAnimation: "slide",
         drawerItemStyle: {
           borderRadius: 0,
-          // marginTop: 4,
         },
         drawerStyle: {
-          backgroundColor: appTheme?.themeBackground,
+          backgroundColor: appTheme?.white,
           marginBottom: 45,
         },
       })}

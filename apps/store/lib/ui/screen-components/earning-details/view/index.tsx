@@ -65,6 +65,7 @@ export default function EarningDetailsMain({
     variables: {
       storeId: userId ?? "",
     },
+    fetchPolicy: "cache-and-network",
   }) as QueryResult<
     IStoreEarningsResponse | undefined,
     {

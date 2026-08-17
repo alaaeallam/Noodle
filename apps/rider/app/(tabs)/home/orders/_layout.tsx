@@ -28,19 +28,19 @@ export default function Layout() {
             className="w-full"
             style={{
               alignItems: "center",
-              borderBottomWidth: focused ? 2 : 0, // Bottom border when selected
-              borderBottomColor: focused ? appTheme.primary : "transparent", // Black border for active tab
-              paddingBottom: 8, // Space between text and border
-
-              backgroundColor: appTheme.themeBackground,
+              borderBottomWidth: focused ? 4 : 0,
+              borderBottomColor: focused ? appTheme.primary : "transparent",
+              paddingBottom: 11,
+              backgroundColor: appTheme.white,
             }}
           >
             <Text
               style={{
-                color: focused ? appTheme.fontMainColor : "#6B7280",
-                fontWeight: 500,
-                fontSize: 14,
-                fontFamily: "Inter",
+                color: focused ? appTheme.fontMainColor : "#9A9A9A",
+                fontFamily: focused ? "Archivo900" : "Archivo800",
+                fontSize: 13,
+                letterSpacing: 0.6,
+                textTransform: "uppercase",
               }}
             >
               {children}
@@ -62,30 +62,33 @@ export default function Layout() {
         },
         tabBarPosition: "bottom",
         tabBarItemStyle: {
-          height: 40,
-          // backgroundColor: "transparent",
-          backgroundColor: appTheme.themeBackground,
+          height: 44,
+          backgroundColor: appTheme.white,
         },
 
         tabBarStyle: Platform.select({
           ios: {
             position: "absolute",
             top: 0,
-            height: 30,
+            height: 34,
             shadowColor: "white",
             shadowOpacity: 0,
-            backgroundColor: appTheme.themeBackground,
+            backgroundColor: appTheme.white,
+            borderBottomWidth: 2,
+            borderBottomColor: appTheme.borderLineColor,
             paddingTop: 20,
             color: appTheme.fontMainColor,
           },
           android: {
             position: "absolute",
             top: 0,
-            height: 50,
+            height: 54,
             shadowColor: "white",
             shadowOpacity: 0,
             paddingTop: 20,
-            backgroundColor: appTheme.themeBackground,
+            backgroundColor: appTheme.white,
+            borderBottomWidth: 2,
+            borderBottomColor: appTheme.borderLineColor,
             elevation: 0,
             color: appTheme.fontMainColor,
           },

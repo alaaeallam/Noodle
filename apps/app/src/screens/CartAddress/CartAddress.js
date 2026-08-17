@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { View, TouchableOpacity, FlatList } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { EvilIcons, MaterialIcons } from '@expo/vector-icons'
+import { EvilIcons, MaterialIcons, Entypo, Foundation } from '@expo/vector-icons'
 import { useMutation } from '@apollo/client'
 import gql from 'graphql-tag'
 import { scale } from '../../utils/scaling'
@@ -18,6 +18,8 @@ import { HeaderBackButton } from '@react-navigation/elements'
 import analytics from '../../utils/analytics'
 import navigationService from '../../routes/navigationService'
 import { useTranslation } from 'react-i18next'
+import useLocation from '../../ui/hooks/useLocation'
+import { FlashMessage } from '../../ui/FlashMessage/FlashMessage'
 
 import useNetworkStatus from '../../utils/useNetworkStatus'
 import ErrorView from '../../components/ErrorView/ErrorView'
@@ -25,6 +27,12 @@ import ErrorView from '../../components/ErrorView/ErrorView'
 const SELECT_ADDRESS = gql`
   ${selectAddress}
 `
+
+const ADDRESS_ICONS = {
+  Home: (color) => <Entypo name='home' size={scale(18)} color={color} />,
+  Work: (color) => <MaterialIcons name='work' size={scale(18)} color={color} />
+}
+const addressIcon = (label, color) => (ADDRESS_ICONS[label] ? ADDRESS_ICONS[label](color) : <Foundation name='marker' size={scale(20)} color={color} />)
 
 function CartAddresses(props) {
   const Analytics = analytics()
@@ -39,26 +47,18 @@ function CartAddresses(props) {
   const [tempSelectedAddress, setTempSelectedAddress] = useState(null)
   const [defaultAddress, setDefaultAddress] = useState(null)
   const [isAddressChanged, setIsAddressChanged] = useState(false)
+  const { getCurrentLocation } = useLocation()
+  const [locatingMe, setLocatingMe] = useState(false)
 
   useLayoutEffect(() => {
     props.navigation.setOptions({
-      title: t('cartAddresses'),
+      title: '',
       headerRight: null,
       headerTitleAlign: 'center',
-      headerTitleStyle: {
-        color: currentTheme.newFontcolor,
-        fontWeight: 'bold'
-      },
-      headerTitleContainerStyle: {
-        marginTop: '2%',
-        paddingLeft: scale(25),
-        paddingRight: scale(25),
-        height: '75%',
-        marginLeft: 0
-      },
       headerStyle: {
         backgroundColor: currentTheme.newheaderBG,
-        elevation: 0
+        elevation: 0,
+        shadowOpacity: 0
       },
       headerLeft: () => (
         <HeaderBackButton
@@ -111,9 +111,24 @@ function CartAddresses(props) {
     setIsAddressChanged(defaultAddress ? address._id !== defaultAddress._id : true)
   }
 
+  const onUseCurrentLocation = async () => {
+    setLocatingMe(true)
+    const { coords, error } = await getCurrentLocation()
+    setLocatingMe(false)
+    if (error || !coords) {
+      FlashMessage({ message: t('locationPermissionDenied') })
+      return
+    }
+    props.navigation.navigate('AddNewAddress', {
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      prevScreen: 'CartAddress'
+    })
+  }
+
   const { isConnected:connect,setIsConnected :setConnect} = useNetworkStatus();
   if (!connect) return <ErrorView refetchFunctions={[]} />
-  
+
   return (
     <>
       <View style={[styles().flex, styles(currentTheme).cartAddress]}>
@@ -121,83 +136,97 @@ function CartAddresses(props) {
           data={profile?.addresses?.slice().reverse()}
           keyExtractor={(item) => item._id}
           contentContainerStyle={{ flexGrow: 1 }}
-          ItemSeparatorComponent={() => <View />}
-          ListHeaderComponent={() => <View style={{ ...alignment.MTmedium }} />}
-          renderItem={({ item: address }) => (
-            <View style={{ ...alignment.MBsmall }}>
+          ItemSeparatorComponent={() => <View style={{ height: scale(10) }} />}
+          ListHeaderComponent={() => (
+            <View style={styles(currentTheme).headingBlock}>
+              <TextDefault uppercase bolder small textColor={currentTheme.main} style={styles().eyebrow}>
+                {t('deliverTo')}
+              </TextDefault>
+              <TextDefault H1 bolder textColor={currentTheme.black}>
+                {t('whereAreWeDroppingIt')}
+              </TextDefault>
+              <TextDefault textColor={currentTheme.gray500} style={styles().subtext}>
+                {t('pickSavedSpot')}
+              </TextDefault>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                disabled={locatingMe}
+                style={styles(currentTheme).currentLocationBtn}
+                onPress={onUseCurrentLocation}
+              >
+                <MaterialIcons name='my-location' size={scale(18)} color={currentTheme.white} />
+                <TextDefault H4 bolder textColor={currentTheme.white}>
+                  {locatingMe ? t('loading') : t('useMyCurrentLocation')}
+                </TextDefault>
+              </TouchableOpacity>
+              <TextDefault uppercase bolder small textColor={currentTheme.gray500} style={styles().savedLabel}>
+                {t('saved')}
+              </TextDefault>
+            </View>
+          )}
+          style={{ paddingHorizontal: scale(24) }}
+          renderItem={({ item: address }) => {
+            const isSelected = address._id === (tempSelectedAddress ? tempSelectedAddress._id : location._id)
+            return (
               <TouchableOpacity
                 activeOpacity={0.7}
-                style={[styles(currentTheme).containerSpace]}
+                style={[styles(currentTheme).containerSpace(currentTheme), isSelected && styles(currentTheme).containerSpaceSelected(currentTheme)]}
                 onPress={() => {
                   onSelectAddress(address)
                 }}
               >
-                <View style={styles().width100}>
-                  <View style={[styles(currentTheme).titleAddress, styles().width100]}>
-                    <View style={[styles().homeIcon]}>
-                      <RadioButton
-                        size={13}
-                        outerColor={currentTheme.darkBgFont}
-                        innerColor={currentTheme.radioColor}
-                        animation={'bounceIn'}
-                        isSelected={address._id === (tempSelectedAddress ? tempSelectedAddress._id : location._id)}
-                        onPress={() => {
-                          onSelectAddress(address)
-                        }}
-                      />
-                    </View>
-                    <TextDefault
-                      textColor={currentTheme.fontMainColor}
-                      style={{ width: '70%', textAlign: currentTheme?.isRTL ? 'right' : 'left' }}
-                      H5
-                      bold
-                      isRTL
-                    >
-                      {t(address.label)}
-                    </TextDefault>
-                    <TouchableOpacity
-                      activeOpacity={0.7}
-                      style={styles().width10}
-                      onPress={() => {
-                        const [longitude, latitude] =
-                          address.location.coordinates
-                        props.navigation.navigate('AddNewAddress', {
-                          longitude: +longitude,
-                          latitude: +latitude,
-                          prevScreen: 'CartAddress'
-                        })
-                      }}
-                    >
-                      <EvilIcons
-                        name='pencil'
-                        size={scale(25)}
-                        color={currentTheme.darkBgFont}
-                        style={styles().width100}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={{ ...alignment.MTxSmall }}></View>
-                  <View style={styles().addressDetail}>
-                    <TextDefault
-                      line={4}
-                      textColor={currentTheme.fontSecondColor}
-                      bold
-                      isRTL
-                    >
-                      {address.deliveryAddress}
-                    </TextDefault>
-                    {/* <TextDefault
-                      line={3}
-                      textColor={currentTheme.fontSecondColor}
-                      bold
-                    >
-                      {address.details}
-                    </TextDefault> */}
-                  </View>
+                <View style={styles(currentTheme).addressIconBox}>
+                  {addressIcon(address.label, currentTheme.black)}
                 </View>
+                <View style={styles(currentTheme).addressTextBlock}>
+                  <TextDefault
+                    textColor={currentTheme.black}
+                    H5
+                    bolder
+                    isRTL
+                  >
+                    {t(address.label)}
+                  </TextDefault>
+                  <TextDefault
+                    numberOfLines={2}
+                    textColor={currentTheme.gray500}
+                    small
+                    isRTL
+                  >
+                    {address.deliveryAddress}
+                  </TextDefault>
+                </View>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={styles().editBtn}
+                  onPress={() => {
+                    const [longitude, latitude] =
+                      address.location.coordinates
+                    props.navigation.navigate('AddNewAddress', {
+                      longitude: +longitude,
+                      latitude: +latitude,
+                      prevScreen: 'CartAddress'
+                    })
+                  }}
+                >
+                  <EvilIcons
+                    name='pencil'
+                    size={scale(25)}
+                    color={currentTheme.gray500}
+                  />
+                </TouchableOpacity>
+                <RadioButton
+                  size={14}
+                  outerColor={currentTheme.borderColor}
+                  innerColor={currentTheme.main}
+                  isSelected={isSelected}
+                  onPress={() => {
+                    onSelectAddress(address)
+                  }}
+                />
               </TouchableOpacity>
-            </View>
-          )}
+            )
+          }}
         />
         <View>
           <View style={styles(currentTheme).containerButton}>
@@ -215,7 +244,7 @@ function CartAddresses(props) {
                 setIsAddressChanged(true)
               }}
             >
-              <TextDefault H5 bold>
+              <TextDefault uppercase H4 bolder textColor={currentTheme.black}>
                 {t('addAddress')}
               </TextDefault>
             </TouchableOpacity>
@@ -224,7 +253,7 @@ function CartAddresses(props) {
             <View style={styles(currentTheme).containerButton}>
               <TouchableOpacity
                 activeOpacity={0.5}
-                style={styles(currentTheme).addButton}
+                style={styles(currentTheme).continueButton}
                 onPress={() => {
                   setLocation({
                     _id: tempSelectedAddress._id,
@@ -243,8 +272,8 @@ function CartAddresses(props) {
                   })
                 }}
               >
-                <TextDefault H5 bold>
-                  {t('Done')}
+                <TextDefault uppercase H4 bolder textColor={currentTheme.white}>
+                  {t('continueToTheBurgers')}
                 </TextDefault>
               </TouchableOpacity>
             </View>

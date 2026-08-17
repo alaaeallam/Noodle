@@ -1,45 +1,32 @@
-import React, { useState, useEffect, useContext, useLayoutEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { View, RefreshControl, Animated, Platform, TouchableOpacity } from 'react-native'
 import { useQuery, gql } from '@apollo/client'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import Search from '../../components/Main/Search/Search'
 import { scale } from '../../utils/scaling'
 import styles from './styles'
 import { theme } from '../../utils/themeColors'
 import { useTranslation } from 'react-i18next'
 import ThemeContext from '../../ui/ThemeContext/ThemeContext'
-import { restaurantListPreview, topRatedVendorsInfo, recentOrderRestaurantsQuery, mostOrderedRestaurantsQuery } from '../../apollo/queries'
+import { restaurantListWithMenu } from '../../apollo/queries'
 import TextDefault from '../../components/Text/TextDefault/TextDefault'
-import Item from '../../components/Main/Item/Item'
 import { LocationContext } from '../../context/Location'
+import OrdersContext from '../../context/Orders'
 import { useCollapsibleSubHeader } from 'react-navigation-collapsible'
 import Spinner from '../../components/Spinner/Spinner'
 import { alignment } from '../../utils/alignment'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons'
 import { storeSearch, getRecentSearches, clearRecentSearches } from '../../utils/recentSearch'
-import NewRestaurantCard from '../../components/Main/RestaurantCard/NewRestaurantCard'
+import SearchItemCard from '../../components/Main/SearchItemCard/SearchItemCard'
 import { ScrollView } from 'react-native-gesture-handler'
-import { isOpen, sortRestaurantsByOpenStatus } from '../../utils/customFunctions'
+import { sortRestaurantsByOpenStatus } from '../../utils/customFunctions'
 import { escapeRegExp } from '../../utils/regex'
 
 import useNetworkStatus from '../../utils/useNetworkStatus'
 import ErrorView from '../../components/ErrorView/ErrorView'
 
-const RESTAURANTS = gql`
-  ${restaurantListPreview}
-`
-
-const TOP_RATED_VENDORS = gql`
-  ${topRatedVendorsInfo}
-`
-
-const RECENT_ORDER_RESTAURANTS = gql`
-  ${recentOrderRestaurantsQuery}
-`
-
-const MOST_ORDERED_RESTAURANTS = gql`
-  ${mostOrderedRestaurantsQuery}
+const RESTAURANTS_WITH_MENU = gql`
+  ${restaurantListWithMenu}
 `
 
 const SearchScreen = () => {
@@ -47,6 +34,7 @@ const SearchScreen = () => {
   const [search, setSearch] = useState('')
   const { location, setLocation } = useContext(LocationContext)
   const navigation = useNavigation()
+  const route = useRoute()
   const themeContext = useContext(ThemeContext)
   const currentTheme = {
     isRTL: i18n.dir() === 'rtl',
@@ -69,7 +57,7 @@ const SearchScreen = () => {
           useNativeDriver: true
         }).start(() => {
           // Update hasAnimated to true after the first animation
-          if (index === restaurants.length - 1) {
+          if (index === categoryTags.length - 1) {
             setHasAnimated(true)
           }
         })
@@ -87,39 +75,16 @@ const SearchScreen = () => {
     )
   }
 
-  const { data, refetch, networkStatus, loading, error } = useQuery(RESTAURANTS, {
+  const { data, refetch, networkStatus, loading, error } = useQuery(RESTAURANTS_WITH_MENU, {
     variables: {
       longitude: location.longitude || null,
       latitude: location.latitude || null,
-      shopType: null,
-      ip: null
+      shopType: null
     },
     fetchPolicy: 'network-only'
   })
 
-  const { data: topRatedData } = useQuery(TOP_RATED_VENDORS, {
-    variables: {
-      longitude: location.longitude || null,
-      latitude: location.latitude || null
-    },
-    skip: !location.latitude || !location.longitude
-  })
-
-  const { data: recentOrderData } = useQuery(RECENT_ORDER_RESTAURANTS, {
-    variables: {
-      longitude: location.longitude || null,
-      latitude: location.latitude || null
-    },
-    skip: !location.latitude || !location.longitude
-  })
-
-  const { data: mostOrderedData } = useQuery(MOST_ORDERED_RESTAURANTS, {
-    variables: {
-      longitude: location.longitude || null,
-      latitude: location.latitude || null
-    },
-    skip: !location.latitude || !location.longitude
-  })
+  const { orders } = useContext(OrdersContext)
 
   useEffect(() => {
     navigation.setOptions({
@@ -148,53 +113,54 @@ const SearchScreen = () => {
     getRecentSearches().then((searches) => setRecentSearches(searches))
   }, [search])
 
+  useEffect(() => {
+    if (route.params?.presetSearch) {
+      setSearch(route.params.presetSearch)
+      navigation.setParams({ presetSearch: undefined })
+    }
+  }, [route.params?.presetSearch])
+
   const { onScroll /* Event handler */, containerPaddingTop /* number */, scrollIndicatorInsetTop /* number */ } = useCollapsibleSubHeader()
 
-  const nearbyRestaurants = data?.nearByRestaurantsPreview?.restaurants || []
-  const topRatedRestaurants = topRatedData?.topRatedVendorsPreview || []
-  const recentOrderRestaurants = recentOrderData?.recentOrderRestaurantsPreview || []
-  const mostOrderedRestaurants = mostOrderedData?.mostOrderedRestaurantsPreview || []
+  const restaurants = sortRestaurantsByOpenStatus(data?.nearByRestaurantsPreview?.restaurants || [])
 
-  // Combine all restaurants and remove duplicates
-  const allRestaurants = [
-    ...nearbyRestaurants,
-    ...topRatedRestaurants,
-    ...recentOrderRestaurants,
-    ...mostOrderedRestaurants
-  ]
-  
-  const restaurants = allRestaurants.filter((restaurant, index, self) => 
-    index === self.findIndex(r => r._id === restaurant._id)
+  // Flatten every open restaurant's menu into one searchable item list —
+  // this is a single-vendor app with a handful of physical locations, so
+  // customers search for a burger, not a store name.
+  const searchableItems = restaurants.flatMap((restaurant) =>
+    (restaurant?.categories || []).flatMap((category) =>
+      (category?.foods || [])
+        .filter((food) => !food?.isOutOfStock)
+        .map((food) => ({
+          ...food,
+          restaurant: restaurant._id,
+          restaurantName: restaurant.name,
+          restaurantAddons: restaurant.addons || [],
+          restaurantOptions: restaurant.options || [],
+          categoryTitle: category?.title,
+          price: food?.variations?.[0]?.price,
+          discounted: food?.variations?.[0]?.discounted
+        }))
+    )
   )
 
-  const searchAllShops = (searchText) => {
-    const data = []
+  const orderedFoodIds = new Set((orders || []).flatMap((order) => (order?.items || []).map((item) => item.food)))
+
+  const searchAllItems = (searchText) => {
     const escapedSearchText = escapeRegExp(searchText)
     const regex = new RegExp(escapedSearchText, 'i')
 
-    restaurants?.forEach((restaurant) => {
-      const nameMatch = restaurant.name.search(regex) > -1
-      const keywordMatch = restaurant.keywords?.some((keyword) => {
-        const result = keyword.search(regex)
-        return result > -1
-      })
-      
-      if (nameMatch || keywordMatch) {
-        data.push(restaurant)
-      }
+    return searchableItems.filter((item) => {
+      const titleMatch = item.title?.search(regex) > -1
+      const descriptionMatch = item.description?.search(regex) > -1
+      const categoryMatch = item.categoryTitle?.search(regex) > -1
+      return titleMatch || descriptionMatch || categoryMatch
     })
-    return data
   }
 
-  function getUniqueTags(restaurants) {
-    const allTags = new Set()
-    restaurants?.forEach((restaurant) => {
-      restaurant?.tags?.forEach((tag) => allTags.add(tag))
-    })
-    return Array.from(allTags) // Convert Set back to an array
-  }
-
-  const uniqueTags = getUniqueTags(restaurants)
+  const categoryTags = Array.from(
+    new Set(restaurants.flatMap((restaurant) => (restaurant?.categories || []).map((category) => category.title)))
+  )
 
   const { isConnected: connect, setIsConnected: setConnect } = useNetworkStatus()
   if (!connect) return <ErrorView />
@@ -260,11 +226,8 @@ const SearchScreen = () => {
                 }}
               />
             }
-            data={sortRestaurantsByOpenStatus(searchAllShops(search) || [])}
-            renderItem={({ item }) => {
-              const restaurantOpen = isOpen(item)
-              return <NewRestaurantCard {...item} isSearch={search} fullWidth isOpen={restaurantOpen} />
-            }}
+            data={searchAllItems(search)}
+            renderItem={({ item }) => <SearchItemCard item={item} orderedBefore={orderedFoodIds.has(item._id)} searchTerm={search} />}
           />
         </View>
       )
@@ -314,7 +277,7 @@ const SearchScreen = () => {
               <Spinner size={'small'} backColor={'transparent'} spinnerColor={currentTheme.main} />
             </View>
           ) : (
-            uniqueTags.map((tag, index) =>
+            categoryTags.map((tag, index) =>
               hasAnimated ? (
                 <TouchableOpacity key={index} onPress={() => handleTagPress(tag)}>
                   <View style={styles(currentTheme).tagItem}>
@@ -347,7 +310,7 @@ const SearchScreen = () => {
   return (
     <View style={styles(currentTheme).flex}>
       <View style={styles().searchbar}>
-        <Search setSearch={setSearch} search={search} newheaderColor={newheaderColor} placeHolder={t('searchRestaurant')} />
+        <Search setSearch={setSearch} search={search} newheaderColor={newheaderColor} placeHolder={t('searchItems')} />
       </View>
       {search ? (
         renderTagsOrSearches()

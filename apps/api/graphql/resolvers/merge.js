@@ -117,8 +117,8 @@ const transformOrder = async order => {
     _id: order.id,
     zone: zone(order.zone),
     review: review.bind(this, order.review),
-    user: await user.bind(this, order._doc.user),
-    userId: order._doc.user.toString(),
+    user: order._doc.user ? await user.bind(this, order._doc.user) : null,
+    userId: order._doc.user ? order._doc.user.toString() : null,
     orderDate: dateToString(order._doc.orderDate) || dateToString(new Date()),
     items: await order.items.map(item => {
       return {
@@ -155,8 +155,25 @@ const transformOrder = async order => {
     cancelledAt: order._doc.cancelledAt
       ? dateToString(order._doc.cancelledAt)
       : '',
-    assignedAt: order._doc.assignedAt ? dateToString(order._doc.assignedAt) : ''
+    assignedAt: order._doc.assignedAt ? dateToString(order._doc.assignedAt) : '',
+    hasUnreadChatForRider: hasUnreadChatForRider(order._doc)
   }
+}
+
+// The rider's own messages never count as unread for the rider - only
+// the customer's most recent message, compared against the last time the
+// rider opened the chat screen (chatLastReadByRider).
+const hasUnreadChatForRider = order => {
+  const chat = order.chat || []
+  const riderId = order.rider ? order.rider.toString() : null
+  if (!riderId || chat.length === 0) return false
+  const lastMessage = chat[chat.length - 1]
+  if (lastMessage.user?.id === riderId) return false
+  if (!order.chatLastReadByRider) return true
+  return (
+    new Date(lastMessage.createdAt).getTime() >
+    new Date(order.chatLastReadByRider).getTime()
+  )
 }
 
 const populateReviewsDetail = async restaurantId => {

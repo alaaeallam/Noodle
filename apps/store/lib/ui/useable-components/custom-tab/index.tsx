@@ -17,90 +17,62 @@ const CustomTab = ({
 
   return (
     <View
-      className="sticky top-0 z-10 w-full p-3"
+      className="sticky top-0 z-10 w-full px-4 pt-3 pb-1"
       style={{ backgroundColor: appTheme.themeBackground }}
     >
-      <View
-        className="h-[50px] w-full flex-row p-2 justify-center items-center space-x-2 rounded-[8px]"
-        style={{ backgroundColor: appTheme.themeBackground }}
-      >
-        {options.map((option) => (
-          <TouchableOpacity
-            key={String(option)}
-            onPress={() => setSelectedTab(option)}
-            className={`h-full px-4 py-2 w-1/2 flex items-center justify-center rounded-[8px]`}
-            style={{
-              backgroundColor:
-                selectedTab === option
-                  ? appTheme.primary
-                  : appTheme.themeBackground,
-              borderColor: appTheme.borderLineColor,
-              borderWidth: 1,
-              marginHorizontal: 2,
-            }}
-          >
-            <Text
+      <View className="h-[48px] w-full flex-row" style={{ gap: 12 }}>
+        {options.map((option) => {
+          const isActive = selectedTab === option;
+          const count =
+            option === "Delivery Orders" ? deliveryCount : pickupCount;
+          return (
+            <TouchableOpacity
+              key={String(option)}
+              onPress={() => setSelectedTab(option)}
+              className="flex-1 items-center justify-center"
               style={{
-                color:
-                  selectedTab === option
-                    ? appTheme.fontMainColor
-                    : appTheme.fontSecondColor,
+                position: "relative",
+                backgroundColor: isActive ? appTheme.primary : appTheme.white,
+                borderWidth: 2,
+                borderColor: isActive ? appTheme.primary : appTheme.horizontalLine,
               }}
             >
-              {t(option)}
-            </Text>
-            {option === "Delivery Orders" && (
+              <Text
+                style={{
+                  color: isActive ? appTheme.white : "#8A8A8A",
+                  fontFamily: "Anton",
+                  fontSize: 15,
+                  letterSpacing: 0.6,
+                  textTransform: "uppercase",
+                }}
+              >
+                {t(option)}
+              </Text>
               <View
                 style={{
-                  backgroundColor: appTheme.error,
-                  borderRadius: 100,
-                  width: 20,
-                  height: 20,
+                  position: "absolute",
+                  top: -9,
+                  left: -9,
+                  width: 24,
+                  height: 24,
+                  backgroundColor: appTheme.black,
                   alignItems: "center",
                   justifyContent: "center",
-                  position: "absolute",
-                  left: -3,
-                  top: -5,
                 }}
               >
                 <Text
                   style={{
-                    textAlign: "center",
                     color: appTheme.white,
-                    alignSelf: "center",
+                    fontFamily: "Archivo800",
+                    fontSize: 12,
                   }}
                 >
-                  {deliveryCount}
+                  {count}
                 </Text>
               </View>
-            )}
-            {option === "Pick up Orders" && (
-              <View
-                style={{
-                  backgroundColor: appTheme.error,
-                  borderRadius: 100,
-                  width: 20,
-                  height: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  position: "absolute",
-                  left: -3,
-                  top: -5,
-                }}
-              >
-                <Text
-                  style={{
-                    textAlign: "center",
-                    color: appTheme.white,
-                    alignSelf: "center",
-                  }}
-                >
-                  {pickupCount}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );

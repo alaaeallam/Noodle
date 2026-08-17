@@ -3,6 +3,7 @@ import { View, TouchableOpacity } from 'react-native'
 import styles from './styles'
 import ThemeContext from '../../../ui/ThemeContext/ThemeContext'
 import { theme } from '../../../utils/themeColors'
+import ConfigurationContext from '../../../context/Configuration'
 import TextDefault from '../../Text/TextDefault/TextDefault'
 import { AntDesign } from '@expo/vector-icons'
 import { scale } from '../../../utils/scaling'
@@ -13,6 +14,7 @@ function CartComponent(props) {
   const [quantity, setQuantity] = useState(props?.initialQuantity ?? 1)
   const themeContext = useContext(ThemeContext)
   const currentTheme = theme[themeContext.ThemeValue]
+  const configuration = useContext(ConfigurationContext)
   function onAdd() {
     setQuantity(quantity + 1)
   }
@@ -20,6 +22,8 @@ function CartComponent(props) {
     if (quantity === 1) return
     setQuantity(quantity - 1)
   }
+
+  const total = (Number(props?.unitPrice || 0) * quantity).toFixed(2)
 
   return (
     <View style={styles(currentTheme).mainContainer}>
@@ -56,17 +60,14 @@ function CartComponent(props) {
       </View>
         <TouchableOpacity
           activeOpacity={0.7}
+          disabled={props?.disabled}
           onPress={props?.onPress.bind(this, quantity)}
-          style={
-            !props?.disabled
-              ? styles(currentTheme).btnContainer
-              : {
-                ...styles().btnContainer,
-                backgroundColor: currentTheme.main
-              }
-          }>
-          <TextDefault textColor={currentTheme.black} H5 bolder center>
-            {t('addToCart')}
+          style={[
+            styles(currentTheme).btnContainer,
+            props?.disabled && styles(currentTheme).btnContainerDisabled
+          ]}>
+          <TextDefault uppercase textColor={currentTheme.white} H5 bolder center>
+            {t('addToCart')}{props?.unitPrice ? ` · ${configuration.currencySymbol} ${total}` : ''}
           </TextDefault>
         </TouchableOpacity>
       </View>

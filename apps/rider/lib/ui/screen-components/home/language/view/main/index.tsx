@@ -59,17 +59,21 @@ export default function LanguageMain() {
   }, [isSelected]);
   return (
     <View
-      className="h-[85%] w-[90%] items-center justify-between mx-auto  p-4"
+      className="w-[90%] items-center justify-between mx-auto p-4"
       style={{ backgroundColor: appTheme.screenBackground }}
     >
       {LANGUAGES.map((lng, index) => {
         return (
           <View
             key={`lng-${index}`}
-            className="w-full mx-auto flex flex-row items-center justify-between border-b-2 border-b-gray-300 h-12"
-            style={{ backgroundColor: appTheme.themeBackground }}
+            className="w-full mx-auto flex flex-row items-center justify-between px-3 h-14"
+            style={{
+              backgroundColor: appTheme.white,
+              borderBottomWidth: 2,
+              borderBottomColor: appTheme.borderLineColor,
+            }}
           >
-            <View className="flex flex-row gap-3 items-center justify-center px-3">
+            <View className="flex flex-row gap-3 items-center justify-center">
               <View className="overflow-hidden items-center justify-start w-8 h-6">
                 <Image
                   source={lng.icon}
@@ -78,7 +82,11 @@ export default function LanguageMain() {
                   className="max-w-8 max-h-8"
                 />
               </View>
-              <Text style={{ color: appTheme.fontMainColor }}>{lng.value}</Text>
+              <Text
+                style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800", fontSize: 15 }}
+              >
+                {lng.value}
+              </Text>
             </View>
             <View>
               <CustomRadioButton
@@ -91,7 +99,7 @@ export default function LanguageMain() {
           </View>
         );
       })}
-      <View>
+      <View className="w-full">
         <CustomContinueButton
           title={isChangingLang ? t("Please wait") : t("Update Language")}
           onPress={() => handleSubmission()}

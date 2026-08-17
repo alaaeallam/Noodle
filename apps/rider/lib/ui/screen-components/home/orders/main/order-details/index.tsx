@@ -543,65 +543,170 @@ export default function OrderDetailScreen() {
           maxDynamicContentSize={height * 0.8} // Set a maximum dynamic content size (optional)
         >
           <BottomSheetView
-            className="flex-1  border p-1.5 rounded-lg"
+            className="flex-1 p-2"
             style={{
-              backgroundColor: appTheme.themeBackground,
+              backgroundColor: appTheme.white,
+              borderWidth: 2,
               borderColor: appTheme.borderLineColor,
             }}
           >
             <BottomSheetScrollView
               className="p-2"
               showsVerticalScrollIndicator={false}
-              style={{ backgroundColor: appTheme.themeBackground }}
+              style={{ backgroundColor: appTheme.white }}
             >
               {/* Order ID */}
-              <View className="flex-row justify-between mb-4">
+              <View className="flex-row justify-between items-baseline mb-3">
                 <Text
-                  className="font-bold "
-                  style={{ color: appTheme.fontSecondColor }}
+                  style={{
+                    color: appTheme.fontSecondColor,
+                    fontFamily: "Archivo800",
+                    fontSize: 12,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                  }}
                 >
                   {t("Order ID")}
                 </Text>
-                <Text style={{ color: appTheme.fontMainColor }}>
+                <Text
+                  style={{
+                    color: appTheme.fontMainColor,
+                    fontFamily: "Anton",
+                    fontSize: 20,
+                    letterSpacing: 0.4,
+                  }}
+                >
                   #{localOrder?.orderId ?? "-"}
                 </Text>
               </View>
 
-              <View className="flex-1 flex-row justify-start items-center gap-x-4 mb-4">
-                <Image
-                  src={localOrder?.restaurant?.image}
-                  style={{ width: 32, height: 30, borderRadius: 8 }}
-                />
+              <View className="flex-1 flex-row items-center gap-x-3 mb-4">
+                <View
+                  style={{
+                    width: 44,
+                    height: 44,
+                    backgroundColor: appTheme.primary,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {localOrder?.restaurant?.image ? (
+                    <Image
+                      src={localOrder.restaurant.image}
+                      style={{ width: 44, height: 44 }}
+                    />
+                  ) : (
+                    <Text style={{ color: appTheme.white, fontFamily: "Anton", fontSize: 14 }}>
+                      BTB
+                    </Text>
+                  )}
+                </View>
 
                 {localOrder?.restaurant?.name && (
                   <Text
-                    className="font-[Inter] text-lg font-bold leading-7 text-left underline-offset-auto decoration-skip-ink "
-                    style={{ color: appTheme.fontMainColor }}
+                    style={{
+                      color: appTheme.fontMainColor,
+                      fontFamily: "Archivo900",
+                      fontSize: 17,
+                      textTransform: "uppercase",
+                    }}
                   >
                     {localOrder?.restaurant?.name}
                   </Text>
                 )}
               </View>
 
+              {/* Progress steps (processing tab only) */}
+              {tab === "processing" && (
+                <View
+                  className="mb-4 px-3 py-3"
+                  style={{ backgroundColor: appTheme.themeBackground }}
+                >
+                  {[
+                    { key: "ASSIGNED", kicker: t("Assigned"), text: t("Head to") + " " + (localOrder?.restaurant?.name ?? "") },
+                    { key: "PICKED", kicker: t("Picked up"), text: t("Items collected · bag sealed") },
+                    { key: "DELIVERED", kicker: t("Drop off"), text: localOrder?.deliveryAddress?.deliveryAddress ?? "-" },
+                  ].map((step, i) => {
+                    const stageIdx = { ASSIGNED: 0, PICKED: 1, DELIVERED: 2 }[
+                      localOrder?.orderStatus as string
+                    ] ?? 0;
+                    const done = i < stageIdx;
+                    const now = i === stageIdx;
+                    const dotColor = done ? appTheme.black : now ? appTheme.primary : appTheme.white;
+                    const dotBorder = done ? appTheme.black : now ? appTheme.primary : appTheme.borderLineColor;
+                    const lineColor = done ? appTheme.black : appTheme.borderLineColor;
+                    return (
+                      <View key={step.key} className="flex-row gap-3">
+                        <View className="items-center" style={{ width: 20 }}>
+                          <View
+                            style={{
+                              width: 14,
+                              height: 14,
+                              backgroundColor: dotColor,
+                              borderWidth: 2,
+                              borderColor: dotBorder,
+                            }}
+                          />
+                          {i < 2 && (
+                            <View style={{ width: 2, flex: 1, minHeight: 14, backgroundColor: lineColor }} />
+                          )}
+                        </View>
+                        <View className="pb-3 flex-1">
+                          <Text
+                            style={{
+                              color: appTheme.fontSecondColor,
+                              fontFamily: "Archivo800",
+                              fontSize: 11,
+                              letterSpacing: 1,
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {step.kicker}
+                          </Text>
+                          <Text
+                            style={{
+                              color: done || now ? appTheme.fontMainColor : "#9A9A9A",
+                              fontFamily: "Archivo800",
+                              fontSize: 14,
+                            }}
+                            numberOfLines={2}
+                          >
+                            {step.text}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
+
               {/* Pick Up Order */}
-              <View className="w-[90%] flex-row items-center gap-x-2 mb-4">
+              <View className="w-[90%] flex-row items-center gap-x-2.5 mb-4">
                 <View>
                   <HomeIcon
-                    width={30}
-                    height={30}
+                    width={26}
+                    height={26}
                     color={appTheme.fontMainColor}
                   />
                 </View>
                 <View>
                   <Text
-                    className="font-[Inter] text-base font-semibold leading-6 text-left underline-offset-auto decoration-skip-ink "
-                    style={{ color: appTheme.fontSecondColor }}
+                    style={{
+                      color: appTheme.fontSecondColor,
+                      fontFamily: "Archivo800",
+                      fontSize: 11,
+                      letterSpacing: 1,
+                      textTransform: "uppercase",
+                    }}
                   >
                     {t("Pickup Order")}
                   </Text>
                   <Text
-                    className="font-[Inter] text-base font-bold leading-6 text-left underline-offset-auto decoration-skip-ink "
-                    style={{ color: appTheme.fontMainColor }}
+                    style={{
+                      color: appTheme.fontMainColor,
+                      fontFamily: "Archivo800",
+                      fontSize: 14,
+                    }}
                   >
                     {localOrder?.restaurant?.address ?? "-"}
                   </Text>
@@ -609,44 +714,44 @@ export default function OrderDetailScreen() {
               </View>
 
               {/* Payment Method */}
-              <View className="flex-1 flex-row justify-between items-center mb-4">
-                <Text
-                  className="font-[Inter] text-[16px] text-base font-[500]"
-                  style={{ color: appTheme.fontSecondColor }}
-                >
+              <View className="flex-1 flex-row justify-between items-center mb-3">
+                <Text style={{ color: appTheme.fontSecondColor, fontSize: 15 }}>
                   {t("Payment Method")}
                 </Text>
                 <Text
-                  className="font-[Inter] text-base font-semibold  text-left underline-offset-auto decoration-skip-ink   mr-2"
-                  style={{ color: appTheme.fontMainColor }}
+                  style={{
+                    color: appTheme.fontMainColor,
+                    fontFamily: "Archivo900",
+                    fontSize: 15,
+                    textTransform: "uppercase",
+                  }}
                 >
                   {localOrder?.paymentMethod}
                 </Text>
               </View>
 
               {/* Order Amount */}
-              <View className="w-[99%] flex-row justify-between">
-                <Text
-                  className="flex-1 font-[Inter] text-[16px] text-base font-[500] "
-                  style={{ color: appTheme.fontSecondColor }}
-                >
+              <View className="w-[99%] flex-row justify-between items-baseline pb-3" style={{ borderBottomWidth: 2, borderColor: appTheme.borderLineColor }}>
+                <Text style={{ color: appTheme.fontSecondColor, fontSize: 15 }}>
                   {t("Order Amount")}
                 </Text>
 
                 <Text
-                  className="flex-1 font-[Inter] font-semibold text-right "
-                  style={{ color: appTheme.fontMainColor }}
+                  style={{
+                    color: appTheme.fontMainColor,
+                    fontFamily: "Anton",
+                    fontSize: 18,
+                  }}
                 >
                   {configuration?.currencySymbol}
-                  {localOrder?.orderAmount}
+                  {localOrder?.orderAmount}{" "}
                   {localOrder.paymentStatus === "PAID"
                     ? t("Paid")
                     : t("(Not paid yet)")}
                 </Text>
               </View>
 
-              {/* Divider */}
-              <View className="flex-1 h-[1px] mb-4" />
+              <View className="flex-1 h-4" />
 
               <AccordionItem title={t("Order Details")}>
                 <ItemDetails orderData={localOrder} tab={tab} />
@@ -655,9 +760,25 @@ export default function OrderDetailScreen() {
               {/* Pick up Button */}
               {tab === "processing" &&
                 localOrder.orderStatus === "ASSIGNED" && (
+                <>
+                  <Text
+                    className="text-center mt-4"
+                    style={{
+                      color: localOrder.isReadyToPickUp
+                        ? appTheme.primary
+                        : appTheme.fontSecondColor,
+                      fontFamily: "Archivo800",
+                      fontSize: 13,
+                      letterSpacing: 0.4,
+                    }}
+                  >
+                    {localOrder.isReadyToPickUp
+                      ? t("Restaurant marked this order ready for pickup")
+                      : t("Waiting for restaurant to mark order ready")}
+                  </Text>
                   <TouchableOpacity
-                    className="h-14 rounded-3xl py-3 w-full mt-4 mb-10"
-                    style={{ backgroundColor: appTheme.primary }}
+                    className="w-full mt-4 mb-10 items-center justify-center"
+                    style={{ height: 56, backgroundColor: appTheme.primary }}
                     disabled={loadingOrderStatus}
                     onPress={() =>
                       mutateOrderStatus({
@@ -666,22 +787,28 @@ export default function OrderDetailScreen() {
                     }
                   >
                     {loadingOrderStatus ? (
-                      <SpinnerComponent />
+                      <SpinnerComponent color={appTheme.white} />
                     ) : (
                       <Text
-                        className="text-center  text-lg font-medium"
-                        style={{ color: appTheme.black }}
+                        style={{
+                          color: appTheme.white,
+                          fontFamily: "Anton",
+                          fontSize: 18,
+                          letterSpacing: 0.4,
+                          textTransform: "uppercase",
+                        }}
                       >
                         {t("Pick up")}
                       </Text>
                     )}
                   </TouchableOpacity>
+                </>
                 )}
 
               {tab == "processing" && localOrder.orderStatus === "PICKED" && (
                 <TouchableOpacity
-                  className="h-14 rounded-3xl py-3 w-full mt-4 mb-10"
-                  style={{ backgroundColor: appTheme.primary }}
+                  className="w-full mt-4 mb-10 items-center justify-center"
+                  style={{ height: 56, backgroundColor: appTheme.primary }}
                   disabled={loadingOrderStatus}
                   onPress={async () => {
                     await mutateOrderStatus({
@@ -694,11 +821,16 @@ export default function OrderDetailScreen() {
                   }}
                 >
                   {loadingOrderStatus ? (
-                    <SpinnerComponent color="white" />
+                    <SpinnerComponent color={appTheme.white} />
                   ) : (
                     <Text
-                      className="text-center text-lg font-medium"
-                      style={{ color: appTheme.black }}
+                      style={{
+                        color: appTheme.white,
+                        fontFamily: "Anton",
+                        fontSize: 18,
+                        letterSpacing: 0.4,
+                        textTransform: "uppercase",
+                      }}
                     >
                       {t("Mark as Delivered")}
                     </Text>

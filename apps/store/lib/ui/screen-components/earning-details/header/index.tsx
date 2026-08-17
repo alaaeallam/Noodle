@@ -36,6 +36,7 @@ export default function EarningDetailsHeader() {
       variables: {
         storeId: userId ?? "",
       },
+      fetchPolicy: "cache-and-network",
     },
   ) as QueryResult<IStoreEarningsResponse | undefined, { storeId: string }>;
 
@@ -56,36 +57,49 @@ export default function EarningDetailsHeader() {
         totalDeliveries: totalDeliveries,
       });
     }
-  }, []);
+  }, [riderEarningsData?.storeEarningsGraph?.earnings]);
 
   if (isRiderEarningsLoading) return <SpinnerComponent />;
   return (
     <View
       style={{
-        backgroundColor: appTheme.themeBackground,
-        borderColor: appTheme.borderLineColor,
-        borderWidth: 1,
+        backgroundColor: appTheme.white,
+        borderBottomWidth: 2,
+        borderColor: appTheme.horizontalLine,
         paddingVertical: 12,
       }}
     >
       <Text
-        className="left-5 text-xl font-semibold"
-        style={{ color: appTheme.fontMainColor }}
+        className="left-5"
+        style={{
+          color: appTheme.fontMainColor,
+          fontFamily: "Anton",
+          fontSize: 18,
+          textTransform: "uppercase",
+        }}
       >
-        {t("Summary").length > 15
-          ? t("Summary").substring(0, 15)
-          : t("Summary")}
+        {t("Summary")}
       </Text>
       <View className="flex flex-row justify-between items-center p-5">
         <View className="flex gap-2 items-center">
-          <Text className="text-lg" style={{ color: appTheme.fontMainColor }}>
-            {t("Total Earnings").length > 15
-              ? t("Total Earnings")
-              : t("Total Earnings")}
+          <Text
+            style={{
+              color: "#6B6B6B",
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1.2,
+              textTransform: "uppercase",
+            }}
+          >
+            {t("Total Earnings")}
           </Text>
           <Text
-            className="font-semibold text-lg text-start self-start"
-            style={{ color: appTheme.fontMainColor }}
+            className="text-start self-start"
+            style={{
+              color: appTheme.fontMainColor,
+              fontFamily: "Anton",
+              fontSize: 22,
+            }}
           >
             ${Number(storeEarningsGrandTotal.earnings).toFixed(2)}
           </Text>
@@ -94,17 +108,27 @@ export default function EarningDetailsHeader() {
           className="flex gap-2 items-center pl-3"
           style={{
             borderLeftWidth: 2,
-            borderLeftColor: appTheme.borderLineColor,
+            borderLeftColor: appTheme.horizontalLine,
           }}
         >
-          <Text className="text-lg" style={{ color: appTheme.fontMainColor }}>
-            {t("Total Deliveries").length > 15
-              ? t("Total Deliveries")
-              : t("Total Deliveries")}
+          <Text
+            style={{
+              color: "#6B6B6B",
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1.2,
+              textTransform: "uppercase",
+            }}
+          >
+            {t("Total Deliveries")}
           </Text>
           <Text
-            className="font-semibold text-lg text-start self-start"
-            style={{ color: appTheme.fontMainColor }}
+            className="text-start self-start"
+            style={{
+              color: appTheme.fontMainColor,
+              fontFamily: "Anton",
+              fontSize: 22,
+            }}
           >
             {storeEarningsGrandTotal.totalDeliveries}
           </Text>

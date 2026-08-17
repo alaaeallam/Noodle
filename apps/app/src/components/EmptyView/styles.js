@@ -24,10 +24,9 @@ const styles = (props = null) =>
       ...alignment.Plarge
     },
     emptyButton: {
-      backgroundColor: props !== null ? props?.newheaderColor : 'transparent',
-      width: '70%',
-      height: scale(40),
-      borderRadius: 50,
+      backgroundColor: props !== null ? props?.newheaderColor : '#FF1D02',
+      width: '85%',
+      height: scale(54),
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center'

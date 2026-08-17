@@ -8,19 +8,28 @@ import { useTranslation } from "react-i18next";
 // Core
 import { Text, View } from "react-native";
 
-export default function NoRecordFound() {
+export default function NoRecordFound({
+  msg = "No record found",
+}: {
+  msg?: string;
+}) {
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
   return (
-    <View className="items-center flex flex-row my-24 justify-center">
+    <View className="items-center flex-col gap-y-2 my-24 justify-center px-10">
+      <Ionicons name="sad-outline" color={appTheme.primary} size={28} />
       <Text
-        className="font-bold text-center"
-        style={{ color: appTheme.fontMainColor }}
+        style={{
+          color: appTheme.fontMainColor,
+          fontFamily: "Anton",
+          fontSize: 18,
+          textTransform: "uppercase",
+          textAlign: "center",
+        }}
       >
-        {t("No record found")}
+        {t(msg)}
       </Text>
-      <Ionicons name="sad-outline" size={20} />
     </View>
   );
 }

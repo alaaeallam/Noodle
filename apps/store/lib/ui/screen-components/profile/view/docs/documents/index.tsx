@@ -25,9 +25,12 @@ export default function DocumentsSection() {
       >
         <View className="flex flex-row w-full justify-between items-start">
           <Text
-            className="font-bold"
             style={{
               color: appTheme.fontMainColor,
+              fontFamily: "Archivo800",
+              fontSize: 12,
+              letterSpacing: 1.2,
+              textTransform: "uppercase",
             }}
           >
             {t("Bank Details")}
@@ -44,10 +47,27 @@ export default function DocumentsSection() {
           </TouchableOpacity>
         </View>
         <View
-          className={`${dataProfile?.bussinessDetails?.accountNumber ? "bg-[#E0F2FE]" : "bg-[#FEE2E2]"} p-2 border rounded-3xl border-[#E0F2FE]`}
+          className="px-3 py-1.5"
+          style={{
+            backgroundColor: dataProfile?.bussinessDetails?.accountNumber
+              ? appTheme.themeBackground
+              : "#FFF3F1",
+            borderWidth: 2,
+            borderColor: dataProfile?.bussinessDetails?.accountNumber
+              ? appTheme.black
+              : appTheme.primary,
+          }}
         >
           <Text
-            className={`${dataProfile?.bussinessDetails?.accountNumber ? "text-[#0D99FF]" : "text-[#991B1B]"} font-semibold`}
+            style={{
+              color: dataProfile?.bussinessDetails?.accountNumber
+                ? appTheme.black
+                : appTheme.primary,
+              fontFamily: "Archivo800",
+              fontSize: 12,
+              textTransform: "uppercase",
+              letterSpacing: 0.6,
+            }}
           >
             {dataProfile?.bussinessDetails?.accountNumber
               ? t("Submitted Data")
@@ -57,9 +77,13 @@ export default function DocumentsSection() {
       </View>
       <View>
         <Text
-          className="font-bold m-3"
+          className="m-3"
           style={{
             color: appTheme.fontMainColor,
+            fontFamily: "Archivo800",
+            fontSize: 12,
+            letterSpacing: 1.2,
+            textTransform: "uppercase",
           }}
         >
           {t("Other Details")}
@@ -69,6 +93,7 @@ export default function DocumentsSection() {
           style={{ borderColor: appTheme.borderLineColor }}
         >
           <Text
+            className="flex-shrink-0"
             style={{
               color: appTheme.fontMainColor,
             }}
@@ -76,7 +101,11 @@ export default function DocumentsSection() {
             {t("Address")}
           </Text>
           {dataProfile?.address ? (
-            <Text style={{ color: appTheme.fontSecondColor }}>
+            <Text
+              className="flex-1 text-right ml-3"
+              numberOfLines={2}
+              style={{ color: appTheme.fontSecondColor }}
+            >
               {dataProfile?.address}
             </Text>
           ) : (
@@ -88,6 +117,7 @@ export default function DocumentsSection() {
           style={{ borderColor: appTheme.borderLineColor }}
         >
           <Text
+            className="flex-shrink-0"
             style={{
               color: appTheme.fontMainColor,
             }}
@@ -95,7 +125,11 @@ export default function DocumentsSection() {
             {t("Phone")}
           </Text>
           {dataProfile?.phone ? (
-            <Text style={{ color: appTheme.fontSecondColor }}>
+            <Text
+              className="flex-1 text-right ml-3"
+              numberOfLines={1}
+              style={{ color: appTheme.fontSecondColor }}
+            >
               {dataProfile?.phone}
             </Text>
           ) : (
@@ -107,6 +141,7 @@ export default function DocumentsSection() {
           style={{ borderColor: appTheme.borderLineColor }}
         >
           <Text
+            className="flex-shrink-0"
             style={{
               color: appTheme.fontMainColor,
             }}
@@ -114,7 +149,11 @@ export default function DocumentsSection() {
             {t("Username")}
           </Text>
           {dataProfile?.username ? (
-            <Text style={{ color: appTheme.fontSecondColor }}>
+            <Text
+              className="flex-1 text-right ml-3"
+              numberOfLines={1}
+              style={{ color: appTheme.fontSecondColor }}
+            >
               {dataProfile?.username}
             </Text>
           ) : (
@@ -126,6 +165,7 @@ export default function DocumentsSection() {
           style={{ borderColor: appTheme.borderLineColor }}
         >
           <Text
+            className="flex-shrink-0"
             style={{
               color: appTheme.fontMainColor,
             }}
@@ -133,8 +173,11 @@ export default function DocumentsSection() {
             {t("Password")}
           </Text>
           {dataProfile?.password ? (
-            <Text style={{ color: appTheme.fontSecondColor }}>
-              {dataProfile?.password}
+            <Text
+              className="flex-1 text-right ml-3"
+              style={{ color: appTheme.fontSecondColor, letterSpacing: 2 }}
+            >
+              ••••••••
             </Text>
           ) : (
             <Ionicons name="sad-outline" color={appTheme.iconPink} size={20} />
@@ -145,6 +188,7 @@ export default function DocumentsSection() {
           style={{ borderColor: appTheme.borderLineColor }}
         >
           <Text
+            className="flex-shrink-0"
             style={{
               color: appTheme.fontMainColor,
             }}
@@ -152,7 +196,10 @@ export default function DocumentsSection() {
             {t("Wallet Amount")}
           </Text>
           {dataProfile?.currentWalletAmount ? (
-            <Text style={{ color: appTheme.fontSecondColor }}>
+            <Text
+              className="flex-1 text-right ml-3"
+              style={{ color: appTheme.fontSecondColor }}
+            >
               ${dataProfile?.currentWalletAmount?.toFixed(2)}
             </Text>
           ) : (
@@ -162,9 +209,11 @@ export default function DocumentsSection() {
       </View>
       <View className="flex flex-row items-center justify-between w-full my-5 px-5">
         <Text
-          className="text-xl font-bold"
           style={{
             color: appTheme.fontMainColor,
+            fontFamily: "Anton",
+            fontSize: 18,
+            textTransform: "uppercase",
           }}
         >
           {t("Theme")}

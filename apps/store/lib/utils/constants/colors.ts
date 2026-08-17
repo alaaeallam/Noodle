@@ -3,79 +3,89 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
+// BTB (Between The Buns) brand palette — see apps/app/src/utils/themeColors.js
+// for the customer-app equivalent; keep both in sync when the brand changes.
 export const Colors = {
   light: {
-    primary: "#90E36D",
-    themeBackground: "#FAFAFA",
-    iconColor: "#333333",
-    tagColor: "#AAC810",
-    iconPink: "#AAC810",
+    primary: "#FF1D02",
+    themeBackground: "#F4F2EF",
+    iconColor: "#3A3A3A",
+    tagColor: "#FF1D02",
+    iconPink: "#FF1D02",
     radioColor: "#FFF",
-    radioOuterColor: "#AAC810",
-    spinnerColor: "#AAC810",
-    orderComplete: "#89a207",
-    orderUncomplete: "#fe0000",
-    horizontalLine: "#B8B8B8",
-    buttonBackground: "#AAC810",
-    buttonText: "black",
-    buttonBackgroundPink: "#AAC810",
+    radioOuterColor: "#FF1D02",
+    spinnerColor: "#FF1D02",
+    orderComplete: "#1DB20D",
+    orderUncomplete: "#FF1D02",
+    horizontalLine: "#E4E1DD",
+    buttonBackground: "#FF1D02",
+    buttonText: "#FFF",
+    buttonBackgroundPink: "#FF1D02",
     buttonTextPink: "#FFF",
-    textErrorColor: "#FA7751",
-    headerBackground: "#FFF",
-    headerText: "#2a2a2a",
-    fontMainColor: "#212121",
-    fontSecondColor: "#949393",
+    textErrorColor: "#FF1D02",
+    headerBackground: "#0A0A0A",
+    headerText: "#FFF",
+    fontMainColor: "#0A0A0A",
+    fontSecondColor: "#6B6B6B",
     cartContainer: "#FFF",
-    startColor: "#AAC810",
+    startColor: "#FF1D02",
     white: "#FFF",
-    black: "#000",
-    tabNaviatorBackground: "#1F2937",
-    secondaryTextColor: "#4B5563",
-    lowOpacityPrimaryColor: "rgba(144, 227, 109, 0.15)",
-    mainTextColor: "#000000",
-    switchButtonColor: "#4F46E5",
-    sidebarIconBackground: "#E5E7EB",
-    borderLineColor: "rgb(181, 181, 181)",
-    gray: "#e5e5e5",
-    screenBackground: "#FFFF",
-    linkColor: "#0084d4",
-    error: "#ef4444",
+    black: "#0A0A0A",
+    tabNaviatorBackground: "#0A0A0A",
+    secondaryTextColor: "#6B6B6B",
+    lowOpacityPrimaryColor: "rgba(255, 29, 2, 0.08)",
+    mainTextColor: "#0A0A0A",
+    switchButtonColor: "#0A0A0A",
+    sidebarIconBackground: "#F4F2EF",
+    borderLineColor: "#E4E1DD",
+    gray: "#E4E1DD",
+    screenBackground: "#FFF",
+    linkColor: "#FF1D02",
+    error: "#FF1D02",
   },
+  // BTB's mockup defines a single (light) visual identity — white/cream
+  // cards with dark ink text, black used only for chrome (header/nav/badges).
+  // There's no designed dark mode, and several restyled components hardcode
+  // a white card background (`appTheme.white`) with theme-dependent text
+  // (`appTheme.fontMainColor`) on top of it — if `dark.fontMainColor` were
+  // white, that text goes invisible (white-on-white) whenever the device is
+  // in system Dark Mode. So `dark` intentionally mirrors `light` exactly
+  // until BTB has an actual dark-mode design.
   dark: {
-    primary: "#A5C616", // Slightly darker green to avoid too much brightness
-    themeBackground: "black", // Dark gray for background
-    screenBackground: "black",
-    iconColor: "black", // Light gray for icons
-    tagColor: "#8CA30D", // Muted green for tags
-    iconPink: "#8CA30D",
-    radioColor: "#1E1E1E", // Matches the dark background
-    radioOuterColor: "#A5C616",
-    spinnerColor: "#A5C616",
-    orderComplete: "#6F8B05", // Muted green
-    orderUncomplete: "#FF6B6B", // Softer red for dark mode
-    horizontalLine: "#444444", // Dark gray for dividers
-    buttonBackground: "#8CA30D", // Darker green for buttons
-    buttonText: "#FFFF", // Light text for buttons
-    buttonBackgroundPink: "#8CA30D",
-    buttonTextPink: "#1E1E1E",
-    textErrorColor: "#FF8A50", // Softer orange for errors
-    headerBackground: "#2A2A2A", // Darker gray for headers
-    headerText: "#E0E0E0", // Light gray for text
-    fontMainColor: "#E0E0E0", // Light gray for main text
-    fontSecondColor: "#B0B0B0", // Medium gray for secondary text
-    cartContainer: "#1E1E1E", // Matches the dark background
-    startColor: "#8CA30D",
-    white: "#E0E0E0", // Light gray instead of pure white
-    black: "#000",
-    secondaryTextColor: "#4B5563",
-    lowOpacityPrimaryColor: "gray",
-    mainTextColor: "#f2f2f2",
-    switchButtonColor: "#4F46E5",
-    sidebarIconBackground: "#E5E7EB",
-    borderLineColor: "rgb(181, 181, 181)",
-    tabNaviatorBackground: "#1F2937",
-    gray: "#e5e5e5",
-    linkColor: "#0084d4",
-    error: "#ef4444",
+    primary: "#FF1D02",
+    themeBackground: "#F4F2EF",
+    iconColor: "#3A3A3A",
+    tagColor: "#FF1D02",
+    iconPink: "#FF1D02",
+    radioColor: "#FFF",
+    radioOuterColor: "#FF1D02",
+    spinnerColor: "#FF1D02",
+    orderComplete: "#1DB20D",
+    orderUncomplete: "#FF1D02",
+    horizontalLine: "#E4E1DD",
+    buttonBackground: "#FF1D02",
+    buttonText: "#FFF",
+    buttonBackgroundPink: "#FF1D02",
+    buttonTextPink: "#FFF",
+    textErrorColor: "#FF1D02",
+    headerBackground: "#0A0A0A",
+    headerText: "#FFF",
+    fontMainColor: "#0A0A0A",
+    fontSecondColor: "#6B6B6B",
+    cartContainer: "#FFF",
+    startColor: "#FF1D02",
+    white: "#FFF",
+    black: "#0A0A0A",
+    tabNaviatorBackground: "#0A0A0A",
+    secondaryTextColor: "#6B6B6B",
+    lowOpacityPrimaryColor: "rgba(255, 29, 2, 0.08)",
+    mainTextColor: "#0A0A0A",
+    switchButtonColor: "#0A0A0A",
+    sidebarIconBackground: "#F4F2EF",
+    borderLineColor: "#E4E1DD",
+    gray: "#E4E1DD",
+    screenBackground: "#FFF",
+    linkColor: "#FF1D02",
+    error: "#FF1D02",
   },
 };

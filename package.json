@@ -11,6 +11,14 @@
     "dev:app": "pnpm --filter ./apps/app start"
   },
   "devDependencies": {
+    "@sentry/cli": "2.45.0",
     "@types/dotenv": "^6.1.1"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "react-native-css-interop@0.2.1": "patches/react-native-css-interop@0.2.1.patch",
+      "react-native-reanimated@3.17.5": "patches/react-native-reanimated@3.17.5.patch",
+      "react-native@0.79.4": "patches/react-native@0.79.4.patch"
+    }
   }
 }

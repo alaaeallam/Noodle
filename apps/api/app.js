@@ -45,6 +45,10 @@ async function startApolloServer() {
     cache: 'bounded',
 
     introspection: config.NODE_ENV !== 'production',
+    formatError: (err) => {
+      console.error('[GraphQL Error]', JSON.stringify(err, null, 2))
+      return err
+    },
     context: ({ req, res }) => {
       if (!req) return {};
       const { isAuth, userId, userType, restaurantId } = isAuthenticated(req);
@@ -77,12 +81,15 @@ async function startApolloServer() {
   app.set('views', './views')
   app.set('view engine', 'ejs')
 
-  // Use JSON parser for all non-webhook routes
+  // Use JSON parser for all non-webhook routes. The default 100kb limit
+  // rejects base64-encoded image uploads (uploadImageToS3) before they ever
+  // reach a resolver — a raw phone photo is several MB before base64
+  // inflates it further, so give the body room for that.
   app.use((req, res, next) => {
     if (req.originalUrl === '/stripe/webhook') {
       next()
     } else {
-      bodyParser.json()(req, res, next)
+      bodyParser.json({ limit: '20mb' })(req, res, next)
     }
   })
   app.use((req, res, next) => {

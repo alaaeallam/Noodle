@@ -8,6 +8,7 @@ import styles from './styles'
 import { useTranslation } from 'react-i18next'
 import ThemeContext from '../../ui/ThemeContext/ThemeContext'
 import { theme } from '../../utils/themeColors'
+import { fontStyles } from '../../utils/fontStyles'
 
 const EmptyView = ({ title, description, buttonText, navigateTo = 'Main' }) => {
   const { t } = useTranslation()
@@ -21,10 +22,10 @@ const EmptyView = ({ title, description, buttonText, navigateTo = 'Main' }) => {
           <EmptyCart width={scale(200)} height={scale(200)} />
         </View>
         <View style={styles().descriptionEmpty}>
-          <TextDefault bolder center B700 textColor={currentTheme.newFontcolor}>
+          <TextDefault center textColor={currentTheme.newFontcolor} style={{ fontFamily: fontStyles.Anton, fontSize: scale(22), textTransform: 'uppercase' }}>
             {t(title)}
           </TextDefault>
-          <TextDefault center textColor={currentTheme.newFontcolor}>
+          <TextDefault center textColor={currentTheme.fontSecondColor} style={{ marginTop: scale(6) }}>
             {t(description)}
           </TextDefault>
         </View>
@@ -39,11 +40,10 @@ const EmptyView = ({ title, description, buttonText, navigateTo = 'Main' }) => {
           }
         >
           <TextDefault
-            textColor={currentTheme.black}
-            bolder
-            B700
+            textColor={currentTheme.white}
             center
             uppercase
+            style={{ fontFamily: fontStyles.Anton, fontSize: scale(17) }}
           >
             {t(buttonText)}
           </TextDefault>

@@ -272,7 +272,7 @@ export default function DrivingLicenseForm({
             <FormHeader title={t("Driving License")} />
             <View>
               <View className="flex flex-col w-full mb-2">
-                <Text style={{ color: appTheme.fontMainColor }}>
+                <Text style={{ color: appTheme.fontSecondColor, fontFamily: "Archivo800", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
                   {t("License No")}
                 </Text>
                 <TextInput
@@ -280,15 +280,19 @@ export default function DrivingLicenseForm({
                   onChangeText={(licenseNo) =>
                     handleInputChange("number", licenseNo)
                   }
-                  className={`w-full rounded-md border ${error.field === "number" && error.message ? "border-red-600" : "border-gray-300"} p-3 my-2`}
-                  style={{ color: appTheme.fontMainColor }}
+                  className="w-full p-3 my-2"
+                  style={{
+                    color: appTheme.fontMainColor,
+                    borderWidth: 2,
+                    borderColor: error.field === "number" && error.message ? appTheme.textErrorColor : appTheme.borderLineColor,
+                  }}
                 />
                 {error.field === "number" && error.message && (
-                  <Text className="text-red-600">{error.message}</Text>
+                  <Text style={{ color: appTheme.textErrorColor }}>{error.message}</Text>
                 )}
               </View>
               <View className="flex flex-col w-full my-2">
-                <Text style={{ color: appTheme.fontMainColor }}>
+                <Text style={{ color: appTheme.fontSecondColor, fontFamily: "Archivo800", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
                   {t("License Expiry Date")}
                 </Text>
                 <TouchableOpacity
@@ -300,13 +304,14 @@ export default function DrivingLicenseForm({
                     showDatepicker();
                     Keyboard.dismiss();
                   }}
-                  className={`w-full rounded-md border ${error.field === "expiryDate" && error.message ? "border-red-600" : "border-gray-300"} p-3 my-2`}
+                  className="w-full p-3 my-2"
+                  style={{
+                    borderWidth: 2,
+                    borderColor: error.field === "expiryDate" && error.message ? appTheme.textErrorColor : appTheme.borderLineColor,
+                  }}
                 >
                   {!show && (
-                    <Text
-                      className="text-gray-400"
-                      style={{ color: appTheme.fontMainColor }}
-                    >
+                    <Text style={{ color: appTheme.fontMainColor }}>
                       {formData.expiryDate.toDateString()}
                     </Text>
                   )}
@@ -326,16 +331,21 @@ export default function DrivingLicenseForm({
                   </View>
                 </TouchableOpacity>
                 {error.field === "expiryDate" && error.message && (
-                  <Text className="text-red-600">{error.message}</Text>
+                  <Text style={{ color: appTheme.textErrorColor }}>{error.message}</Text>
                 )}
               </View>
               <View className="flex flex-col w-full my-2">
-                <Text style={{ color: appTheme.fontMainColor }}>
+                <Text style={{ color: appTheme.fontSecondColor, fontFamily: "Archivo800", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
                   {t("Add License Document")}
                 </Text>
                 {!uploadedImageUrl || !formData.image ? (
                   <TouchableOpacity
-                    className={`w-full rounded-md border border-dashed ${error.field === "image" && error.message ? "border-red-600" : "border-gray-300"} p-3 h-28 items-center justify-center`}
+                    className="w-full p-3 h-28 items-center justify-center"
+                    style={{
+                      borderWidth: 2,
+                      borderStyle: "dashed",
+                      borderColor: error.field === "image" && error.message ? appTheme.textErrorColor : appTheme.borderLineColor,
+                    }}
                     onPress={pickImage}
                   >
                     {isLoading.isUploading ? (
@@ -346,11 +356,11 @@ export default function DrivingLicenseForm({
                       <UploadIcon />
                     )}
                     {error.field === "image" && error.message && (
-                      <Text className="text-red-600">{error.message}</Text>
+                      <Text style={{ color: appTheme.textErrorColor }}>{error.message}</Text>
                     )}
                   </TouchableOpacity>
                 ) : (
-                  <View className="flex flex-row justify-between border border-gray-300 rounded-md p-4 my-2">
+                  <View className="flex flex-row justify-between p-4 my-2" style={{ borderWidth: 2, borderColor: appTheme.borderLineColor }}>
                     <View className="flex flex-row gap-2">
                       <Ionicons name="image" size={20} color="#3F51B5" />
                       <Text className="text-[#3F51B5] border-b-2 border-b-[#3F51B5]">

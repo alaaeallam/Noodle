@@ -6,7 +6,7 @@ const { height } = Dimensions.get('window')
 const styles = (props = null) =>
   StyleSheet.create({
     offerContainer: {
-      borderRadius: 15,
+      borderRadius: 0,
       width: scale(270),
       height: height * 0.376,
       ...alignment.MRsmall,
@@ -29,7 +29,7 @@ const styles = (props = null) =>
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 1,
-      borderRadius: scale(16),
+      borderRadius: 0,
       backgroundColor: props != null ? props?.cardBackground : '#181818',
       borderWidth: 1,
       borderColor: props != null ? props?.customBorder : '#F3F4F6'
@@ -40,8 +40,8 @@ const styles = (props = null) =>
       width: '100%',
       // borderColor: props != null ? props?.iconBackground : '#E5E7EB',
       // borderWidth: 1,
-      borderBottomLeftRadius: 8,
-      borderBottomRightRadius: 8,
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
       height: '35%',
       justifyContent: 'center',
       gap: 10
@@ -67,8 +67,8 @@ const styles = (props = null) =>
     restaurantImage: {
       width: scale(270),
       height: '100%',
-      borderTopLeftRadius: scale(8),
-      borderTopRightRadius: scale(8)
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0
     },
     imageContainer: {
       position: 'relative',

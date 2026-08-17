@@ -96,7 +96,14 @@ export default function App() {
       await Font.loadAsync({
         MuseoSans300: require('./src/assets/font/MuseoSans/MuseoSans300.ttf'),
         MuseoSans500: require('./src/assets/font/MuseoSans/MuseoSans500.ttf'),
-        MuseoSans700: require('./src/assets/font/MuseoSans/MuseoSans700.ttf')
+        MuseoSans700: require('./src/assets/font/MuseoSans/MuseoSans700.ttf'),
+        Anton: require('./src/assets/font/Anton/Anton-Regular.ttf'),
+        Archivo400: require('./src/assets/font/Archivo/Archivo-Regular.ttf'),
+        Archivo500: require('./src/assets/font/Archivo/Archivo-Medium.ttf'),
+        Archivo600: require('./src/assets/font/Archivo/Archivo-SemiBold.ttf'),
+        Archivo700: require('./src/assets/font/Archivo/Archivo-Bold.ttf'),
+        Archivo800: require('./src/assets/font/Archivo/Archivo-ExtraBold.ttf'),
+        Archivo900: require('./src/assets/font/Archivo/Archivo-Black.ttf')
       })
       // await permissionForPushNotificationsAsync()
       await getActiveLocation()

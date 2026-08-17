@@ -24,7 +24,7 @@ const styles = (props = null, newheaderColor = theme.headerMenuBackground) =>
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center',
-      borderRadius: scale(40),
+      borderRadius: 0,
       backgroundColor: props != null ? props?.color1 : 'black',
 
       shadowColor: props != null ? props?.shadowColor : 'black',

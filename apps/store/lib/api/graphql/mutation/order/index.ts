@@ -33,3 +33,12 @@ export const PICK_UP_ORDER = gql`
     }
   }
 `;
+
+export const MARK_ORDER_READY_FOR_PICKUP = gql`
+  mutation MarkOrderReadyForPickup($_id: String!) {
+    markOrderReadyForPickup(_id: $_id) {
+      _id
+      isReadyToPickUp
+    }
+  }
+`;

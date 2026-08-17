@@ -21,54 +21,141 @@ export default function DocumentsSection({
   const { dataProfile } = useUserContext();
   return (
     <View
-      className="flex flex-col h-[24%] w-full justify-between items-center"
+      className="flex flex-col w-full items-center"
       style={{ backgroundColor: appTheme.screenBackground }}
     >
-      <View className="flex flex-col gap-3 items-start justify-center px-5 w-full border-b-2  border-b-gray-200 py-3">
-        <View className="flex flex-row w-full justify-between">
-          <Text className="font-bold" style={{ color: appTheme.mainTextColor }}>
+      <View className="w-full px-5 pt-4 pb-1">
+        <Text
+          style={{
+            color: appTheme.fontSecondColor,
+            fontFamily: "Archivo800",
+            fontSize: 12,
+            letterSpacing: 1.4,
+            textTransform: "uppercase",
+          }}
+        >
+          {t("Documents")}
+        </Text>
+      </View>
+      <View
+        className="flex-row items-center gap-3 w-full px-5 py-3.5"
+        style={{ backgroundColor: appTheme.white, borderTopWidth: 2, borderColor: appTheme.borderLineColor }}
+      >
+        <View className="flex-1 gap-1.5">
+          <Text
+            style={{
+              color: appTheme.fontMainColor,
+              fontFamily: "Archivo900",
+              fontSize: 15,
+              textTransform: "uppercase",
+            }}
+          >
             {t("Driving License")}
           </Text>
-          <TouchableOpacity onPress={() => setIsFormOpened("LICENSE_FORM")}>
-            <Text className="font-semibold text-[#0EA5E9]">
-              {dataProfile?.licenseDetails ? t("Update") : t("Add")}
+          <View
+            className="self-start px-2.5 py-1"
+            style={{
+              backgroundColor: dataProfile?.licenseDetails
+                ? appTheme.themeBackground
+                : "#FFE3DE",
+            }}
+          >
+            <Text
+              style={{
+                color: dataProfile?.licenseDetails ? appTheme.fontMainColor : "#C21400",
+                fontFamily: "Archivo900",
+                fontSize: 11,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
+            >
+              {dataProfile?.licenseDetails
+                ? t("Submitted Data")
+                : t("Missing Data")}
             </Text>
-          </TouchableOpacity>
+          </View>
         </View>
-        <View
-          className={`${dataProfile?.licenseDetails ? "bg-[#E0F2FE]" : "bg-[#FEE2E2]"} p-2 border rounded-3xl border-[#E0F2FE]`}
+        <TouchableOpacity
+          onPress={() => setIsFormOpened("LICENSE_FORM")}
+          className="items-center justify-center px-4"
+          style={{
+            height: 40,
+            borderWidth: 2,
+            borderColor: dataProfile?.licenseDetails ? appTheme.borderLineColor : appTheme.primary,
+            backgroundColor: dataProfile?.licenseDetails ? appTheme.white : appTheme.primary,
+          }}
         >
           <Text
-            className={`${dataProfile?.licenseDetails ? "text-[#0D99FF]" : "text-[#991B1B]"} font-semibold`}
+            style={{
+              color: dataProfile?.licenseDetails ? appTheme.fontMainColor : appTheme.white,
+              fontFamily: "Anton",
+              fontSize: 14,
+              textTransform: "uppercase",
+            }}
           >
-            {dataProfile?.licenseDetails
-              ? t("Submitted Data")
-              : t("Missing Data")}
+            {dataProfile?.licenseDetails ? t("Update") : t("Add")}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
-      <View className="flex flex-col gap-3 items-start justify-center px-5 w-full border-b-2  border-b-gray-200 py-3">
-        <View className="flex flex-row w-full justify-between">
-          <Text className="font-bold" style={{ color: appTheme.mainTextColor }}>
+      <View
+        className="flex-row items-center gap-3 w-full px-5 py-3.5"
+        style={{ backgroundColor: appTheme.white, borderTopWidth: 2, borderColor: appTheme.borderLineColor }}
+      >
+        <View className="flex-1 gap-1.5">
+          <Text
+            style={{
+              color: appTheme.fontMainColor,
+              fontFamily: "Archivo900",
+              fontSize: 15,
+              textTransform: "uppercase",
+            }}
+          >
             {t("Vehicle Plate")}
           </Text>
-          <TouchableOpacity onPress={() => setIsFormOpened("VEHICLE_FORM")}>
-            <Text className="font-semibold text-[#0EA5E9]">
-              {dataProfile?.vehicleDetails ? t("Update") : t("Add")}
+          <View
+            className="self-start px-2.5 py-1"
+            style={{
+              backgroundColor: dataProfile?.vehicleDetails
+                ? appTheme.themeBackground
+                : "#FFE3DE",
+            }}
+          >
+            <Text
+              style={{
+                color: dataProfile?.vehicleDetails ? appTheme.fontMainColor : "#C21400",
+                fontFamily: "Archivo900",
+                fontSize: 11,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
+            >
+              {dataProfile?.vehicleDetails
+                ? t("Submitted Data")
+                : t("Missing Data")}
             </Text>
-          </TouchableOpacity>
+          </View>
         </View>
-        <View
-          className={`${dataProfile?.vehicleDetails ? "bg-[#E0F2FE]" : "bg-[#FEE2E2]"} p-3 border rounded-3xl border-[#E0F2FE]`}
+        <TouchableOpacity
+          onPress={() => setIsFormOpened("VEHICLE_FORM")}
+          className="items-center justify-center px-4"
+          style={{
+            height: 40,
+            borderWidth: 2,
+            borderColor: dataProfile?.vehicleDetails ? appTheme.borderLineColor : appTheme.primary,
+            backgroundColor: dataProfile?.vehicleDetails ? appTheme.white : appTheme.primary,
+          }}
         >
           <Text
-            className={`${dataProfile?.vehicleDetails ? "text-[#0D99FF]" : "text-[#991B1B]"} font-semibold`}
+            style={{
+              color: dataProfile?.vehicleDetails ? appTheme.fontMainColor : appTheme.white,
+              fontFamily: "Anton",
+              fontSize: 14,
+              textTransform: "uppercase",
+            }}
           >
-            {dataProfile?.vehicleDetails
-              ? t("Submitted Data")
-              : t("Missing Data")}
+            {dataProfile?.vehicleDetails ? t("Update") : t("Add")}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

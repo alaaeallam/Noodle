@@ -1,23 +1,32 @@
 import { StyleSheet } from 'react-native'
 import { scale } from '../../../utils/scaling'
-import { theme } from '../../../utils/themeColors'
 
 const styles = (props = null) =>
   StyleSheet.create({
-  mainContainer: {
-    width: '100%',
-    flexDirection: props?.isRTL ? 'row-reverse' : 'row',
+    mainContainer: {
+      width: '100%',
+      flexDirection: props?.isRTL ? 'row-reverse' : 'row',
+      alignItems: 'center',
       marginVertical: scale(10),
-      justifyContent: 'space-between'
-  },
-  rightContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '25%',
-    backgroundColor: '#F3F4F6',
-    borderRadius: scale(20),
-    borderWidth:scale(1),
-    borderColor:'#E5E7EB'
-  }
-})
+      justifyContent: 'space-between',
+      gap: scale(10)
+    },
+    left: {
+      flex: 1,
+      gap: scale(2)
+    },
+    labelRow: {
+      flexDirection: props?.isRTL ? 'row-reverse' : 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap'
+    },
+    badge: {
+      paddingHorizontal: scale(8),
+      paddingVertical: scale(3),
+      backgroundColor: props != null ? props?.black : '#0A0A0A'
+    },
+    badgeText: {
+      fontSize: scale(10)
+    }
+  })
 export default styles

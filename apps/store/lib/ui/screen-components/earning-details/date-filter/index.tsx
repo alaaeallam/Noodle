@@ -109,8 +109,16 @@ export default function EarningDetailsDateFilter({
           className="flex flex-row gap-2 items-center"
         >
           <View className="flex flex-row items-center gap-2">
-            <Ionicons name="filter" color={Colors.light.primary} size={25} />
-            <Text style={{ color: appTheme.fontMainColor }}>
+            <Ionicons name="filter" color={Colors.light.primary} size={22} />
+            <Text
+              style={{
+                color: appTheme.fontMainColor,
+                fontFamily: "Archivo800",
+                fontSize: 13,
+                letterSpacing: 0.4,
+                textTransform: "uppercase",
+              }}
+            >
               {t("Date Filter")}
             </Text>
           </View>
@@ -126,8 +134,20 @@ export default function EarningDetailsDateFilter({
             }}
           >
             <View className="flex flex-row items-center gap-2">
-              <Ionicons name="remove-sharp" color={"red"} size={25} />
-              <Text style={{ color: appTheme.fontSecondColor }}>
+              <Ionicons
+                name="remove-sharp"
+                color={Colors.light.primary}
+                size={22}
+              />
+              <Text
+                style={{
+                  color: Colors.light.primary,
+                  fontFamily: "Archivo800",
+                  fontSize: 13,
+                  letterSpacing: 0.4,
+                  textTransform: "uppercase",
+                }}
+              >
                 {t("Clear Filters")}
               </Text>
             </View>

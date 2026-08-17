@@ -5,8 +5,10 @@ import {
   Platform,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
+import { router } from "expo-router";
 // UI
 import CustomTab from "@/lib/ui/useable-components/custom-tab";
 // Constants
@@ -129,6 +131,24 @@ function HomeNewOrdersMain(props: IOrderTabsComponentProps) {
             selectedTab={currentTab}
             setSelectedTab={setCurrentTab}
           />
+
+          <TouchableOpacity
+            onPress={() => router.push("/pos")}
+            className="flex-row items-center justify-center px-6 py-2.5 mt-3"
+            style={{ backgroundColor: appTheme.primary }}
+          >
+            <Text
+              style={{
+                color: appTheme.white,
+                fontFamily: "Anton",
+                fontSize: 14,
+                letterSpacing: 0.4,
+                textTransform: "uppercase",
+              }}
+            >
+              {t("New Order")}
+            </Text>
+          </TouchableOpacity>
 
           {loading && (!orders || orders?.length < 1) ? (
             <View className="flex-1">

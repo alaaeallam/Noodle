@@ -51,8 +51,7 @@ export default function EarningBottomBar({
         maxHeight: 350,
         width: "100%",
         height: "100%",
-        backgroundColor: appTheme.themeBackground,
-        borderRadius: 20,
+        backgroundColor: appTheme.white,
         padding: 5,
         alignItems: "center",
         justifyContent: "flex-start",
@@ -69,8 +68,13 @@ export default function EarningBottomBar({
       }}
     >
       <Text
-        className="font-bold text-xl w-full py-5 text-center"
-        style={{ color: appTheme.fontMainColor }}
+        className="w-full py-5 text-center"
+        style={{
+          color: appTheme.fontMainColor,
+          fontFamily: "Anton",
+          fontSize: 20,
+          textTransform: "uppercase",
+        }}
       >
         {t("Earnings")}
       </Text>
@@ -93,61 +97,63 @@ export default function EarningBottomBar({
       />
       <View className="flex flex-col justify-between h-[65%] w-full">
         <View
-          className="flex flex-row justify-between items-center flex-2  p-5"
-          style={{ backgroundColor: appTheme.themeBackground }}
+          className="flex flex-row justify-between items-center p-5"
+          style={{ borderTopWidth: 2, borderColor: appTheme.borderLineColor }}
         >
-          <Text className="font-bold" style={{ color: appTheme.fontMainColor }}>
+          <Text style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800", fontSize: 15 }}>
             {t("Total Earnings")}
           </Text>
-          <Text style={{ color: appTheme.fontSecondColor }}>
+          <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 18 }}>
             ${totalEarnings}
           </Text>
         </View>
-        <View className="flex flex-row justify-between items-center flex-2 p-5">
-          <Text
-            className="font-bold text-md"
-            style={{ color: appTheme.fontMainColor }}
-          >
+        <View
+          className="flex flex-row justify-between items-center p-5"
+          style={{ borderTopWidth: 2, borderColor: appTheme.borderLineColor }}
+        >
+          <Text style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800", fontSize: 15 }}>
             {t("Tips")}
           </Text>
-          <Text
-            className="font-bold text-md"
-            style={{ color: appTheme.fontSecondColor }}
-          >
+          <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 18 }}>
             ${totalTips}
           </Text>
         </View>
-        <View className="flex flex-row justify-between p-5 ">
+        <TouchableOpacity
+          className="flex flex-row justify-between items-center p-5"
+          style={{ borderTopWidth: 2, borderColor: appTheme.borderLineColor }}
+          onPress={() => {
+            router.push({
+              pathname: "/(tabs)/earnings/(routes)/earnings-order-details",
+            });
+            setRiderOrderEarnings(modalVisible.earningsArray);
+            setModalVisible({
+              bool: false,
+              _id: "",
+              date: "",
+              earningsArray: [],
+              totalEarningsSum: 0,
+              totalTipsSum: 0,
+              totalDeliveries: 0,
+            });
+          }}
+        >
           <Text
-            className="text-md text-[#3B82F6] font-bold"
-            style={{ color: appTheme.fontMainColor }}
-          >
-            {t("Deliveries")}({totalDeliveries})
-          </Text>
-          <TouchableOpacity
-            className="flex flex-row gap-2 items-center flex-2"
-            onPress={() => {
-              router.push({
-                pathname: "/(tabs)/earnings/(routes)/earnings-order-details",
-              });
-              setRiderOrderEarnings(modalVisible.earningsArray);
-              setModalVisible({
-                bool: false,
-                _id: "",
-                date: "",
-                earningsArray: [],
-                totalEarningsSum: 0,
-                totalTipsSum: 0,
-                totalDeliveries: 0,
-              });
+            style={{
+              color: appTheme.fontMainColor,
+              fontFamily: "Archivo800",
+              fontSize: 15,
+              textTransform: "uppercase",
             }}
           >
-            <Text className="text-md text-[#3B82F6] font-bold">
+            {t("Deliveries")} ({totalDeliveries})
+          </Text>
+          <View className="flex-row items-center gap-2">
+            <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 18 }}>
               ${totalEarnings - totalTips}
             </Text>
-            <Ionicons name="arrow-forward" size={23} color={"#3B82F6"} />
-          </TouchableOpacity>
-        </View>
+            <Ionicons name="arrow-forward" size={20} color={appTheme.primary} />
+          </View>
+        </TouchableOpacity>
       </View>
     </ReactNativeModal>
   );

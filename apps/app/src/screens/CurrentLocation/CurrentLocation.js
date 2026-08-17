@@ -351,10 +351,10 @@ const allowedLocationStyles = StyleSheet.create({
     lineHeight: 24
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#FF1D02',
     paddingHorizontal: 30,
     paddingVertical: 15,
-    borderRadius: 8
+    borderRadius: 0
   },
   buttonText: {
     color: '#fff',

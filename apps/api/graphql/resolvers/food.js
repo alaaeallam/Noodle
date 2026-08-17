@@ -43,6 +43,7 @@ module.exports = {
           subCategory,
           isActive,
           isOutOfStock,
+          isFeatured,
           variations: variationsInput = []
         } = args.foodInput || {};
 
@@ -63,7 +64,8 @@ module.exports = {
           variations,
           subCategory: subCategory || null,
           isActive: typeof isActive === 'boolean' ? isActive : true,
-          isOutOfStock: !!isOutOfStock
+          isOutOfStock: !!isOutOfStock,
+          isFeatured: !!isFeatured
         });
 
         // Push into the selected category for the restaurant
@@ -90,6 +92,7 @@ module.exports = {
         subCategory,
         isActive,
         isOutOfStock,
+        isFeatured,
         variations: variationsInput = []
       } = args.foodInput || {};
 
@@ -129,7 +132,8 @@ module.exports = {
             variations,
             subCategory: subCategory || null,
             isActive: typeof isActive === 'boolean' ? isActive : true,
-            isOutOfStock: !!isOutOfStock
+            isOutOfStock: !!isOutOfStock,
+            isFeatured: !!isFeatured
           });
 
           await Restaurant.updateOne(
@@ -154,6 +158,7 @@ module.exports = {
         if (typeof subCategory !== 'undefined') updatePayload.subCategory = subCategory || null;
         if (typeof isActive !== 'undefined') updatePayload.isActive = !!isActive;
         if (typeof isOutOfStock !== 'undefined') updatePayload.isOutOfStock = !!isOutOfStock;
+        if (typeof isFeatured !== 'undefined') updatePayload.isFeatured = !!isFeatured;
         if (variationsInput && Array.isArray(variationsInput)) updatePayload.variations = variations;
 
         foodDoc.set(updatePayload);
@@ -182,6 +187,26 @@ module.exports = {
       } catch (err) {
         console.error('updateFoodOutOfStock error:', err);
         throw err;
+      }
+    },
+    updateFoodFeatured: async(_, { id, restaurant, categoryId }, { req }) => {
+      try {
+        await requireRestaurantAccess(req, restaurant, Restaurant)
+        const rest = await Restaurant.findOne({ _id: restaurant })
+        if (!rest) throw new Error('Restaurant not found')
+
+        const cat = rest.categories.id(categoryId)
+        if (!cat) throw new Error('Category not found')
+
+        const foodDoc = cat.foods.id(id)
+        if (!foodDoc) throw new Error('Food not found')
+
+        foodDoc.isFeatured = !foodDoc.isFeatured
+        await rest.save()
+        return true
+      } catch (err) {
+        console.error('updateFoodFeatured error:', err)
+        throw err
       }
     },
     deleteFood: async(_, { id, restaurant, categoryId }, { req }) => {

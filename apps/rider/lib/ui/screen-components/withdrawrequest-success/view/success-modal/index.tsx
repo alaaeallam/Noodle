@@ -23,20 +23,15 @@ const SuccessModal = ({ message }: IWalletSuccessModalProps) => {
   return (
     <View
       style={{
-        shadowRadius: 480,
-        shadowOpacity: 1,
-        shadowColor: "black",
-        borderWidth: 1,
+        borderWidth: 2,
         borderColor: appTheme.borderLineColor,
-        backgroundColor: appTheme.themeBackground,
+        backgroundColor: appTheme.white,
         justifyContent: "center",
         alignItems: "center",
         maxHeight: 400,
         marginTop: 0,
-        borderRadius: 10,
         width: 350,
         padding: 12,
-        boxShadow: `5px 5px 5px ${appTheme.secondaryTextColor}`,
       }}
     >
       <View className="absolute right-3 top-3">
@@ -57,12 +52,17 @@ const SuccessModal = ({ message }: IWalletSuccessModalProps) => {
       />
       <View className="flex flex-col gap-3 items-center justify-center self-center mx-auto w-[80%]">
         <Text
-          className="text-lg font-bold text-center"
-          style={{ color: appTheme.fontMainColor }}
+          style={{
+            color: appTheme.fontMainColor,
+            fontFamily: "Anton",
+            fontSize: 18,
+            textTransform: "uppercase",
+            textAlign: "center",
+          }}
         >
           {message}
         </Text>
-        <Text style={{ color: appTheme.fontSecondColor }}>
+        <Text style={{ color: appTheme.fontSecondColor, fontFamily: "Archivo700" }}>
           {t("Usually it takes 1-2 business days")}
         </Text>
       </View>

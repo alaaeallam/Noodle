@@ -200,41 +200,65 @@ export default function WalletMain() {
     >
       {!isLoading && (
         <View
-          className="flex flex-column gap-4 items-center m-4 p-4 rounded-lg"
-          style={{ backgroundColor: appTheme.themeBackground }}
+          className="gap-1 px-5 py-6"
+          style={{ backgroundColor: appTheme.primary }}
         >
           <Text
-            className="text-[18px] font-[600]"
-            style={{ color: appTheme.secondaryTextColor }}
+            style={{
+              color: appTheme.white,
+              fontFamily: "Archivo800",
+              fontSize: 11,
+              letterSpacing: 1.4,
+              textTransform: "uppercase",
+              opacity: 0.9,
+            }}
           >
             {t("Current Balance")}
           </Text>
           <Text
-            className="font-semibold text-[32px]"
-            style={{ color: appTheme.fontMainColor }}
+            style={{
+              color: appTheme.white,
+              fontFamily: "Anton",
+              fontSize: 46,
+              lineHeight: 48,
+            }}
           >
             ${riderProfileData?.rider.currentWalletAmount ?? 0}
           </Text>
-          <CustomContinueButton
-            title={t("Withdraw Now")}
-            onPress={() => setIsBottomModalOpen((prev) => !prev)}
-          />
         </View>
       )}
+      <View
+        className="px-5 py-4"
+        style={{
+          backgroundColor: appTheme.white,
+          borderBottomWidth: 2,
+          borderColor: appTheme.borderLineColor,
+        }}
+      >
+        <CustomContinueButton
+          title={t("Withdraw Now")}
+          onPress={() => setIsBottomModalOpen((prev) => !prev)}
+          style={{ backgroundColor: appTheme.black, marginTop: 0 }}
+        />
+      </View>
       {riderCurrentWithdrawRequestData?.riderCurrentWithdrawRequest
         ?.requestAmount !== 0 &&
         riderCurrentWithdrawRequestData?.riderCurrentWithdrawRequest && (
           <View
             style={{
-              backgroundColor: appTheme.themeBackground,
+              backgroundColor: appTheme.white,
               borderBottomColor: appTheme.borderLineColor,
-              borderTopColor: "transparen",
-              borderBottomWidth: 1,
+              borderBottomWidth: 2,
             }}
           >
             <Text
-              className="font-bold text-lg p-5 mt-4"
-              style={{ color: appTheme.fontMainColor }}
+              className="px-5 pt-4"
+              style={{
+                color: appTheme.fontMainColor,
+                fontFamily: "Anton",
+                fontSize: 18,
+                textTransform: "uppercase",
+              }}
             >
               {t("Pending Request")}
             </Text>
@@ -258,20 +282,27 @@ export default function WalletMain() {
             />
           </View>
         )}
-      <Text
-        className="font-bold text-lg  p-5 mt-4"
+      <View
+        className="px-5 pt-5 pb-3"
         style={{
-          backgroundColor: appTheme.themeBackground,
-          borderBottomColor: appTheme.borderLineColor,
-          borderTopColor: "transparent",
-          borderBottomWidth: 1,
-          color: appTheme.fontMainColor,
+          backgroundColor: appTheme.white,
+          borderBottomWidth: 2,
+          borderColor: appTheme.borderLineColor,
         }}
       >
-        {t("Recent Transactions")}
-      </Text>
+        <Text
+          style={{
+            color: appTheme.fontMainColor,
+            fontFamily: "Anton",
+            fontSize: 20,
+            textTransform: "uppercase",
+          }}
+        >
+          {t("Recent Transactions")}
+        </Text>
+      </View>
 
-      <ScrollView style={{ backgroundColor: appTheme.themeBackground }}>
+      <ScrollView style={{ backgroundColor: appTheme.white }}>
         {riderTransactionData?.transactionHistory.data.map(
           (transaction, index) => {
             return (

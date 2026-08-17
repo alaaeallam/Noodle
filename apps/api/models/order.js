@@ -11,6 +11,7 @@ const { messageSchema } = require('./message')
 const Earning = require('./earnings')
 const Rider = require('./rider')
 const Restaurant = require('./restaurant')
+const Transaction = require('./transaction')
 const { v4 } = require('uuid')
 const Schema = mongoose.Schema
 
@@ -42,6 +43,13 @@ const orderSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User'
     },
+    orderSource: {
+      type: String,
+      enum: ['CUSTOMER', 'POS'],
+      default: 'CUSTOMER'
+    },
+    customerName: { type: String, default: null },
+    customerPhone: { type: String, default: null },
     paymentStatus: {
       type: String,
       enum: payment_status,
@@ -79,6 +87,13 @@ const orderSchema = new Schema(
       set: v => +parseFloat(v).toFixed(2)
     },
     isPickedUp: {
+      type: Boolean,
+      default: false
+    },
+    // Restaurant-side signal that the food is ready for the assigned rider
+    // to collect. Distinct from orderStatus/PICKED, which is the rider's
+    // own confirmation that they physically have the order.
+    isReadyToPickUp: {
       type: Boolean,
       default: false
     },
@@ -127,6 +142,10 @@ const orderSchema = new Schema(
       default: null
     },
     chat: { type: [messageSchema], default: [] },
+    chatLastReadByRider: {
+      type: Date,
+      default: null
+    },
     isActive: {
       type: Boolean,
       default: true
@@ -144,24 +163,28 @@ const orderSchema = new Schema(
 )
 orderSchema.pre('save', async function(next) {
   const isOrderStatusUpdated = this.modifiedPaths().includes('orderStatus')
-  if (
-    isOrderStatusUpdated &&
-    this.rider &&
-    this.orderStatus === 'DELIVERED' &&
-    this.paymentMethod !== payment_method[0]
-  ) {
+  // Earnings are recorded for every order that reaches DELIVERED, regardless
+  // of payment method (COD sales are still real store revenue) or whether a
+  // rider is assigned (pickup/counter orders have none) - riderEarnings is
+  // simply zeroed out and the rider wallet update skipped when there's no
+  // rider on the order.
+  if (isOrderStatusUpdated && this.orderStatus === 'DELIVERED') {
     const restaurant = await Restaurant.findById(this.restaurant)
     const commissionRate = restaurant?.commissionRate || 0
     const orderAmount = this.orderAmount || 0
-    const deliveryFee = this.deliveryCharges || 0
-    const tip = this.tipping || 0
+    const deliveryFee = this.rider ? (this.deliveryCharges || 0) : 0
+    const tip = this.rider ? (this.tipping || 0) : 0
     const tax = this.taxationAmount || 0
 
     const marketplaceCommission = +(orderAmount * (commissionRate / 100)).toFixed(2)
     const deliveryCommission = 0
     const platformFee = +(marketplaceCommission + deliveryCommission + tax).toFixed(2)
     const storeTotalEarnings = +(orderAmount - marketplaceCommission).toFixed(2)
-    const riderTotalEarnings = +(deliveryFee + tip).toFixed(2)
+    // Riders are salaried employees, not paid per delivery: deliveryFee is a
+    // performance metric only (shown on the Earnings screen), it is never
+    // paid out. Only the tip is the rider's own money, so it's the only
+    // part credited to their wallet.
+    const riderTotalEarnings = +deliveryFee.toFixed(2)
 
     const earning = new Earning({
       orderId: this.orderId,
@@ -175,7 +198,7 @@ orderSchema.pre('save', async function(next) {
         totalEarnings: platformFee
       },
       riderEarnings: {
-        riderId: this.rider,
+        riderId: this.rider || undefined,
         deliveryFee,
         tip,
         totalEarnings: riderTotalEarnings
@@ -187,17 +210,28 @@ orderSchema.pre('save', async function(next) {
       }
     })
     earning.save()
-    Rider.findOneAndUpdate(
-      { _id: this.rider },
-      {
-        $inc: {
-          currentWalletAmount: riderTotalEarnings,
-          totalWalletAmount: riderTotalEarnings
+    if (this.rider && tip > 0) {
+      Rider.findOneAndUpdate(
+        { _id: this.rider },
+        {
+          $inc: {
+            currentWalletAmount: tip,
+            totalWalletAmount: tip
+          }
         }
-      }
-    ).catch(err => {
-      console.log('catch while updating rider wallet', err)
-    })
+      ).catch(err => {
+        console.log('catch while updating rider wallet', err)
+      })
+      new Transaction({
+        transactionId: `TXN-${this.orderId}`,
+        userType: 'RIDER',
+        rider: this.rider,
+        amountTransferred: tip,
+        status: 'PAID'
+      }).save().catch(err => {
+        console.log('catch while saving rider delivery transaction', err)
+      })
+    }
     if (this.restaurant) {
       Restaurant.findOneAndUpdate(
         { _id: this.restaurant },

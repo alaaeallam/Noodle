@@ -4,25 +4,30 @@ import { scale } from '../../utils/scaling'
 export const useStyles = (theme) =>
   StyleSheet.create({
     container: {
-      height: scale(40),
+      height: scale(44),
       flex: 1
     },
     ovalContainer: {
-      backgroundColor: theme?.gray200,
       flex: 1,
-      borderRadius: scale(40),
-      marginHorizontal: scale(10),
+      gap: scale(8),
+      marginHorizontal: scale(16),
       marginVertical: scale(3),
       flexDirection: theme?.isRTL ? 'row-reverse' : 'row'
     },
     ovalButton: {
       flex: 1,
-      borderRadius: scale(40),
-      marginHorizontal: scale(2),
-      marginVertical: scale(2),
+      borderWidth: scale(2),
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center'
+    },
+    ovalButtonActive: {
+      backgroundColor: theme?.black,
+      borderColor: theme?.black
+    },
+    ovalButtonInactive: {
+      backgroundColor: theme?.white,
+      borderColor: theme?.borderColor
     },
     instructionContainer: {
       padding: scale(10),

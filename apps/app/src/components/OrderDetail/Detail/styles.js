@@ -15,7 +15,7 @@ export default StyleSheet.create({
     paddingVertical: scale(25),
     // paddingHorizontal: scale(100),
     backgroundColor: theme.themeBackground,
-    borderRadius: scale(20),
+    borderRadius: 0,
     flexDirection: theme?.isRTL ? 'row-reverse' : 'row'
   }),
 
@@ -45,7 +45,7 @@ export default StyleSheet.create({
     marginVertical: scale(5),
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: theme.gray100,
-    borderRadius: scale(10)
+    borderRadius: 0
   }),
   priceRow: {
     flexDirection: 'row',

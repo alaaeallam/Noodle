@@ -177,6 +177,7 @@ const typeDefs = gql`
     createdAt: String!
     updatedAt: String!
     isOutOfStock: Boolean
+    isFeatured: Boolean
     subCategory: String
   }
 
@@ -232,6 +233,58 @@ const typeDefs = gql`
     vehicleType: String
     assigned: [String]
     bussinessDetails: BussinessDetails
+    licenseDetails: LicenseDetails
+    vehicleDetails: VehicleDetails
+    timeZone: String
+    workSchedule: [DaySchedule!]
+  }
+
+  type LicenseDetails {
+    number: String
+    image: String
+    expiryDate: String
+  }
+
+  type VehicleDetails {
+    number: String
+    image: String
+  }
+
+  type TimeSlot {
+    startTime: String!
+    endTime: String!
+  }
+
+  type DaySchedule {
+    day: String!
+    enabled: Boolean!
+    slots: [TimeSlot!]!
+  }
+
+  input LicenseDetailsInput {
+    number: String
+    image: String
+    expiryDate: String
+  }
+
+  input VehicleDetailsInput {
+    number: String
+    image: String
+  }
+
+  input TimeSlotInput {
+    startTime: String!
+    endTime: String!
+  }
+
+  input DayScheduleInput {
+    day: String!
+    enabled: Boolean!
+    slots: [TimeSlotInput!]!
+  }
+
+  type UploadImageResponse {
+    imageUrl: String!
   }
 
   type Staff {
@@ -436,7 +489,10 @@ const typeDefs = gql`
     restaurant: RestaurantDetail!
     deliveryAddress: OrderAddress!
     items: [Item!]!
-    user: User!
+    user: User
+    orderSource: String
+    customerName: String
+    customerPhone: String
     paymentMethod: String
     paidAmount: Float
     orderAmount: Float
@@ -459,6 +515,7 @@ const typeDefs = gql`
     expectedTime: String
     preparationTime: String
     isPickedUp: Boolean!
+    isReadyToPickUp: Boolean
     acceptedAt: String
     pickedAt: String
     deliveredAt: String
@@ -466,6 +523,7 @@ const typeDefs = gql`
     assignedAt: String
     isRinged: Boolean!
     isRiderRinged: Boolean!
+    hasUnreadChatForRider: Boolean
   }
 
   type MyOrders {
@@ -879,6 +937,35 @@ const typeDefs = gql`
     earnings: [StoreDailyEarnings!]!
   }
 
+  type RiderEarningsOrderDetails {
+    orderType: String
+    orderId: String
+    paymentMethod: String
+  }
+
+  type RiderEarningsArrayItem {
+    orderDetails: RiderEarningsOrderDetails
+    totalEarnings: Float
+    deliveryFee: Float
+    tip: Float
+    date: String
+  }
+
+  type RiderDailyEarnings {
+    _id: String!
+    date: String
+    totalEarningsSum: Float!
+    totalTipsSum: Float!
+    totalHours: Float
+    totalDeliveries: Int!
+    earningsArray: [RiderEarningsArrayItem!]!
+  }
+
+  type RiderEarningsGraphResponse {
+    totalCount: Int!
+    earnings: [RiderDailyEarnings!]!
+  }
+
   input EmailConfigurationInput {
     email: String!
     password: String!
@@ -993,6 +1080,14 @@ const typeDefs = gql`
     specialInstructions: String
   }
 
+  input POSOrderInput {
+    restaurant: String!
+    orderInput: [OrderInput!]!
+    instructions: String
+    customerName: String
+    customerPhone: String
+  }
+
   input VariationInput {
     _id: String
     title: String
@@ -1012,6 +1107,7 @@ const typeDefs = gql`
     variations: [VariationInput!]!
     subCategory: String
     isOutOfStock: Boolean
+    isFeatured: Boolean
     isActive: Boolean
   }
 
@@ -1444,6 +1540,14 @@ image: String
       startDate: String
       endDate: String
     ): StoreEarningsGraphResponse!
+    riderCurrentWithdrawRequest(riderId: String): WithdrawRequest
+    riderEarningsGraph(
+      riderId: ID!
+      page: Int
+      limit: Int
+      startDate: String
+      endDate: String
+    ): RiderEarningsGraphResponse!
     categories: [Category!]!
     foods: [Food!]!
     orders(offset: Int): [Order!]!
@@ -1668,6 +1772,7 @@ image: String
     createFood(foodInput: FoodInput): Restaurant!
     editFood(foodInput: FoodInput): Restaurant!
     updateFoodOutOfStock(id: String!, restaurant: String!, categoryId: String!): Boolean!
+    updateFoodFeatured(id: String!, restaurant: String!, categoryId: String!): Boolean!
     placeOrder(
       restaurant: String!
       orderInput: [OrderInput!]!
@@ -1681,10 +1786,12 @@ image: String
       deliveryCharges: Float!
       instructions: String
     ): Order!
+    placeOrderPOS(orderInput: POSOrderInput!): Order!
     editOrder(_id: String!, orderInput: [OrderInput!]!): Order!
     reviewOrder(reviewInput: ReviewInput!): Order!
     acceptOrder(_id: String!, time: String): Order!
     orderPickedUp(_id: String!): Order!
+    markOrderReadyForPickup(_id: String!): Order!
     cancelOrder(_id: String!, reason: String!): Order!
     likeFood(foodId: String!): Food!
     saveEmailConfiguration(
@@ -1820,7 +1927,12 @@ image: String
     assignOrder(id: String): Order!
     muteRing(orderId: String): Boolean!
     updateRiderLocation(latitude: String!, longitude: String!): Rider!
-    restaurantLogin(username: String!, password: String!): RestaurantAuth!
+    updateRiderBussinessDetails(id: String!, bussinessDetails: BussinessDetailsInput): Rider!
+    updateRiderLicenseDetails(id: String!, licenseDetails: LicenseDetailsInput): Rider!
+    updateRiderVehicleDetails(id: String!, vehicleDetails: VehicleDetailsInput): Rider!
+    updateWorkSchedule(riderId: String!, workSchedule: [DayScheduleInput!]!, timeZone: String!): Rider!
+    uploadImageToS3(image: String!): UploadImageResponse!
+    restaurantLogin(username: String!, password: String!, notificationToken: String): RestaurantAuth!
     createZone(zone: ZoneInput!): Zone!
     editZone(zone: ZoneInput!): Zone!
     deleteZone(id: String!): Zone!
@@ -1846,6 +1958,7 @@ image: String
       message: ChatMessageInput!
       orderId: ID!
     ): ChatMessageResponse!
+    markOrderChatReadByRider(orderId: ID!): Boolean!
     toggleMenuFood(id: ID!, restaurant: ID!, categoryId: ID!): Food!
     sendFormSubmission(
       formSubmissionInput: FormSubmissionInput!

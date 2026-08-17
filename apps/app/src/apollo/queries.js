@@ -425,7 +425,6 @@ export const myOrders = `query Orders($offset:Int){
   orders(offset:$offset){
     _id
     orderId
-      id
     restaurant{
       _id
       name
@@ -440,7 +439,6 @@ export const myOrders = `query Orders($offset:Int){
     }
     items{
       _id
-      id
       title
       food
       description
@@ -448,17 +446,14 @@ export const myOrders = `query Orders($offset:Int){
       image
       variation{
         _id
-        id
         title
         price
         discounted
       }
       addons{
         _id
-        id
         options{
           _id
-          id
           title
           description
           price
@@ -721,6 +716,65 @@ export const restaurantListPreview = `query Restaurants($latitude:Float,$longitu
     }
 }
 }`
+export const restaurantListWithMenu = `query RestaurantsWithMenu($latitude:Float,$longitude:Float,$shopType:String){
+  nearByRestaurantsPreview(latitude:$latitude,longitude:$longitude,shopType:$shopType){
+    restaurants{
+      _id
+      name
+      image
+      address
+      deliveryTime
+      reviewData{
+        total
+        ratings
+      }
+      freeDelivery @client
+      distanceWithCurrentLocation @client
+      location{coordinates}
+      openingTimes{
+        day
+        times {
+          startTime
+          endTime
+        }
+      }
+      categories{
+        _id
+        title
+        foods{
+          _id
+          title
+          image
+          description
+          isOutOfStock
+          isFeatured
+          variations{
+            _id
+            title
+            price
+            discounted
+            addons
+          }
+        }
+      }
+      options{
+        _id
+        title
+        description
+        price
+      }
+      addons{
+        _id
+        options
+        defaultOptions
+        title
+        description
+        quantityMinimum
+        quantityMaximum
+      }
+    }
+}
+}`
 export const topRatedVendorsInfo = gql`
   ${restaurantPreviewFragment}
   query TopRatedVendors($latitude: Float!, $longitude: Float!) {
@@ -780,6 +834,7 @@ export const restaurant = `query Restaurant($id:String){
         subCategory
         description
         isOutOfStock
+        isFeatured
         variations{
           _id
           title

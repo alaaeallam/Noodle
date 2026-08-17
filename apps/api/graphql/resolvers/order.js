@@ -606,6 +606,166 @@ module.exports = {
         throw err
       }
     },
+    placeOrderPOS: async(_, { orderInput }, { req }) => {
+      const {
+        restaurant: restaurantId,
+        orderInput: items,
+        instructions,
+        customerName,
+        customerPhone
+      } = orderInput
+      await requireRestaurantAccess(req, restaurantId, Restaurant)
+      try {
+        const restaurant = await Restaurant.findById(restaurantId)
+        if (!restaurant) {
+          throw new Error('Restaurant not found')
+        }
+        if (!items || items.length === 0) {
+          throw new Error('Cart is empty')
+        }
+
+        const zone = await Zone.findOne({
+          isActive: true,
+          location: {
+            $geoIntersects: { $geometry: restaurant.location }
+          }
+        })
+        if (!zone) {
+          throw new Error('Delivery zone not found')
+        }
+
+        const foods = restaurant.categories.map(c => c.foods).flat()
+        const availableAddons = restaurant.addons
+        const availableOptions = restaurant.options
+
+        const ItemsData = items.map(item => {
+          const food = foods.find(
+            element => element._id.toString() === item.food
+          )
+          if (!food) {
+            throw new Error(`Food item not found: ${item.food}`)
+          }
+          const variation = food.variations.find(
+            v => v._id.toString() === item.variation
+          )
+          if (!variation) {
+            throw new Error(`Variation not found for item: ${food.title}`)
+          }
+          const addonList = []
+          ;(item.addons || []).forEach(data => {
+            const adds = availableAddons.find(
+              addon => addon._id.toString() === data._id.toString()
+            )
+            if (!adds) {
+              throw new Error(`Addon not found: ${data._id}`)
+            }
+            const selectedOptions = data.options.map(option => {
+              const opt = availableOptions.find(
+                op => op._id.toString() === option
+              )
+              if (!opt) {
+                throw new Error(`Option not found: ${option}`)
+              }
+              return opt
+            })
+            addonList.push({
+              ...adds._doc,
+              options: selectedOptions
+            })
+          })
+
+          return new Item({
+            food: item.food,
+            title: food.title,
+            description: food.description,
+            image: food.image,
+            variation,
+            addons: addonList,
+            quantity: item.quantity,
+            specialInstructions: item.specialInstructions
+          })
+        })
+
+        let configuration = await Configuration.findOne()
+        if (!configuration) {
+          configuration = new Configuration()
+          await configuration.save()
+        }
+
+        const orderid =
+          restaurant.orderPrefix + '-' + (Number(restaurant.orderId) + 1)
+        restaurant.orderId = Number(restaurant.orderId) + 1
+        await restaurant.save()
+
+        let price = 0.0
+        ItemsData.forEach(item => {
+          let itemPrice = item.variation.price
+          if (item.addons && item.addons.length > 0) {
+            item.addons.forEach(({ options, defaultOptions }) => {
+              options.forEach(option => {
+                const isDefault = defaultOptions?.includes(
+                  option._id.toString()
+                )
+                if (!isDefault) {
+                  itemPrice = itemPrice + option.price
+                }
+              })
+            })
+          }
+          price += itemPrice * item.quantity
+        })
+
+        const taxRate = restaurant.tax || 0
+        const taxationAmount = +((price * taxRate) / 100).toFixed(2)
+        const orderAmount = +(price + taxationAmount).toFixed(2)
+
+        const orderObj = {
+          zone: zone._id,
+          restaurant: restaurantId,
+          user: null,
+          orderSource: 'POS',
+          customerName: customerName || null,
+          customerPhone: customerPhone || null,
+          items: ItemsData,
+          deliveryAddress: {
+            deliveryAddress: restaurant.address || 'Counter Pickup',
+            label: 'Pickup at Restaurant'
+          },
+          orderId: orderid,
+          paidAmount: 0,
+          orderStatus: 'PENDING',
+          instructions,
+          deliveryCharges: 0,
+          tipping: 0,
+          taxationAmount,
+          orderDate: new Date(),
+          isPickedUp: true,
+          paymentMethod: 'COD',
+          orderAmount,
+          paymentStatus: payment_status[0],
+          completionTime: new Date(
+            Date.now() + restaurant.deliveryTime * 60 * 1000
+          )
+        }
+
+        const order = new Order(orderObj)
+        const result = await order.save()
+        const transformedOrder = await transformOrder(result)
+
+        publishToDashboard(
+          result.restaurant.toString(),
+          transformedOrder,
+          'new'
+        )
+        publishToDispatcher(transformedOrder)
+        sendNotification(result.orderId)
+        sendNotificationToRestaurant(result.restaurant, result)
+
+        return transformedOrder
+      } catch (err) {
+        throw err
+      }
+    },
     editOrder: async(_, args, { req, res }) => {
       if (!req.isAuth) {
         throw new Error('Unauthenticated!')
@@ -688,7 +848,13 @@ module.exports = {
       if (!req.isAuth) {
         throw new Error('Unauthenticated!')
       }
-      const order = await Order.findById(args.id)
+      const order = await Order.findOne({ _id: args.id, user: req.userId })
+      if (!order) {
+        throw new Error('Order not found')
+      }
+      if (order.orderStatus !== ORDER_STATUS.PENDING) {
+        throw new Error('Order can no longer be cancelled')
+      }
       order.orderStatus = ORDER_STATUS.CANCELLED
       const result = await order.save()
 

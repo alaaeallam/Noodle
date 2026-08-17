@@ -5,17 +5,12 @@ import styles from './styles'
 import { useTranslation } from 'react-i18next'
 import { alignment } from '../../../utils/alignment'
 import { scale } from '../../../utils/scaling'
-import { ChatButton } from './ChatButton'
-import { ORDER_STATUS_ENUM } from '../../../utils/enums'
 import { formatNumber } from '../../../utils/formatNumber'
 
 export default function Detail({ theme, from, orderNo, deliveryAddress, items, currencySymbol, subTotal, tip, tax, deliveryCharges, total, navigation, id, rider, orderStatus }) {
-  const riderPhone = rider?.phone
   const { t } = useTranslation()
- console.log(JSON.stringify(items, null, 2))
   return (
     <View style={styles.container(theme)}>
-      {rider && orderStatus !== ORDER_STATUS_ENUM.DELIVERED && orderStatus !== ORDER_STATUS_ENUM.CANCELLED && <ChatButton onPress={() => navigation.navigate('ChatWithRider', { id, orderNo, total, riderPhone })} title={t('chatWithRider')} description={t('askContactlessDelivery')} theme={theme} />}
       <TextDefault textColor={theme.gray500} bolder H4 style={{ ...alignment.MBsmall }} isRTL>
         {from}
       </TextDefault>
@@ -76,13 +71,13 @@ const ItemRow = ({ theme, quantity, title, variationTitle, options = ['raita', '
           style={{
             width: scale(48),
             height: scale(64),
-            borderRadius: scale(8)
+            borderRadius: 0
           }}
           source={image ? { uri: image } : require('../../../assets/images/food_placeholder.png')}
         ></Image>
       </View>
       <View style={{ width: '60%', justifyContent: 'center' }}>
-        <TextDefault left numberOfLines={1} textColor={theme.gray900} H5 bolder style={{ ...alignment.MBxSmall }} isRTL>
+        <TextDefault uppercase left numberOfLines={1} textColor={theme.gray900} H5 bolder style={{ ...alignment.MBxSmall }} isRTL>
           {title}
         </TextDefault>
         <TextDefault left numberOfLines={1} textColor={theme.gray900} style={{ ...alignment.MBxSmall }} isRTL>

@@ -10,8 +10,8 @@ const styles = (props = null) =>
     mainContainer: {
       width: '100%',
       height: height * 0.09,
-      borderTopRightRadius: scale(25),
-      borderTopLeftRadius: scale(25),
+      borderTopRightRadius: 0,
+      borderTopLeftRadius: 0,
       shadowColor: props !== null ? props?.shadowColor : '#fefefe',
       shadowOffset: {
         width: 0,
@@ -37,7 +37,7 @@ const styles = (props = null) =>
       backgroundColor: props !== null ? props?.newFontcolor :'#fafafa',
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: scale(15)
+      borderRadius: 0
     },
     quantity: {
       borderWidth: 1,
@@ -45,7 +45,7 @@ const styles = (props = null) =>
       paddingRight: scale(18),
       paddingTop: scale(10),
       paddingBottom: scale(10),
-      borderRadius: scale(10),
+      borderRadius: 0,
       borderColor: props !== null ? props?.newFontcolor :'#fafafa',
     },
     btnContainer: {
@@ -54,7 +54,11 @@ const styles = (props = null) =>
       backgroundColor: props !== null ? props?.main : 'black',
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: scale(10)
+      borderRadius: 0
+    },
+    btnContainerDisabled: {
+      backgroundColor: props !== null ? props?.gray500 : '#6B6B6B',
+      opacity: 0.6
     },
     // New styles for quantity
     actionContainer: {
@@ -63,14 +67,14 @@ const styles = (props = null) =>
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: props !== null ? props?.newBorderColor : '#F3F4F6',
-      borderRadius:40,
+      borderRadius: 0,
       borderWidth:1,
       borderColor:props !== null ? props?.iconBackground: '#fcfcfc',
     },
     actionContainerBtns: {
       width: scale(30),
       height:scale(30),
-      borderRadius: scale(20),
+      borderRadius: 0,
       alignItems: 'center',
      justifyContent:'center'
     },
@@ -78,9 +82,9 @@ const styles = (props = null) =>
       backgroundColor: '#fff',
     },
     plusBtn:{
-      backgroundColor: '#111827',
+      backgroundColor: props !== null ? props?.black : '#0A0A0A',
     },
-    actionContainerView: {    
+    actionContainerView: {
       justifyContent: 'center',
       alignItems: 'center',
     },

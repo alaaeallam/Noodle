@@ -61,7 +61,7 @@ const styles = (props = null) =>
       justifyContent: 'space-evenly',
       alignItems: 'center',
       alignSelf: 'center',
-      borderRadius: scale(28)
+      borderRadius: 0
     },
     linkButton: {
       display: 'flex',
@@ -72,7 +72,7 @@ const styles = (props = null) =>
       justifyContent: 'space-evenly',
       alignItems: 'center',
       alignSelf: 'center',
-      borderRadius: scale(28),
+      borderRadius: 0,
       borderWidth: scale(1),
       borderColor: props !== null ? props?.newIconColor : 'transparent',
       ...alignment.Mmedium

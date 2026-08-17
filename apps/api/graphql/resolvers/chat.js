@@ -40,6 +40,14 @@ const MessagingResolver = {
     }
   },
   Mutation: {
+    markOrderChatReadByRider: async(_, { orderId }, { req }) => {
+      if (!req.userId) throw new Error('Unauthenticated')
+      await Order.updateOne(
+        { _id: orderId, rider: req.userId },
+        { chatLastReadByRider: new Date() }
+      )
+      return true
+    },
     sendChatMessage: async(_, { message, orderId }, { req }) => {
       console.log('sendChatMessage', message, orderId)
       try {

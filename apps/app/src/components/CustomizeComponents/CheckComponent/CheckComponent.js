@@ -33,7 +33,13 @@ function CheckComponent(props) {
           activeOpacity={0.7}
           onPress={onPress.bind(this, option)}
           key={option._id}
-          style={styles(currentTheme).mainContainer}>
+          style={[
+            styles(currentTheme).mainContainer,
+            {
+              borderColor: option.checked ? currentTheme.primary : currentTheme.borderColor,
+              backgroundColor: option.checked ? currentTheme.newButtonBackground : currentTheme.white
+            }
+          ]}>
           <View style={styles(currentTheme).leftContainer}>
             <CheckboxBtn
               onPress={onPress.bind(this, option)}
@@ -42,8 +48,8 @@ function CheckComponent(props) {
             <TextDefault
               numberOfLines={1}
               textColor={currentTheme.gray900}
-              // style={[alignment.MLsmall, alignment.PRsmall, alignment.MRlarge]}
               style={styles(currentTheme).title}
+              uppercase
               H6
               bolder>
               {option.title}

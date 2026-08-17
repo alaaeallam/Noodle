@@ -1,7 +1,6 @@
 import { scale, verticalScale } from '../../utils/scaling'
 import { StyleSheet } from 'react-native'
 import { alignment } from '../../utils/alignment'
-import { textStyles } from '../../utils/textStyles'
 import { theme } from '../../utils/themeColors'
 
 const styles = (props = null) =>
@@ -49,13 +48,6 @@ const styles = (props = null) =>
       ...alignment.PLsmall,
       ...alignment.PRsmall
     },
-    deal: {
-      width: '80%',
-      flexDirection: props?.isRTL ? 'row-reverse' : 'row',
-      backgroundColor: props != null ? props.themeBackground : 'white',
-      alignItems: 'center',
-      gap: scale(5)
-    },
     searchDealSection: {
       // position: 'relative',
       backgroundColor: props != null ? props.themeBackground : 'white',
@@ -88,15 +80,23 @@ const styles = (props = null) =>
       ...alignment.MRxSmall,
       backgroundColor: props != null ? props.themeBackground : 'white'
     },
+    dealImageWrap: {
+      flex: 'none',
+      position: 'relative'
+    },
+    dealImage: {
+      width: scale(86),
+      height: scale(86)
+    },
     addToCart: {
-      width: scale(25),
-      height: scale(25),
-      borderRadius: scale(12.5),
-      backgroundColor: props !== null ? props.newFontcolor : '#f0f0f0',
-
+      position: 'absolute',
+      bottom: -scale(6),
+      right: -scale(6),
+      width: scale(30),
+      height: scale(30),
+      backgroundColor: props !== null ? props.primary : '#FF1D02',
       justifyContent: 'center',
-      alignItems: 'center',
-      ...alignment.MRxSmall
+      alignItems: 'center'
     },
 
     sectionSeparator: {
@@ -124,36 +124,12 @@ const styles = (props = null) =>
       justifyContent: 'space-between',
       flexDirection: 'row',
       alignItems: 'center',
-      borderRadius: scale(40),
-      backgroundColor: props !== null ? props.main : 'black',
+      borderRadius: 0,
+      backgroundColor: props !== null ? props.black : 'black',
       height: '75%',
       width: '95%',
       ...alignment.PLsmall,
       ...alignment.PRsmall
-    },
-    buttonText: {
-      width: '30%',
-      color: 'black'
-    },
-    buttonTextRight: {
-      width: '35%'
-    },
-    buttontLeft: {
-      width: '35%',
-      height: '50%',
-      justifyContent: 'center'
-    },
-    buttonLeftCircle: {
-      backgroundColor: props != null ? props.black : 'black',
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    buttonTextLeft: {
-      ...textStyles.Bolder,
-      ...textStyles.Center,
-      ...textStyles.Smaller,
-      backgroundColor: 'transparent',
-      color: props != null ? props.white : 'white'
     },
     triangleCorner: {
       position: 'absolute',
