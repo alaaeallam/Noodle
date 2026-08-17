@@ -6,6 +6,7 @@ import TextDefault from '../../Text/TextDefault/TextDefault';
 import { alignment } from '../../../utils/alignment';
 import { scale } from '../../../utils/scaling';
 import styles from './styles';
+import { fontStyles } from '../../../utils/fontStyles';
 import { useTranslation } from'react-i18next';
 
 const { height: HEIGHT } = Dimensions.get('window')
@@ -66,7 +67,10 @@ const MainModalize = ({
                 <View style={[styles().titleAddress]}>
                   <TextDefault
                     textColor={currentTheme.darkBgFont}
-                    style={styles(currentTheme).labelStyle}
+                    style={[
+                      styles(currentTheme).labelStyle,
+                      { fontFamily: fontStyles.Archivo800 }
+                    ]}
                   >
                     {t(address.label)}
                   </TextDefault>

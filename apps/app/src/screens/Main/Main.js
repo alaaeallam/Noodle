@@ -9,6 +9,7 @@ import UserContext from '../../context/User'
 import { restaurantListPreview, allStoresList, getBanners } from '../../apollo/queries'
 import { selectAddress } from '../../apollo/mutations'
 import { scale } from '../../utils/scaling'
+import { fontStyles } from '../../utils/fontStyles'
 import styles from './styles'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import ThemeContext from '../../ui/ThemeContext/ThemeContext'
@@ -224,7 +225,10 @@ function Main(props) {
               <>
                 <SimpleLineIcons name='target' size={scale(18)} color={currentTheme.black} />
                 <View style={styles().mL5p} />
-                <TextDefault bold textColor={currentTheme.black}>
+                <TextDefault
+                  textColor={currentTheme.black}
+                  style={{ fontFamily: fontStyles.Anton, fontSize: scale(15), letterSpacing: 0.4, textTransform: 'uppercase' }}
+                >
                   {t('currentLocation')}
                 </TextDefault>
               </>
@@ -259,7 +263,10 @@ function Main(props) {
           <View style={styles(currentTheme).addressSubContainer}>
             <AntDesign name='pluscircleo' size={scale(20)} color={currentTheme.black} />
             <View style={styles().mL5p} textColor={currentTheme.black} />
-            <TextDefault bold textColor={currentTheme.black}>
+            <TextDefault
+              textColor={currentTheme.black}
+              style={{ fontFamily: fontStyles.Anton, fontSize: scale(15), letterSpacing: 0.4, textTransform: 'uppercase' }}
+            >
               {t('addAddress')}
             </TextDefault>
           </View>

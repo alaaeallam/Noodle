@@ -48,19 +48,19 @@ const styles = (props = null, hasActiveOrders = false) =>
     },
 
     addressbtn: {
-      backgroundColor: props != null ? props?.color8 : '#f0f0f0',
+      backgroundColor: props != null ? props?.white : '#FFF',
       marginLeft: scale(10),
       marginRight: scale(10),
       marginBottom: scale(10),
-      borderRadius: scale(10),
+      borderRadius: 0,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       padding: scale(5),
       ...alignment.PLmedium,
       ...alignment.PRmedium,
-      borderWidth: scale(1),
-      borderColor: props != null ? props?.color10 : '#FFF'
+      borderWidth: scale(2),
+      borderColor: props != null ? props?.horizontalLine : '#E4E1DD'
     },
     addNewAddressbtn: {
       padding: scale(5),
@@ -75,8 +75,8 @@ const styles = (props = null, hasActiveOrders = false) =>
     addButton: {
       backgroundColor: props !== null ? props?.newheaderColor : 'transparent',
       width: '100%',
-      height: scale(40),
-      borderRadius: 50,
+      height: scale(44),
+      borderRadius: 0,
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center'
@@ -93,13 +93,13 @@ const styles = (props = null, hasActiveOrders = false) =>
     modal: {
       backgroundColor: props != null ? props?.themeBackground : '#FFF',
       paddingTop: scale(10),
-      borderTopEndRadius: scale(20),
-      borderTopStartRadius: scale(20),
+      borderTopEndRadius: 0,
+      borderTopStartRadius: 0,
       position: 'relative',
       zIndex: 999,
       shadowOpacity: 0,
-      borderWidth: scale(1),
-      borderColor: props != null ? props?.color10 : '#FFF'
+      borderWidth: scale(2),
+      borderColor: props != null ? props?.horizontalLine : '#E4E1DD'
     },
     addressTextContainer: {
       display: 'flex',
@@ -181,8 +181,9 @@ const styles = (props = null, hasActiveOrders = false) =>
     labelStyle: {
       textAlignVertical: 'bottom',
       fontSize: scale(14),
-      fontWeight: '700',
-      textAlign: 'left'
+      textAlign: 'left',
+      textTransform: 'uppercase',
+      letterSpacing: 0.4
     },
     addressDetail: {
       alignSelf: 'flex-end',
