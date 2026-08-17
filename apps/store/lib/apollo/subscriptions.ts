@@ -73,11 +73,14 @@ export const SUBSCRIBE_PLACE_ORDER = gql`
         isActive
         createdAt
         orderDate
+        pickedAt
         deliveryCharges
         isPickedUp
+        isReadyToPickUp
         preparationTime
         acceptedAt
         isRinged
+        instructions
         rider {
           _id
           name
