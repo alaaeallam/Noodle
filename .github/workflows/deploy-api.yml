@@ -5,16 +5,30 @@ on:
     branches: [ "main" ]
     paths:
       - "apps/api/**"
-      - "pnpm-lock.yaml"
-      - "package.json"
-      - "pnpm-workspace.yaml"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH deploy to server
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The server has no git checkout - apps/api lives at /root/noodle/apps/api
+      # as a plain directory with its own npm-installed node_modules and a
+      # hand-managed .env (both gitignored, so this sync never touches them).
+      - name: Sync apps/api to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "apps/api/*"
+          target: "/root/noodle/apps/api"
+          strip_components: 2
+          overwrite: true
+
+      - name: Install deps, restart, health check
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -23,21 +37,16 @@ jobs:
           script: |
             set -e
 
-            cd /var/www/noodles-api
-
-            echo "==> Pull latest"
-            git fetch origin main
-            git reset --hard origin/main
+            cd /root/noodle/apps/api
 
             echo "==> Install deps"
-            corepack enable || true
-            pnpm -v
-            pnpm install --frozen-lockfile
+            npm install --omit=dev
 
             echo "==> Restart API"
-            pm2 restart noodles-api --update-env
+            pm2 restart noodle-api --update-env
 
             echo "==> Health check"
-            curl -sS -X POST https://api.alaaeallam.com/graphql \
+            sleep 2
+            curl -sS -X POST https://foodapp-api.alaaeallam.com/graphql \
               -H "Content-Type: application/json" \
               --data '{"query":"query{__typename}"}' | head -c 200; echo
