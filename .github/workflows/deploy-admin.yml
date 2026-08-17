@@ -1,0 +1,66 @@
+name: Deploy Admin (VPS)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "apps/admin/**"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The server has no git checkout - apps/admin lives at
+      # /root/noodle/apps/admin as a plain directory. Only git-tracked
+      # files are ever synced, so .env.production, .next/, and
+      # node_modules/ (all gitignored) are never touched by this step -
+      # the server's real production env stays exactly as hand-managed.
+      - name: Sync apps/admin to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "apps/admin/*"
+          target: "/root/noodle/apps/admin"
+          strip_components: 2
+          overwrite: true
+
+      - name: Build, assemble standalone output, restart, health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 15m
+          script: |
+            set -e
+
+            cd /root/noodle/apps/admin
+
+            echo "==> Install deps"
+            npm ci
+
+            echo "==> Build (Next.js standalone output)"
+            npm run build
+
+            # Next.js standalone output doesn't include static assets or
+            # public/ by default - copy them in, matching how this was
+            # originally set up on the server.
+            echo "==> Assemble standalone output"
+            rm -rf .next/standalone/.next/static .next/standalone/public
+            cp -r .next/static .next/standalone/.next/static
+            cp -r public .next/standalone/public
+            cp .env.production .next/standalone/.env.production
+
+            echo "==> Restart admin"
+            pm2 restart noodle-admin --update-env
+
+            echo "==> Health check"
+            sleep 3
+            curl -sS -o /dev/null -w "HTTP %{http_code}\n" https://foodapp-admin.alaaeallam.com
