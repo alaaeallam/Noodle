@@ -10,6 +10,12 @@ const SUBSCRIPTION_ORDER = 'SUBSCRIPTION_ORDER'
 const DISPATCH_ORDER = 'DISPATCH_ORDER'
 const SUBSCRIPTION_MESSAGE = 'SUBSCRIPTION_MESSAGE'
 const pubsub = new PubSub()
+// graphql-subscriptions' in-memory PubSub wraps a plain Node EventEmitter,
+// which warns past 10 listeners per event name by default - trivially hit
+// in production with more than 10 concurrent subscribers to the same
+// trigger (e.g. SUBSCRIPTION_ORDER, one per rider/customer watching an
+// order). Not a leak, just Node's conservative default for a real server.
+pubsub.ee.setMaxListeners(100)
 
 const publishToUser = (userId, order, origin) => {
   const orderStatusChanged = {
