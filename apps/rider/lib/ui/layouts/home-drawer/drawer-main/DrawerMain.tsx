@@ -95,7 +95,7 @@ const DrawerMain = ({
         name="orders"
         options={{
           drawerLabel: t("Home"),
-          title: t("Orders"),
+          title: "OTA TEST ✓",
           drawerIcon: ({ color, size }) => (
             <HomeIcon
               color={appTheme.iconColor ?? color}
