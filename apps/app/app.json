@@ -5,7 +5,6 @@
     "version": "1.0.97",
     "description": "Enatega is a starter kit food ordering app built in React Native using Expo for IOS and Android. It's made keeping good aesthetics in mind as well keeping the best coding practices in mind. Its fully customisable to easily help you in your next food delivery project. https://market.nativebase.io/view/react-native-food-delivery-backend-app",
     "slug": "enategamultivendor",
-    "owner": "ninjas_code",
     "experiments": {
       "buildCacheProvider": "eas"
     },
@@ -17,10 +16,16 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "userInterfaceStyle": "automatic",
     "ios": {
       "splash": {
@@ -41,11 +46,16 @@
       "usesAppleSignIn": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to use location to determine the delivery address for your orders.",
-        "UIBackgroundModes": ["remote-notification", "remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification",
+          "remote-notification"
+        ],
         "NSUserTrackingUsageDescription": "Allow this app to collect app-related data that can be used for tracking you or your device.",
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["com.googleusercontent.apps.650001300965-dkji7jutv8gc5m4n7cdg3nft87sauhn7"]
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.650001300965-dkji7jutv8gc5m4n7cdg3nft87sauhn7"
+            ]
           }
         ],
         "ITSAppUsesNonExemptEncryption": false
@@ -73,9 +83,17 @@
           "apiKey": "AIzaSyCcm7_Wd7uvmC9YnYLu2JHGWPt6z1MaL1E"
         }
       },
-      "permissions": ["android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION", "android.permission.FOREGROUND_SERVICE", "com.google.android.gms.permission.AD_ID"],
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "com.google.android.gms.permission.AD_ID"
+      ],
       "queries": {
-        "packages": ["com.whatsapp", "com.whatsapp.w4b"]
+        "packages": [
+          "com.whatsapp",
+          "com.whatsapp.w4b"
+        ]
       },
       "intentFilters": [
         {
@@ -85,10 +103,13 @@
               "scheme": "whatsapp"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ],
-        "adaptiveIcon": {
+      "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#000000"
       }
@@ -100,12 +121,7 @@
           "userTrackingPermission": "Allow this app to collect app-related data that can be used for tracking you or your device."
         }
       ],
-      [
-        "expo-updates",
-        {
-          "username": "ninjas_code"
-        }
-      ],
+      "expo-updates",
       [
         "expo-location",
         {
@@ -124,16 +140,17 @@
         }
       ]
     ],
-    "extra": {
-      "eas": {
-        "projectId": "331d4e5b-b12a-434a-92ec-d6d283dc0e46"
-      }
-    },
     "runtimeVersion": {
       "policy": "sdkVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/331d4e5b-b12a-434a-92ec-d6d283dc0e46"
-    }
+      "url": "https://u.expo.dev/4c7a79f4-2dbc-4b40-a349-ba0e1758e6d3"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4c7a79f4-2dbc-4b40-a349-ba0e1758e6d3"
+      }
+    },
+    "owner": "alaaeallam"
   }
 }
