@@ -22,7 +22,7 @@ const {
   JOB_TYPE,
   JOB_DELAY_DEFAULT
 } = require('../../queue')
-const { requireRole, ADMIN_ROLES, requireWalletAccess } = require('../../helpers/guards')
+const { requireAuth, requireRole, ADMIN_ROLES, requireWalletAccess } = require('../../helpers/guards')
 const { recordAuditLog } = require('../../helpers/auditLog')
 
 // Same unsigned Cloudinary preset the admin panel already uploads
@@ -65,15 +65,14 @@ module.exports = {
       }
     },
     rider: async(_, args, { req }) => {
-      console.log('args', args)
-      console.log('rider1111', args.id, req.userId, req.isAuth)
-      console.log('rider', args.id, req.userId, req.isAuth)
       try {
+        requireAuth(req)
         const userId = args.id || req.userId
-        if (!userId) {
-          throw new Error('Unauthenticated!')
+        if (!ADMIN_ROLES.has(req.userType || '') && String(userId) !== String(req.userId)) {
+          throw new Error('Forbidden')
         }
         const rider = await Rider.findById(userId)
+        if (!rider) throw new Error('Rider does not exist')
         return transformRider(rider)
       } catch (err) {
         console.log(err)

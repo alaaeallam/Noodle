@@ -15,8 +15,8 @@ Last full assessment: **2026-08-18**.
 
 | # | Severity | Area | Summary | Status |
 |---|----------|------|---------|--------|
-| 1 | **Critical** | api | `rider(id)` query has no auth check; `Rider` GraphQL type exposes `password` hash + phone + bank account + wallet + ID docs | Open |
-| 2 | **High** | api | `order(id)` / `orderPaypal(id)` / `orderStripe(id)` queries check login but not ownership (IDOR) — any authenticated user can read any order/payment record | Open |
+| 1 | **Critical** | api | `rider(id)` query has no auth check; `Rider` GraphQL type exposes `password` hash + phone + bank account + wallet + ID docs | **Fixed** (2026-08-18) |
+| 2 | **High** | api | `order(id)` / `orderPaypal(id)` / `orderStripe(id)` queries check login but not ownership (IDOR) — any authenticated user can read any order/payment record | **Fixed** (2026-08-18) |
 | 3 | **High** | rider, store | Sentry auth tokens committed in plaintext in `eas.json` | Open |
 | 4 | **High** | admin, web, api | `.env.dev` / `.env.prod` / `.env.stage` / `.env.test` files committed to git | Open |
 | 5 | **Medium** | api | `JWT_SECRET` prefix (first 10 chars) printed to console/pm2 logs on every boot | Open |
@@ -52,14 +52,14 @@ licenseDetails / vehicleDetails         # ID document images
 ```
 IDs are 24-hex-char ObjectIds and are routinely visible in app traffic (order assignment, dispatch), so enumeration is practical, not theoretical.
 
-**Fix:** require `req.isAuth`, and scope to `req.userId === userId` unless the caller is an admin/dispatcher role. Remove `password` from the GraphQL type entirely — nothing should ever query a password hash over the API; it doesn't belong in the schema at all, auth resolvers can read it straight off the Mongoose model.
+**Fix (applied 2026-08-18):** `rider(id)` now calls `requireAuth(req)` and only proceeds if the caller is an admin role (`ADMIN`/`SUPER_ADMIN`) or `String(userId) === String(req.userId)` (self). `password` was removed from the `Rider` GraphQL type entirely, and the now-dead `password` field selection was removed from the two client queries that were requesting it (`apps/rider/lib/apollo/queries/rider.query.ts`, `apps/admin/lib/api/graphql/queries/riders/index.ts` — neither actually used the value, it was a blanket "select all fields" leftover). Verbose PII debug logging (`console.log('rider1111', ...)`) removed from the same resolver as part of the same edit.
 
-### 2. [High] Order/payment IDOR
+### 2. [High] Order/payment IDOR — Fixed
 **Where:** `apps/api/graphql/resolvers/order.js:87-124` (`order`, `orderPaypal`, `orderStripe`)
 
 These check `req.isAuth` (any valid JWT, any role) but not that the caller is the order's customer, assigned rider, or owning restaurant. Contrast with the `orders` (plural) query a few lines below, which correctly scopes with `Order.find({ user: req.userId })`. Any logged-in user — customer, rider, or store — can read any other user's order: delivery address, phone, items, and payment details.
 
-**Fix:** after loading the order, check `order.user == req.userId || order.rider == req.userId || order.restaurant == req.restaurantId` (adjust to actual field names/roles) before returning it. Audit `restaurant(id)` and other single-entity queries in `restaurant.js` for the same pattern — they follow the same shape and weren't individually verified in this pass.
+**Fix (applied 2026-08-18):** all three resolvers now call the existing `requireOrderAccess(req, order)` guard (from `apps/api/helpers/guards.js` — it already existed, checking admin role, or `order.user === req.userId`, or `order.rider === req.userId`, but simply wasn't wired into these three resolvers) after loading the record and before returning it. Note `requireOrderAccess` doesn't grant restaurant-owner access to their own orders via this path — if that's needed, it's a follow-up, not covered here. `restaurant(id)` and other single-entity queries in `restaurant.js` still weren't individually audited for the same pattern — worth a follow-up pass.
 
 ### 3. [High] Sentry tokens committed to git
 **Where:** `apps/rider/eas.json:20`, `apps/store/eas.json:22`
@@ -126,4 +126,5 @@ This pass covered `apps/admin`, `apps/app`, `apps/rider`, `apps/store`, and touc
 
 ## Assessment History
 
-- **2026-08-18** — Initial assessment across admin/app/rider/store (+ api where findings led there). 12 findings logged (1 critical, 2 high×2, 4 medium, 4 low/info). PDF report generated and shared. No fixes applied yet in this pass.
+- **2026-08-18** — Initial assessment across admin/app/rider/store (+ api where findings led there). 12 findings logged (1 critical, 2 high×2, 4 medium, 4 low/info). PDF report generated and shared.
+- **2026-08-18** — Fixed #1 (unauthenticated rider IDOR + password hash exposure) and #2 (order/payment IDOR), reusing an existing `requireOrderAccess` guard helper that was already in the codebase but not wired up. Remaining open: #3–#12 (Sentry/`.env` secrets in git, JWT log leak, token storage, WebView origin, rate limiting, CORS, error formatting, Maps key restrictions, verbose logging).

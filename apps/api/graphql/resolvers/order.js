@@ -12,7 +12,7 @@ const Configuration = require('../../models/configuration')
 const Paypal = require('../../models/paypal')
 const Stripe = require('../../models/stripe')
 const { transformOrder } = require('./merge')
-const { requireRole, requireRestaurantAccess, ADMIN_ROLES } = require('../../helpers/guards')
+const { requireRole, requireRestaurantAccess, requireOrderAccess, ADMIN_ROLES } = require('../../helpers/guards')
 const {
   payment_status,
   order_status,
@@ -85,42 +85,39 @@ module.exports = {
   },
   Query: {
     order: async(_, args, { req, res }) => {
-      console.log('order')
       if (!req.isAuth) {
         throw new Error('Unauthenticated!')
       }
       try {
         const order = await Order.findById(args.id)
         if (!order) throw new Error('Order does not exist')
-        console.log(order)
+        requireOrderAccess(req, order)
         return transformOrder(order)
       } catch (err) {
         throw err
       }
     },
     orderPaypal: async(_, args, { req, res }) => {
-      console.log('orderPaypal')
       if (!req.isAuth) {
         throw new Error('Unauthenticated!')
       }
       try {
         const paypal = await Paypal.findById(args.id)
-        console.log('PAYPAL: ', paypal)
         if (!paypal) throw new Error('Order does not exist')
+        requireOrderAccess(req, paypal)
         return transformOrder(paypal)
       } catch (err) {
         throw err
       }
     },
     orderStripe: async(_, args, { req, res }) => {
-      console.log('orderStripe')
       if (!req.isAuth) {
         throw new Error('Unauthenticated!')
       }
       try {
         const stripe = await Stripe.findById(args.id)
-        console.log('STRIPE: ', stripe)
         if (!stripe) throw new Error('Order does not exist')
+        requireOrderAccess(req, stripe)
         return transformOrder(stripe)
       } catch (err) {
         throw err

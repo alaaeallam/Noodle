@@ -217,7 +217,6 @@ const typeDefs = gql`
     name: String!
     email: String
     username: String!
-    password: String!
     phone: String!
     image: String
     available: Boolean!
