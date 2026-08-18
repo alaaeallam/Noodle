@@ -17,9 +17,7 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.1.63",
     "updates": {
       "url": "https://u.expo.dev/057c7dbf-5a2b-4216-b4cc-99ee16251e5e"
     },
