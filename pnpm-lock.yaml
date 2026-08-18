@@ -932,6 +932,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.20.0
         version: 8.46.2(eslint@8.57.1)(typescript@5.8.3)
+      babel-preset-expo:
+        specifier: ~13.0.0
+        version: 13.0.0(@babel/core@7.28.4)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -1257,6 +1260,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.20.0
         version: 8.46.2(eslint@8.57.1)(typescript@5.8.3)
+      babel-preset-expo:
+        specifier: ~13.0.0
+        version: 13.0.0(@babel/core@7.28.4)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -6187,14 +6193,6 @@ packages:
       babel-plugin-react-compiler:
         optional: true
       react-compiler-runtime:
-        optional: true
-
-  babel-preset-expo@13.2.4:
-    resolution: {integrity: sha512-3IKORo3KR+4qtLdCkZNDj8KeA43oBn7RRQejFGWfiZgu/NeaRUSri8YwYjZqybm7hn3nmMv9OLahlvXBX23o5Q==}
-    peerDependencies:
-      babel-plugin-react-compiler: ^19.0.0-beta-e993439-20250405
-    peerDependenciesMeta:
-      babel-plugin-react-compiler:
         optional: true
 
   babel-preset-expo@13.2.5:
@@ -21162,33 +21160,6 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  babel-preset-expo@13.2.4(@babel/core@7.28.4):
-    dependencies:
-      '@babel/helper-module-imports': 7.27.1
-      '@babel/plugin-proposal-decorators': 7.28.0(@babel/core@7.28.4)
-      '@babel/plugin-proposal-export-default-from': 7.27.1(@babel/core@7.28.4)
-      '@babel/plugin-syntax-export-default-from': 7.27.1(@babel/core@7.28.4)
-      '@babel/plugin-transform-export-namespace-from': 7.27.1(@babel/core@7.28.4)
-      '@babel/plugin-transform-flow-strip-types': 7.27.1(@babel/core@7.28.4)
-      '@babel/plugin-transform-modules-commonjs': 7.27.1(@babel/core@7.28.4)
-      '@babel/plugin-transform-object-rest-spread': 7.28.4(@babel/core@7.28.4)
-      '@babel/plugin-transform-parameters': 7.27.7(@babel/core@7.28.4)
-      '@babel/plugin-transform-private-methods': 7.27.1(@babel/core@7.28.4)
-      '@babel/plugin-transform-private-property-in-object': 7.27.1(@babel/core@7.28.4)
-      '@babel/plugin-transform-runtime': 7.28.3(@babel/core@7.28.4)
-      '@babel/preset-react': 7.27.1(@babel/core@7.28.4)
-      '@babel/preset-typescript': 7.27.1(@babel/core@7.28.4)
-      '@react-native/babel-preset': 0.79.6(@babel/core@7.28.4)
-      babel-plugin-react-native-web: 0.19.13
-      babel-plugin-syntax-hermes-parser: 0.25.1
-      babel-plugin-transform-flow-enums: 0.0.2(@babel/core@7.28.4)
-      debug: 4.4.3(supports-color@8.1.1)
-      react-refresh: 0.14.2
-      resolve-from: 5.0.0
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
   babel-preset-expo@13.2.5(@babel/core@7.28.4):
     dependencies:
       '@babel/helper-module-imports': 7.27.1
@@ -23972,7 +23943,7 @@ snapshots:
       '@expo/fingerprint': 0.13.4
       '@expo/metro-config': 0.20.17
       '@expo/vector-icons': 14.1.0(expo-font@13.3.2(expo@53.0.19(@babel/core@7.28.4)(@expo/metro-runtime@5.0.5(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native-webview@13.13.5(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react@19.0.0))(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
-      babel-preset-expo: 13.2.4(@babel/core@7.28.4)
+      babel-preset-expo: 13.2.5(@babel/core@7.28.4)
       expo-asset: 11.1.7(expo@53.0.19(@babel/core@7.28.4)(@expo/metro-runtime@5.0.5(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native-webview@13.13.5(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
       expo-constants: 17.1.7(expo@53.0.19(@babel/core@7.28.4)(@expo/metro-runtime@5.0.5(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native-webview@13.13.5(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))
       expo-file-system: 18.1.11(expo@53.0.19(@babel/core@7.28.4)(@expo/metro-runtime@5.0.5(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native-webview@13.13.5(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.4(patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd01454db97)(@babel/core@7.28.4)(@types/react@19.0.14)(react@19.0.0))
