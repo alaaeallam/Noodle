@@ -17,8 +17,8 @@ Last full assessment: **2026-08-18**.
 |---|----------|------|---------|--------|
 | 1 | **Critical** | api | `rider(id)` query has no auth check; `Rider` GraphQL type exposes `password` hash + phone + bank account + wallet + ID docs | **Fixed** (2026-08-18) |
 | 2 | **High** | api | `order(id)` / `orderPaypal(id)` / `orderStripe(id)` queries check login but not ownership (IDOR) — any authenticated user can read any order/payment record | **Fixed** (2026-08-18) |
-| 3 | **High** | rider, store | Sentry auth tokens committed in plaintext in `eas.json` | Open |
-| 4 | **High** | admin, web, api | `.env.dev` / `.env.prod` / `.env.stage` / `.env.test` files committed to git | Open |
+| 3 | **High** | rider, store | Sentry auth tokens committed in plaintext in `eas.json` | **Partially fixed** (2026-08-18) — removed from repo, not yet purged from git history |
+| 4 | **High** | admin, web, api | `.env.dev` / `.env.prod` / `.env.stage` / `.env.test` files committed to git | **Partially fixed** (2026-08-18) — untracked + `.gitignore` hardened, not yet purged from git history |
 | 5 | **Medium** | api | `JWT_SECRET` prefix (first 10 chars) printed to console/pm2 logs on every boot | Open |
 | 6 | **Medium** | rider, app | Auth token stored in plain `AsyncStorage` instead of Keychain/Keystore-backed `expo-secure-store` (store app already does this correctly) | Open |
 | 7 | **Medium** | app | Checkout WebView (`HypCheckout.js`) sets `originWhitelist={['*']}`, allowing navigation to any origin during a payment flow | Open |
@@ -61,19 +61,19 @@ These check `req.isAuth` (any valid JWT, any role) but not that the caller is th
 
 **Fix (applied 2026-08-18):** all three resolvers now call the existing `requireOrderAccess(req, order)` guard (from `apps/api/helpers/guards.js` — it already existed, checking admin role, or `order.user === req.userId`, or `order.rider === req.userId`, but simply wasn't wired into these three resolvers) after loading the record and before returning it. Note `requireOrderAccess` doesn't grant restaurant-owner access to their own orders via this path — if that's needed, it's a follow-up, not covered here. `restaurant(id)` and other single-entity queries in `restaurant.js` still weren't individually audited for the same pattern — worth a follow-up pass.
 
-### 3. [High] Sentry tokens committed to git
+### 3. [High] Sentry tokens committed to git — Partially fixed
 **Where:** `apps/rider/eas.json:20`, `apps/store/eas.json:22`
 
-Both contain a live-looking `SENTRY_AUTH_TOKEN` (`sntrys_...`) under org `ninjas-code-w7` — the original template vendor's org, not this project's. Committed in plaintext, visible in git history to anyone with repo access.
+Both contained a live-looking `SENTRY_AUTH_TOKEN` (`sntrys_...`) under org `ninjas-code-w7` — the original template vendor's org, not this project's. Committed in plaintext.
 
-**Fix:** rotate both tokens (revoke in Sentry), move them to GitHub Actions secrets / EAS environment secrets instead of the checked-in `eas.json`, and scrub them from git history (`git filter-repo` or BFG) since rotation alone doesn't remove them from old commits.
+**Fix applied 2026-08-18:** the `env.SENTRY_AUTH_TOKEN` block was removed from both `eas.json` files, so future builds no longer read or transmit it. **Not done, and needing a decision:** the token still isn't rotatable by us — it belongs to a Sentry org (`ninjas-code-w7`) that isn't this project's, so there's no login to revoke it from. Two options going forward: (a) leave Sentry source-map upload disabled for EAS builds (current state — harmless, no functionality was actually working under our control anyway), or (b) set up a Sentry project under the project's own account and wire a new token in as an EAS secret (`eas secret:create`), never in `eas.json` directly. Also **still open**: the old token strings remain in git history (old commits) — removing them from history requires a `git filter-repo`/BFG rewrite + force-push, which wasn't done here since it's a disruptive, hard-to-reverse operation on shared history that needs explicit sign-off before running.
 
-### 4. [High] `.env` files committed to git
+### 4. [High] `.env` files committed to git — Partially fixed
 **Where:** `apps/admin/.env.dev`, `.env.prod`, `.env.stage`; `apps/api/.env.test`; `apps/web/.env.dev`, `.env.prod`, `.env.stage`
 
-`apps/api/.env.test` in particular lists keys for `CONNECTION_STRING` (Mongo URI), `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`, `STRIPE_WEBHOOK_ENDPOINT_SECRET`, `SENDGRID_API_KEY`, `REDIS_PASSWORD`. Whether the current values are live or placeholder wasn't confirmed here (didn't want to print secret values into this doc), but regardless of current validity, anything ever real in these files is now permanently in git history for anyone who has cloned the repo.
+`apps/admin`'s and `apps/web`'s committed files only contained `NEXT_PUBLIC_*` vars (server/WS URLs) — not real secrets, since Next.js ships anything prefixed `NEXT_PUBLIC_` into the client bundle by design regardless of where it's defined. `apps/api/.env.test` is the one that mattered: it lists keys for `CONNECTION_STRING` (Mongo URI), `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`, `STRIPE_WEBHOOK_ENDPOINT_SECRET`, `SENDGRID_API_KEY`, `REDIS_PASSWORD`.
 
-**Fix:** audit every key in these files — if any value is/was a real credential, rotate it. Remove the files from git tracking (`git rm --cached`), add `.env*` to `.gitignore` (the repo's own `.gitignore` for `apps/admin` already ignores `.env*.local` but not `.env.dev`/`.env.prod`/`.env.stage` — tighten the pattern), and purge from history if any live secret was ever committed.
+**Fix applied 2026-08-18:** all seven files were untracked (`git rm --cached`, files remain on disk locally — nothing deleted), and `.gitignore` was hardened in `apps/admin`, `apps/web`, `apps/api`, and `apps/rider` (which had no `.env` pattern at all before this) to `.env` + `.env.*` with `!.env.example` kept trackable, so this class of accident can't silently recur. **Still open:** whether any key in `apps/api/.env.test` was ever a live credential wasn't confirmed as part of this pass — worth a manual check by whoever has visibility into those services (Twilio/Stripe/SendGrid/Redis/Mongo consoles), rotating anything that turns out real. And same as #3: the file contents remain in git history until a history rewrite is explicitly approved and run.
 
 ### 5. [Medium] JWT secret partially logged on boot
 **Where:** `apps/api/app.js:18`
@@ -127,4 +127,5 @@ This pass covered `apps/admin`, `apps/app`, `apps/rider`, `apps/store`, and touc
 ## Assessment History
 
 - **2026-08-18** — Initial assessment across admin/app/rider/store (+ api where findings led there). 12 findings logged (1 critical, 2 high×2, 4 medium, 4 low/info). PDF report generated and shared.
-- **2026-08-18** — Fixed #1 (unauthenticated rider IDOR + password hash exposure) and #2 (order/payment IDOR), reusing an existing `requireOrderAccess` guard helper that was already in the codebase but not wired up. Remaining open: #3–#12 (Sentry/`.env` secrets in git, JWT log leak, token storage, WebView origin, rate limiting, CORS, error formatting, Maps key restrictions, verbose logging).
+- **2026-08-18** — Fixed #1 (unauthenticated rider IDOR + password hash exposure) and #2 (order/payment IDOR), reusing an existing `requireOrderAccess` guard helper that was already in the codebase but not wired up. Remaining open: #3–#12.
+- **2026-08-18** — Partially fixed #3 (Sentry tokens) and #4 (`.env` files): removed from the repo going forward and `.gitignore` hardened across admin/web/api/rider. Neither is fully closed — both still have their old values sitting in git history, which needs a separate, explicitly-approved `git filter-repo`/BFG history rewrite + force-push to actually purge. #3 also can't be "rotated" in the usual sense since the leaked token belongs to a third-party Sentry org we don't control — decision needed on whether to set up our own Sentry project. Remaining fully open: #5–#12.
