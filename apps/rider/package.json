@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "npx eslint && prettier --write .",
-    "upload-sourcemaps": "SENTRY_AUTH_TOKEN=***REMOVED*** npx sentry-expo upload-sourcemaps"
+    "upload-sourcemaps": "npx sentry-expo upload-sourcemaps"
   },
   "jest": {
     "preset": "jest-expo"
