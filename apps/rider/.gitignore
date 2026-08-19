@@ -6,3 +6,8 @@ expo-env.d.ts
 # @end expo-cli
 
 .expo/
+
+# local env files
+.env
+.env.*
+!.env.example
