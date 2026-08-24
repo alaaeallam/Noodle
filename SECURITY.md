@@ -22,7 +22,7 @@ Last full assessment: **2026-08-18**.
 | 5 | **Medium** | api | `JWT_SECRET` prefix (first 10 chars) printed to console/pm2 logs on every boot | **Fixed** (2026-08-24) |
 | 6 | **Medium** | rider, app | Auth token stored in plain `AsyncStorage` instead of Keychain/Keystore-backed `expo-secure-store` (store app already does this correctly) | Open |
 | 7 | **Medium** | app | Checkout WebView (`HypCheckout.js`) sets `originWhitelist={['*']}`, allowing navigation to any origin during a payment flow | **Fixed** (2026-08-24) — also discovered the screen is dead code, unreachable from the app |
-| 8 | **Medium** | api | No rate limiting on login / password-change / OTP endpoints | Open |
+| 8 | **Medium** | api | No rate limiting on login / password-change / OTP endpoints | **Fixed** (2026-08-24) |
 | 9 | **Low** | api | CORS is `Access-Control-Allow-Origin: *` for all routes, including `Authorization` | **Fixed** (2026-08-24) |
 | 10 | **Low** | api | `formatError` returns the raw error object to clients — verify it doesn't leak stack traces in production | **Fixed** (2026-08-24) |
 | 11 | **Low** | app | Google Maps API keys embedded directly in `app.json` — confirm they're restricted by bundle ID / SHA-1 in Google Cloud Console | Open — needs checking in Google Cloud Console, not a code fix |
@@ -97,10 +97,17 @@ Allowed the WebView to navigate to any origin during a payment checkout. **Also 
 
 **Fix applied 2026-08-24:** `originWhitelist` scoped to `[SERVER_URL]` (the app's own API origin) instead of `['*']`, as defense-in-depth in case this screen is ever revived. If Hyperpay support is actually built out later, whoever does that will need to add Hyperpay's real domain to the whitelist too.
 
-### 8. [Medium] No rate limiting on auth endpoints
-No `express-rate-limit` or equivalent found anywhere in `apps/api`. Login, password-change, and OTP-related resolvers have no throttling, making credential-stuffing and OTP brute-force attempts cheap.
+### 8. [Medium] No rate limiting on auth endpoints — Fixed
+No `express-rate-limit` or equivalent found anywhere in `apps/api`. Login, password-change, and OTP-related resolvers had no throttling, making credential-stuffing and OTP brute-force attempts cheap.
 
-**Fix:** add per-IP + per-account rate limiting on `login`, `changePassword`, `resetPassword`/OTP verification.
+**Fix applied 2026-08-24:** added `apps/api/helpers/rateLimit.js` — a small in-memory, dependency-free rate limiter — and wired an IP-based check into the top of every sensitive resolver: `login`, `ownerLogin`, `adminLogin`, `riderLogin`, `restaurantLogin` (10 attempts / 15 min per IP), `forgotPassword`, `resetPassword`, `sendOtpToEmail`, `sendOtpToPhoneNumber` (5 / 15 min — these hit Twilio/SendGrid, so also guards against cost abuse), `changePassword` (10 / 15 min, on top of its existing auth check).
+
+Deliberately implemented as a per-resolver check rather than Express middleware — the existing `app.js` has a specific bodyParser/CORS/Apollo `applyMiddleware` ordering that seemed risky to restructure just for this, and every resolver already receives `req` via context, so this was the lower-risk path to the same result.
+
+**Known limitations, not fixed here:**
+- IP-based only, not per-account — a distributed attack across many IPs against one username/email isn't caught. Would need a second bucket keyed by the target identifier for that.
+- In-memory, so it resets on every server restart and isn't shared across processes — fine for the current single pm2 instance, but would need a Redis-backed store (the app already depends on Redis via `bull`) if this ever moves to pm2 cluster mode.
+- While touching `auth.js`'s `login` resolver, found and removed one more instance of #12's pattern that the original sweep missed: a multi-line `console.log('login', { ..., password, ... })` that was logging the raw customer password on every login attempt (missed originally because the grep pattern only matched single-line `console.log` calls with `password` on the same line).
 
 ### 9. [Low] CORS wildcard — Fixed
 **Where:** `apps/api/app.js:95-113`
@@ -151,3 +158,4 @@ This pass covered `apps/admin`, `apps/app`, `apps/rider`, `apps/store`, and touc
 - **2026-08-24** — Fixed #5, #7, #9, #10, #12 in one batch (all small, low-risk). #7 turned out to be dead code (screen unreachable, no backend route exists). While cleaning up #12's logging, discovered and logged a new **critical** finding, #13: rider passwords are stored and compared in plaintext (no bcrypt at all for the Rider account type, unlike every other account type in this system) — not fixed yet, needs a decision on migration approach (lazy vs. proactive) before touching production data. Remaining open: #6, #8, #11, #13.
 - **2026-08-24** — User chose proactive migration for #13, run now. Deployed a dual-mode `riderLogin` (bcrypt-compare if already hashed, plaintext-compare-then-upgrade if not) so the code was safe to ship ahead of the actual data migration, plus hashing on `createRider`. Wrote `apps/api/scripts/migrate-rider-passwords.js` to bcrypt-hash every existing rider in place (idempotent, `--dry-run` supported).
 - **2026-08-24** — Ran the migration against production via SSH: dry-run found 3 riders, all plaintext; real run migrated all 3, 0 failures; follow-up dry-run confirmed idempotency (3 already-hashed, 0 would-migrate). #13 fully closed. Remaining open: #6, #8, #11.
+- **2026-08-24** — Fixed #8: added a dependency-free in-memory rate limiter, wired into all 9 sensitive resolvers (login, ownerLogin, adminLogin, riderLogin, restaurantLogin, forgotPassword, resetPassword, sendOtpToEmail, sendOtpToPhoneNumber, changePassword). IP-based only for now, not per-account, and in-memory so it won't survive a restart or work across pm2 cluster workers — documented as known limitations rather than solved. Also caught and fixed one more raw-password console.log in `login` that the original #12 sweep's single-line grep missed. Remaining open: #6, #11.

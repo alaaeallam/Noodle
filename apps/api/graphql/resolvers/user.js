@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const path = require('path')
 const { sign, TOKEN_EXP_SECONDS } = require('../../helpers/jwt')
+const { rateLimitByIp } = require('../../helpers/rateLimit')
 const User = require('../../models/user')
 const Restaurant = require('../../models/restaurant')
 const Owner = require('../../models/owner');
@@ -393,6 +394,7 @@ module.exports = {
     },
     sendOtpToEmail: async(_, args, { res, req }) => {
       try {
+        rateLimitByIp('sendOtpToEmail', req, { max: 5, windowMs: 15 * 60 * 1000 })
         if (!args.email) throw new Error('Email is required')
         if (!args.otp) throw new Error('Otp is required')
         const resetPasswordTemp = await resetPasswordTemplate(args.otp)
@@ -417,6 +419,7 @@ module.exports = {
     },
     sendOtpToPhoneNumber: async(_, args, { res, req }) => {
       try {
+        rateLimitByIp('sendOtpToPhoneNumber', req, { max: 5, windowMs: 15 * 60 * 1000 })
         if (!args.phone) throw new Error('Phone is required')
         if (!args.otp) throw new Error('Otp is required')
         const configuration = await Configuration.findOne()

@@ -1,4 +1,5 @@
 const { sign } = require('../../helpers/jwt')
+const { rateLimitByIp } = require('../../helpers/rateLimit')
 var randomstring = require('randomstring')
 const mongoose = require('mongoose')
 const Restaurant = require('../../models/restaurant')
@@ -646,9 +647,9 @@ module.exports = {
         throw err
       }
     },
-    restaurantLogin: async (_, args) => {
-      console.log('restaurantLogin')
+    restaurantLogin: async (_, args, { req }) => {
       try {
+        rateLimitByIp('restaurantLogin', req, { max: 10, windowMs: 15 * 60 * 1000 })
         const rawUser = (args?.username || '').trim()
         const rawPass = args?.password || ''
         if (!rawUser || !rawPass) throw new Error('Invalid credentials')

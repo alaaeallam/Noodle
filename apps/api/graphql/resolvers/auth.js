@@ -14,6 +14,7 @@ const {
   signupTemplate,
 } = require('../../helpers/templates');
 const { v4 } = require('uuid');
+const { rateLimitByIp } = require('../../helpers/rateLimit');
 
 module.exports = {
   Mutation: {
@@ -41,8 +42,8 @@ module.exports = {
       }
     },
 
-    ownerLogin: async (_, { email, password }) => {
-      console.log('ownerLogin');
+    ownerLogin: async (_, { email, password }, { req }) => {
+      rateLimitByIp('ownerLogin', req, { max: 10, windowMs: 15 * 60 * 1000 });
       const owner = await Owner.findOne({ email });
       if (!owner) {
         throw new Error('User does not exist!');
@@ -67,8 +68,8 @@ module.exports = {
     },
     // Add this inside Mutation in apps/api/graphql/resolvers/auth.js
 
-adminLogin: async (_, { email, password }) => {
-  console.log('adminLogin');
+adminLogin: async (_, { email, password }, { req }) => {
+  rateLimitByIp('adminLogin', req, { max: 10, windowMs: 15 * 60 * 1000 });
   // Try finding an ADMIN in Owner first (most common in this codebase)
   let admin =
     (await Owner.findOne({ email, userType: 'ADMIN' })) ||
@@ -98,15 +99,10 @@ adminLogin: async (_, { email, password }) => {
 
     login: async (
       _,
-      { appleId, email, password, type, name, notificationToken }
+      { appleId, email, password, type, name, notificationToken },
+      { req }
     ) => {
-      console.log('login', {
-        appleId,
-        email,
-        password,
-        type,
-        notificationToken,
-      });
+      rateLimitByIp('login', req, { max: 10, windowMs: 15 * 60 * 1000 });
       let isNewUser = false;
 
       let user = appleId
@@ -188,7 +184,8 @@ adminLogin: async (_, { email, password }) => {
       };
     },
 
-    riderLogin: async (_, args) => {
+    riderLogin: async (_, args, { req }) => {
+      rateLimitByIp('riderLogin', req, { max: 10, windowMs: 15 * 60 * 1000 });
       const rider = await Rider.findOne({ username: args.username });
       if (!rider) throw new Error('Invalid credentials');
 
@@ -237,7 +234,8 @@ adminLogin: async (_, { email, password }) => {
       }
     },
 
-    forgotPassword: async (_, { email, otp }) => {
+    forgotPassword: async (_, { email, otp }, { req }) => {
+      rateLimitByIp('forgotPassword', req, { max: 5, windowMs: 15 * 60 * 1000 });
       const user = await User.findOne({ email });
       if (!user) {
         throw new Error('User does not exist!');
@@ -268,7 +266,8 @@ adminLogin: async (_, { email, password }) => {
       return { result: true };
     },
 
-    resetPassword: async (_, { password, email }) => {
+    resetPassword: async (_, { password, email }, { req }) => {
+      rateLimitByIp('resetPassword', req, { max: 5, windowMs: 15 * 60 * 1000 });
       const user = await User.findOne({ email });
       if (!user) {
         throw new Error('Something went wrong. Please try again later!');
@@ -281,9 +280,9 @@ adminLogin: async (_, { email, password }) => {
     },
 
     changePassword: async (_, { oldPassword, newPassword }, { req }) => {
-      console.log('changePassword');
       try {
         if (!req.isAuth) throw new Error('Unauthenticated');
+        rateLimitByIp('changePassword', req, { max: 10, windowMs: 15 * 60 * 1000 });
         const user = await User.findById(req.userId);
         if (!user) {
           throw new Error('User not found');
