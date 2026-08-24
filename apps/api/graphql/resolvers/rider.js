@@ -1,4 +1,5 @@
 const { withFilter } = require('graphql-subscriptions')
+const bcrypt = require('bcryptjs')
 const Rider = require('../../models/rider')
 const Order = require('../../models/order')
 const Point = require('../../models/point')
@@ -218,10 +219,11 @@ module.exports = {
           throw new Error('Phone already associated with another rider account')
         }
 
+        const hashedPassword = await bcrypt.hash(args.riderInput.password, 12)
         const rider = new Rider({
           name: args.riderInput.name,
           username: args.riderInput.username,
-          password: args.riderInput.password,
+          password: hashedPassword,
           phone: args.riderInput.phone,
           available: args.riderInput.available,
           zone: args.riderInput.zone,

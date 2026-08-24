@@ -192,7 +192,22 @@ adminLogin: async (_, { email, password }) => {
       const rider = await Rider.findOne({ username: args.username });
       if (!rider) throw new Error('Invalid credentials');
 
-      if (rider.password !== args.password) {
+      // Security: riders used to be stored/compared as plaintext passwords.
+      // A migration script bcrypt-hashes existing riders in place, but this
+      // stays as a permanent safety net for any stragglers - hashed
+      // passwords are compared with bcrypt, and a legacy plaintext match
+      // gets transparently upgraded to a hash on successful login.
+      const isBcryptHash = /^\$2[aby]\$/.test(rider.password || '');
+      let isEqual;
+      if (isBcryptHash) {
+        isEqual = await bcrypt.compare(args.password, rider.password);
+      } else {
+        isEqual = rider.password === args.password;
+        if (isEqual) {
+          rider.password = await bcrypt.hash(args.password, 12);
+        }
+      }
+      if (!isEqual) {
         throw new Error('Invalid credentials');
       }
 
