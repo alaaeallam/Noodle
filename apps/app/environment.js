@@ -11,10 +11,10 @@ const useEnvVars = (env = Updates.channel) => {
   const configuration = useContext(ConfigurationContext)
   if (env === 'production' || env === 'staging') {
     return {
-      GRAPHQL_URL: 'https://aws-server.enatega.com/graphql',
-      WS_GRAPHQL_URL: 'wss://aws-server.enatega.com/graphql',
-      SERVER_URL: 'https://aws-server.enatega.com/graphql',
-      SERVER_REST_URL: 'https://aws-server.enatega.com/',
+      GRAPHQL_URL: 'https://foodapp-api.alaaeallam.com/graphql',
+      WS_GRAPHQL_URL: 'wss://foodapp-api.alaaeallam.com/graphql',
+      SERVER_URL: 'https://foodapp-api.alaaeallam.com/graphql',
+      SERVER_REST_URL: 'https://foodapp-api.alaaeallam.com/',
       IOS_CLIENT_ID_GOOGLE: configuration?.iOSClientID,
       ANDROID_CLIENT_ID_GOOGLE: configuration?.androidClientID,
       AMPLITUDE_API_KEY: configuration?.appAmplitudeApiKey,
