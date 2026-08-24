@@ -189,7 +189,6 @@ adminLogin: async (_, { email, password }) => {
     },
 
     riderLogin: async (_, args) => {
-      console.log('riderLogin', args.username, args.password);
       const rider = await Rider.findOne({ username: args.username });
       if (!rider) throw new Error('Invalid credentials');
 
@@ -224,7 +223,6 @@ adminLogin: async (_, { email, password }) => {
     },
 
     forgotPassword: async (_, { email, otp }) => {
-      console.log('Forgot password: ', email, ' ', otp);
       const user = await User.findOne({ email });
       if (!user) {
         throw new Error('User does not exist!');
@@ -256,7 +254,6 @@ adminLogin: async (_, { email, password }) => {
     },
 
     resetPassword: async (_, { password, email }) => {
-      console.log(password, email);
       const user = await User.findOne({ email });
       if (!user) {
         throw new Error('Something went wrong. Please try again later!');

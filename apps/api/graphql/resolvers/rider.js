@@ -227,10 +227,7 @@ module.exports = {
           zone: args.riderInput.zone,
           vehicleType: args.riderInput.vehicleType
         })
-        console.log('new rider :', rider)
-
         const result = await rider.save()
-        console.log('result: ', result)
         await recordAuditLog({
           req,
           action: 'CREATE_RIDER',

@@ -15,7 +15,7 @@ const subscriptionTransportWs = require('subscriptions-transport-ws')
 const config = require('./config.js')
 const graphqlTools = require('@graphql-tools/schema')
 
-console.log('[boot] JWT_SECRET present?', !!process.env.JWT_SECRET, 'value:', process.env.JWT_SECRET?.slice(0, 10) + '...');
+console.log('[boot] JWT_SECRET present?', !!process.env.JWT_SECRET);
 const http = require('http')
 const populateCountries = require('./helpers/populate-countries-data.js')
 async function startApolloServer() {
@@ -47,6 +47,11 @@ async function startApolloServer() {
     introspection: config.NODE_ENV !== 'production',
     formatError: (err) => {
       console.error('[GraphQL Error]', JSON.stringify(err, null, 2))
+      // Security: never let a stack trace reach the client response in
+      // production, regardless of what Apollo's own default masking does.
+      if (config.NODE_ENV === 'production' && err.extensions) {
+        delete err.extensions.exception
+      }
       return err
     },
     context: ({ req, res }) => {
@@ -92,8 +97,23 @@ async function startApolloServer() {
       bodyParser.json({ limit: '20mb' })(req, res, next)
     }
   })
+  // Security: scope CORS to known browser-based clients (admin panel, web
+  // app) instead of '*'. Non-browser clients (mobile apps, curl, server-to-
+  // server) don't send an Origin header at all, so they're unaffected
+  // either way - CORS only ever gates browser fetch/XHR requests.
+  const allowedOrigins = [config.DASHBOARD_URL, config.WEB_URL].filter(Boolean)
+  const isAllowedOrigin = (origin) => {
+    if (!origin) return true
+    if (allowedOrigins.includes(origin)) return true
+    if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return true
+    return false
+  }
   app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    const origin = req.headers.origin
+    if (isAllowedOrigin(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin || '*')
+      res.setHeader('Vary', 'Origin')
+    }
     res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     if (req.method === 'OPTIONS') {

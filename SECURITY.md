@@ -19,14 +19,15 @@ Last full assessment: **2026-08-18**.
 | 2 | **High** | api | `order(id)` / `orderPaypal(id)` / `orderStripe(id)` queries check login but not ownership (IDOR) — any authenticated user can read any order/payment record | **Fixed** (2026-08-18) |
 | 3 | **High** | rider, store | Sentry auth tokens committed in plaintext in `eas.json` and `package.json` | **Fixed** (2026-08-20) — removed from repo, purged from git history. Still needs a real Sentry project (see below) |
 | 4 | **High** | admin, web, api | `.env.dev` / `.env.prod` / `.env.stage` / `.env.test` files committed to git | **Fixed** (2026-08-20) — untracked, `.gitignore` hardened, purged from git history |
-| 5 | **Medium** | api | `JWT_SECRET` prefix (first 10 chars) printed to console/pm2 logs on every boot | Open |
+| 5 | **Medium** | api | `JWT_SECRET` prefix (first 10 chars) printed to console/pm2 logs on every boot | **Fixed** (2026-08-24) |
 | 6 | **Medium** | rider, app | Auth token stored in plain `AsyncStorage` instead of Keychain/Keystore-backed `expo-secure-store` (store app already does this correctly) | Open |
-| 7 | **Medium** | app | Checkout WebView (`HypCheckout.js`) sets `originWhitelist={['*']}`, allowing navigation to any origin during a payment flow | Open |
+| 7 | **Medium** | app | Checkout WebView (`HypCheckout.js`) sets `originWhitelist={['*']}`, allowing navigation to any origin during a payment flow | **Fixed** (2026-08-24) — also discovered the screen is dead code, unreachable from the app |
 | 8 | **Medium** | api | No rate limiting on login / password-change / OTP endpoints | Open |
-| 9 | **Low** | api | CORS is `Access-Control-Allow-Origin: *` for all routes, including `Authorization` | Open |
-| 10 | **Low** | api | `formatError` returns the raw error object to clients — verify it doesn't leak stack traces in production | Open |
-| 11 | **Low** | app | Google Maps API keys embedded directly in `app.json` — confirm they're restricted by bundle ID / SHA-1 in Google Cloud Console | Open |
-| 12 | **Info** | api | Several resolvers `console.log` full order/rider/payment objects and PII — noise + log-exposure risk, not directly exploitable | Open |
+| 9 | **Low** | api | CORS is `Access-Control-Allow-Origin: *` for all routes, including `Authorization` | **Fixed** (2026-08-24) |
+| 10 | **Low** | api | `formatError` returns the raw error object to clients — verify it doesn't leak stack traces in production | **Fixed** (2026-08-24) |
+| 11 | **Low** | app | Google Maps API keys embedded directly in `app.json` — confirm they're restricted by bundle ID / SHA-1 in Google Cloud Console | Open — needs checking in Google Cloud Console, not a code fix |
+| 12 | **Info** | api | Several resolvers `console.log` full order/rider/payment objects and PII — noise + log-exposure risk, not directly exploitable | **Fixed** (2026-08-24) |
+| 13 | **Critical** | api | Rider passwords are stored and compared in **plaintext**, not bcrypt-hashed like every other account type — found while fixing #12 | Open — needs a decision before fixing, see below |
 
 ## Findings
 
@@ -79,47 +80,58 @@ Both contained a live-looking `SENTRY_AUTH_TOKEN` (`sntrys_...`) under org `ninj
 
 **Still open:** whether any key in `apps/api/.env.test` was ever a live credential was never confirmed (deliberately didn't extract/print the values as part of this pass) — worth a manual check by whoever has visibility into those services (Twilio/Stripe/SendGrid/Redis/Mongo consoles), rotating anything that turns out real. Same PR-refs caveat as #3 applies here too.
 
-### 5. [Medium] JWT secret partially logged on boot
+### 5. [Medium] JWT secret partially logged on boot — Fixed
 **Where:** `apps/api/app.js:18`
-```js
-console.log('[boot] JWT_SECRET present?', !!process.env.JWT_SECRET, 'value:', process.env.JWT_SECRET?.slice(0, 10) + '...');
-```
-Leaks the first 10 characters of the JWT signing secret into pm2 logs on every restart. Reduces brute-force search space and is an unnecessary exposure — the `!!process.env.JWT_SECRET` boolean check alone is enough to confirm it's set.
 
-**Fix:** drop the `.slice(0, 10)` part; log only presence, not any portion of the value.
+**Fix applied 2026-08-24:** dropped the `.slice(0, 10)` part; now logs only `!!process.env.JWT_SECRET` (presence), never any portion of the value.
 
 ### 6. [Medium] Inconsistent token storage across mobile apps
 **Where:** `apps/rider/lib/apollo/index.ts:107`, `apps/app/src/apollo/index.js:90` use `AsyncStorage.getItem`; `apps/store/lib/apollo/index.ts:36` correctly uses `SecureStore.getItemAsync`.
 
 `AsyncStorage` is unencrypted on-disk (sandboxed by the OS, but readable on rooted/jailbroken devices or via backup extraction). `expo-secure-store` backs onto iOS Keychain / Android Keystore. The store app already does this right; rider and customer app auth tokens should move to the same mechanism.
 
-### 7. [Medium] Wide-open WebView origin in checkout flow
-**Where:** `apps/app/src/screens/Hyp/HypCheckout.js:159` — `originWhitelist={['*']}`
+### 7. [Medium] Wide-open WebView origin in checkout flow — Fixed
+**Where:** `apps/app/src/screens/Hyp/HypCheckout.js:159` — was `originWhitelist={['*']}`
 
-Allows the WebView to navigate to any origin during a payment checkout. If the initial URL or a redirect is ever tampered with (compromised network, malicious response), the WebView will happily load it. Should be restricted to the actual Hyperpay domain(s) in use.
+Allowed the WebView to navigate to any origin during a payment checkout. **Also discovered while fixing this:** the entire `HypCheckout` screen is dead code — it's commented out of `apps/app/src/routes/index.js` (not registered as a navigable screen), and `apps/api` has no `/hyp` route at all (only `/paypal` and `/stripe` exist). So this was never actually reachable by a real user; the risk was already zero in practice.
+
+**Fix applied 2026-08-24:** `originWhitelist` scoped to `[SERVER_URL]` (the app's own API origin) instead of `['*']`, as defense-in-depth in case this screen is ever revived. If Hyperpay support is actually built out later, whoever does that will need to add Hyperpay's real domain to the whitelist too.
 
 ### 8. [Medium] No rate limiting on auth endpoints
 No `express-rate-limit` or equivalent found anywhere in `apps/api`. Login, password-change, and OTP-related resolvers have no throttling, making credential-stuffing and OTP brute-force attempts cheap.
 
 **Fix:** add per-IP + per-account rate limiting on `login`, `changePassword`, `resetPassword`/OTP verification.
 
-### 9. [Low] CORS wildcard
-**Where:** `apps/api/app.js:96-98` — `Access-Control-Allow-Origin: *`, with `Authorization` in the allowed headers list.
+### 9. [Low] CORS wildcard — Fixed
+**Where:** `apps/api/app.js:95-113`
 
-Lower risk than usual since auth is bearer-token (not cookie-based), so this doesn't enable classic CSRF — but it does mean any website's JS can call the API directly if it ever gets hold of a token via another vector (e.g. an XSS elsewhere). Worth tightening to the known origins (`foodapp-admin.alaaeallam.com`, the web app's domain) as defense-in-depth.
+Was `Access-Control-Allow-Origin: *` unconditionally. **Fix applied 2026-08-24:** now reflects `Access-Control-Allow-Origin` only for a known allowlist (`config.DASHBOARD_URL`, `config.WEB_URL` — both already-existing env vars — plus any `http://localhost:<port>` origin for local dev); everything else gets no CORS header at all, which browsers treat as a same-origin-only response. Non-browser clients (the mobile apps) are unaffected either way, since CORS only ever gates browser fetch/XHR and they don't send an `Origin` header. **Worth double-checking:** that `DASHBOARD_URL`/`WEB_URL` are actually set correctly in the server's `.env` — wasn't verified from here since that file isn't in git (by design).
 
-### 10. [Low] Apollo `formatError` returns raw errors
-**Where:** `apps/api/app.js:48-51` — logs then returns `err` unmodified to the client. Apollo Server's default production error-masking may be bypassed by this override. Not confirmed exploitable, but worth checking whether `err.extensions` ever carries a stack trace back to API responses in production.
+### 10. [Low] Apollo `formatError` returns raw errors — Fixed
+**Where:** `apps/api/app.js:47-55`
+
+**Fix applied 2026-08-24:** `formatError` now explicitly deletes `err.extensions.exception` when `NODE_ENV === 'production'`, guaranteeing no stack trace reaches a client response regardless of Apollo Server's own default masking behavior. Dev/staging behavior unchanged (still full detail for debugging).
 
 ### 11. [Low] Embedded Google Maps API keys
-**Where:** `apps/app/app.json` — `ios.config.googleMapsApiKey` and `android.config.googleMaps.apiKey` are plaintext in a committed file. Normal for Expo/mobile (keys are meant to ship in the binary), but only safe if they're restricted in Google Cloud Console to this app's bundle ID (iOS) / SHA-1 + package name (Android) and to the specific Maps APIs needed. Not verified from the repo alone — needs checking in the Google Cloud Console.
+**Where:** `apps/app/app.json` — `ios.config.googleMapsApiKey` and `android.config.googleMaps.apiKey` are plaintext in a committed file. Normal for Expo/mobile (keys are meant to ship in the binary), but only safe if they're restricted in Google Cloud Console to this app's bundle ID (iOS) / SHA-1 + package name (Android) and to the specific Maps APIs needed. Not verified from the repo alone — needs checking in the Google Cloud Console, not something fixable from code.
 
-### 12. [Info] Verbose PII logging in resolvers
-`console.log(order)`, `console.log('PAYPAL: ', paypal)`, `console.log('rider1111', args.id, req.userId, req.isAuth)` and similar appear throughout `order.js`/`rider.js`. Not directly exploitable, but it means full order/payment/rider PII ends up in pm2 logs on every request — worth cleaning up as part of fixing #1/#2, since those fixes will touch the same resolvers anyway.
+### 12. [Info] Verbose PII logging in resolvers — Fixed
+`console.log(order)`, `console.log('PAYPAL: ', paypal)`, `console.log('rider1111', args.id, req.userId, req.isAuth)` were already removed as a side effect of fixing #1/#2 (same resolvers). **Fix applied 2026-08-24:** swept the rest of `auth.js`/`user.js`/`rider.js` for anything logging an actual secret value (not just noisy-but-harmless resolver-name markers, which were left alone) — removed `console.log` calls that printed raw passwords (`riderLogin`, `resetPassword`) and raw OTP codes (`forgotPassword`, `sendOtpToEmail`, `sendOtpToPhoneNumber`) in cleartext. This is what surfaced finding #13 below.
+
+### 13. [Critical] Rider passwords stored and compared in plaintext
+**Where:** `apps/api/graphql/resolvers/auth.js` (`riderLogin`), `apps/api/graphql/resolvers/rider.js` (`createRider`, `editRider`)
+
+Found while cleaning up #12 — `riderLogin` does `if (rider.password !== args.password)`, a plain string comparison, not `bcrypt.compare`. `createRider` constructs `new Rider({ password: args.riderInput.password, ... })` directly from user input with no hashing step, and the `Rider` model (`apps/api/models/rider.js`) has no pre-save hook to hash it either. Confirmed via `grep -n bcrypt` across `rider.js`/`auth.js`/`models/rider.js`: `bcrypt` is used extensively for Owner/Admin/User passwords (`auth.js`'s other login paths) but **never once** for Rider. This directly contradicts what this doc previously said under "What's already solid" — password hashing is correct for every account type except riders.
+
+Impact: anyone with read access to the `riders` collection (a DB compromise, an unrelated injection bug, an insider, a leaked backup) gets every rider's actual login password in cleartext — not a hash that would need cracking. Given password reuse across services, this is a credential-stuffing risk for riders' other accounts too, not just this app.
+
+**Not fixed yet — needs a decision before touching it**, because fixing it properly means migrating already-stored plaintext passwords to bcrypt hashes, which is a production-data change:
+- **Option A (lazy migration):** on a rider's next successful plaintext-compare login, immediately re-hash and save as bcrypt, then use `bcrypt.compare` from then on. No rider-facing disruption, no upfront script, but any rider who doesn't log in again stays on plaintext indefinitely.
+- **Option B (proactive migration):** run a one-time script now that bcrypt-hashes every existing rider's password in place, then switch `riderLogin`/`createRider`/`editRider` to always use `bcrypt.hash`/`bcrypt.compare`. Fully closes the gap immediately, but it's a direct write to the live production `riders` collection and needs to run once, correctly, against real data.
 
 ## What's already solid
 
-- Passwords are hashed with `bcryptjs` at cost factor 12 (`apps/api/graphql/resolvers/auth.js`, `user.js`) — correct.
+- Passwords are hashed with `bcryptjs` at cost factor 12 for Owner/Admin/User accounts (`apps/api/graphql/resolvers/auth.js`, `user.js`) — correct. **Not true for Rider accounts — see #13.**
 - GraphQL introspection is disabled in production (`introspection: config.NODE_ENV !== 'production'`) — correct.
 - Apollo persisted-queries cache is explicitly disabled with a comment explaining the unbounded-memory DoS risk — good, deliberate call.
 - `apps/store` uses `expo-secure-store` for its auth token — the right pattern; rider/app should match it (#6).
@@ -134,3 +146,4 @@ This pass covered `apps/admin`, `apps/app`, `apps/rider`, `apps/store`, and touc
 - **2026-08-18** — Fixed #1 (unauthenticated rider IDOR + password hash exposure) and #2 (order/payment IDOR), reusing an existing `requireOrderAccess` guard helper that was already in the codebase but not wired up. Remaining open: #3–#12.
 - **2026-08-18** — Partially fixed #3 (Sentry tokens) and #4 (`.env` files): removed from the repo going forward and `.gitignore` hardened across admin/web/api/rider. Neither is fully closed — both still have their old values sitting in git history, which needs a separate, explicitly-approved `git filter-repo`/BFG history rewrite + force-push to actually purge. #3 also can't be "rotated" in the usual sense since the leaked token belongs to a third-party Sentry org we don't control — decision needed on whether to set up our own Sentry project. Remaining fully open: #5–#12.
 - **2026-08-20** — Fully closed #3 and #4: found and removed a second copy of the leaked Sentry tokens (had been duplicated into `package.json` scripts, missed in the first pass); ran `git filter-repo` to purge both tokens and all seven `.env` files from every commit in git history; force-pushed the rewritten `main` (took two attempts — first force-push dropped mid-transfer on a broken pipe, retried successfully with a larger `http.postBuffer`); verified remote matches local post-push. A full mirror backup was taken before the rewrite (`/Users/alaaeallam/dev/enatega/Noodle-backup-mirror-20260819.git`, safe to delete once confident nothing needs recovering). User decided: yes to setting up a real Sentry project — not yet done, next up. Noted but not yet checked: `refs/pull/1/head`/`refs/pull/2/head` on GitHub are independent of `main`'s history and weren't covered by this purge. Remaining fully open: #5–#12.
+- **2026-08-24** — Fixed #5, #7, #9, #10, #12 in one batch (all small, low-risk). #7 turned out to be dead code (screen unreachable, no backend route exists). While cleaning up #12's logging, discovered and logged a new **critical** finding, #13: rider passwords are stored and compared in plaintext (no bcrypt at all for the Rider account type, unlike every other account type in this system) — not fixed yet, needs a decision on migration approach (lazy vs. proactive) before touching production data. Remaining open: #6, #8, #11, #13.

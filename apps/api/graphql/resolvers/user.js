@@ -392,7 +392,6 @@ module.exports = {
       }
     },
     sendOtpToEmail: async(_, args, { res, req }) => {
-      console.log('Send otp to email: ', args.email, args.otp)
       try {
         if (!args.email) throw new Error('Email is required')
         if (!args.otp) throw new Error('Otp is required')
@@ -417,7 +416,6 @@ module.exports = {
       }
     },
     sendOtpToPhoneNumber: async(_, args, { res, req }) => {
-      console.log('Send otp to phone: ', args.phone, args.otp)
       try {
         if (!args.phone) throw new Error('Phone is required')
         if (!args.otp) throw new Error('Otp is required')

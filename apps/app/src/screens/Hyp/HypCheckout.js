@@ -156,7 +156,7 @@ function HypCheckout(props) {
         javaScriptEnabled={true}
         domStorageEnabled={true}
         bounces={false}
-        originWhitelist={['*']}
+        originWhitelist={[SERVER_URL]}
         onLoadStart={async (e) => {
           await onCreateActivityHandler('onLoadStart:HYP', e?.description ?? '-')
           loadingSetter(true)
