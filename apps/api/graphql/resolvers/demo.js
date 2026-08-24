@@ -28,11 +28,15 @@ module.exports = {
           ? await Rider.findOne({ zone: order.zone, isActive: true, available: true })
           : null
 
+        // Security: never return a real account's actual password/hash here,
+        // even if demo mode is ever re-enabled - this only ever leaks the
+        // username of whichever account happens to be most recently active,
+        // never its credential.
         return {
           restaurantUsername: restaurant?.username ?? null,
-          restaurantPassword: restaurant?.password ?? null,
+          restaurantPassword: null,
           riderUsername: rider?.username ?? null,
-          riderPassword: rider?.password ?? null
+          riderPassword: null
         }
       } catch (err) {
         console.log('lastOrderCreds error', err)
