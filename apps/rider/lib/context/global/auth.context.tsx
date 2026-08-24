@@ -1,6 +1,7 @@
 // Core
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
+import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
 
 // Interfaces§
@@ -22,7 +23,7 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({
   // State
   const [token, setToken] = useState<string>("");
   const setTokenAsync = async (token: string) => {
-    await AsyncStorage.setItem(RIDER_TOKEN, token);
+    await SecureStore.setItemAsync(RIDER_TOKEN, token);
     client.clearStore();
     setToken(token);
   };
@@ -30,7 +31,10 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({
   const logout = async () => {
     try {
       // Clear storage first to ensure logout happens immediately
-      await AsyncStorage.multiRemove([RIDER_TOKEN, "rider-id"]);
+      await Promise.all([
+        SecureStore.deleteItemAsync(RIDER_TOKEN),
+        AsyncStorage.removeItem("rider-id"),
+      ]);
 
       // Navigate to login immediately after clearing storage
 

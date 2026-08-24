@@ -20,7 +20,7 @@ Last full assessment: **2026-08-18**.
 | 3 | **High** | rider, store | Sentry auth tokens committed in plaintext in `eas.json` and `package.json` | **Fixed** (2026-08-20) — removed from repo, purged from git history. Still needs a real Sentry project (see below) |
 | 4 | **High** | admin, web, api | `.env.dev` / `.env.prod` / `.env.stage` / `.env.test` files committed to git | **Fixed** (2026-08-20) — untracked, `.gitignore` hardened, purged from git history |
 | 5 | **Medium** | api | `JWT_SECRET` prefix (first 10 chars) printed to console/pm2 logs on every boot | **Fixed** (2026-08-24) |
-| 6 | **Medium** | rider, app | Auth token stored in plain `AsyncStorage` instead of Keychain/Keystore-backed `expo-secure-store` (store app already does this correctly) | Open |
+| 6 | **Medium** | rider, app | Auth token stored in plain `AsyncStorage` instead of Keychain/Keystore-backed `expo-secure-store` (store app already does this correctly) | **Partially fixed** (2026-08-24) — rider done, rebuilt, verified on-device; customer app (`apps/app`) code changed but not yet rebuilt/tested |
 | 7 | **Medium** | app | Checkout WebView (`HypCheckout.js`) sets `originWhitelist={['*']}`, allowing navigation to any origin during a payment flow | **Fixed** (2026-08-24) — also discovered the screen is dead code, unreachable from the app |
 | 8 | **Medium** | api | No rate limiting on login / password-change / OTP endpoints | **Fixed** (2026-08-24) |
 | 9 | **Low** | api | CORS is `Access-Control-Allow-Origin: *` for all routes, including `Authorization` | **Fixed** (2026-08-24) |
@@ -28,6 +28,7 @@ Last full assessment: **2026-08-18**.
 | 11 | **Low** | app | Google Maps API keys embedded directly in `app.json` — confirm they're restricted by bundle ID / SHA-1 in Google Cloud Console | Open — needs checking in Google Cloud Console, not a code fix |
 | 12 | **Info** | api | Several resolvers `console.log` full order/rider/payment objects and PII — noise + log-exposure risk, not directly exploitable | **Fixed** (2026-08-24) |
 | 13 | **Critical** | api | Rider passwords are stored and compared in **plaintext**, not bcrypt-hashed like every other account type — found while fixing #12 | **Fixed** (2026-08-24) — migration run against production, all 3 riders confirmed bcrypt-hashed |
+| 14 | **Medium** | api | `lastOrderCreds` query is unauthenticated and returns the most-recently-active rider's/restaurant's username + password (hash) — found while testing #6 | Open — currently active in production (`enableRiderDemo` is on); awaiting decision on whether demo mode should stay enabled |
 
 ## Findings
 
@@ -85,10 +86,16 @@ Both contained a live-looking `SENTRY_AUTH_TOKEN` (`sntrys_...`) under org `ninj
 
 **Fix applied 2026-08-24:** dropped the `.slice(0, 10)` part; now logs only `!!process.env.JWT_SECRET` (presence), never any portion of the value.
 
-### 6. [Medium] Inconsistent token storage across mobile apps
-**Where:** `apps/rider/lib/apollo/index.ts:107`, `apps/app/src/apollo/index.js:90` use `AsyncStorage.getItem`; `apps/store/lib/apollo/index.ts:36` correctly uses `SecureStore.getItemAsync`.
+### 6. [Medium] Inconsistent token storage across mobile apps — Partially fixed
+**Where:** `apps/rider/lib/apollo/index.ts:107`, `apps/app/src/apollo/index.js:90` used `AsyncStorage.getItem`; `apps/store/lib/apollo/index.ts:36` already correctly uses `SecureStore.getItemAsync`.
 
-`AsyncStorage` is unencrypted on-disk (sandboxed by the OS, but readable on rooted/jailbroken devices or via backup extraction). `expo-secure-store` backs onto iOS Keychain / Android Keystore. The store app already does this right; rider and customer app auth tokens should move to the same mechanism.
+`AsyncStorage` is unencrypted on-disk (sandboxed by the OS, but readable on rooted/jailbroken devices or via backup extraction). `expo-secure-store` backs onto iOS Keychain / Android Keystore.
+
+**Fix applied 2026-08-24 (rider only so far):** added `expo-secure-store` as a dependency and migrated every token read/write/delete across `apps/rider/lib/apollo/index.ts`, `lib/context/global/auth.context.tsx`, `lib/context/global/user.context.tsx`, and `app/index.tsx` (the initial-route check) from `AsyncStorage` to `SecureStore`. Since this adds a genuinely new native module, it couldn't ship via OTA alone — required a real rebuild (`expo prebuild` + `pod install` + `expo run:ios --device`), and `version`/`runtimeVersion` were bumped `1.1.63` → `1.1.64` so the OTA channel won't push this update to any older installed binary that doesn't have the module compiled in. Rebuilt, installed on a physical device, and login verified working end-to-end.
+
+`apps/app` (customer app) got the equivalent code change (`src/apollo/index.js`, `src/context/Auth.js`, `src/context/User.js`) plus the same `version`/`runtimeVersion` treatment (switched from the `{policy: "sdkVersion"}` object to a literal `"1.0.98"`, since other installs of this app exist beyond just a test device and needed the same OTA-eligibility protection rider now has) — but **not yet rebuilt or tested**. Not pushed yet, specifically to avoid the OTA workflow auto-publishing JS that calls a native module other installed binaries don't have.
+
+**Unrelated thing hit along the way, not a code issue:** the rider rebuild initially failed on a provisioning-profile error — `Personal development teams... do not support the Push Notifications capability`. That's an Apple account-tier restriction (push notifications require a paid Apple Developer Program membership, even for local device testing), not caused by this change. Since the user doesn't want to enroll in the paid program yet, `aps-environment` was stripped from `apps/rider/ios/EnategaMultivendorRider/EnategaMultivendorRider.entitlements` as a **local-only, uncommitted workaround** to unblock this test — deliberately not committed to git, since it would silently disable push notifications for anyone else who builds from a clean checkout. Whoever next runs `expo prebuild` for rider will need to redo this (or properly enroll in the paid program and remove the workaround).
 
 ### 7. [Medium] Wide-open WebView origin in checkout flow — Fixed
 **Where:** `apps/app/src/screens/Hyp/HypCheckout.js:159` — was `originWhitelist={['*']}`
@@ -138,6 +145,35 @@ Impact: anyone with read access to the `riders` collection (a DB compromise, an 
 - A one-time migration script was written at `apps/api/scripts/migrate-rider-passwords.js`: scans every `Rider`, skips any password already in bcrypt format (safe to re-run), hashes and `updateOne`s the rest. Supports `--dry-run` to preview counts with zero writes before running for real. Deliberately doesn't log the Mongo connection string (only the hostname), unlike the existing `seed-users.js` script it's modeled after, which does log the full URI including credentials — worth fixing separately, not done here.
 - **Run against production 2026-08-24:** dry-run first (3 riders found, all plaintext), then the real run (3 migrated, 0 failed), then a second dry-run confirming idempotency (3 already-hashed, 0 would-migrate). Finding fully closed.
 
+Side effect of this fix, discovered immediately after: it broke a "demo credentials" auto-fill feature in the rider app, which reads a rider's password straight from the database to pre-fill the login form for testing convenience — see #14, that's what led to finding it.
+
+### 14. [Medium] Unauthenticated demo-credentials endpoint leaks account passwords
+**Where:** `apps/api/graphql/resolvers/demo.js` (`lastOrderCreds` query)
+
+```js
+lastOrderCreds: async() => {
+  const configuration = await Configuration.findOne()
+  if (!configuration?.enableRestaurantDemo && !configuration?.enableRiderDemo) {
+    return null
+  }
+  const order = await Order.findOne().sort({ createdAt: -1 })
+  const restaurant = configuration?.enableRestaurantDemo ? await Restaurant.findById(order.restaurant) : null
+  const rider = configuration?.enableRiderDemo ? await Rider.findOne({ zone: order.zone, isActive: true, available: true }) : null
+  return {
+    restaurantUsername: restaurant?.username ?? null,
+    restaurantPassword: restaurant?.password ?? null,
+    riderUsername: rider?.username ?? null,
+    riderPassword: rider?.password ?? null
+  }
+}
+```
+
+This query has **no authentication check at all** and returns the most-recently-active rider's and restaurant's username plus password (well-commented in the code as an intentional demo-mode convenience, gated by `Configuration.enableRiderDemo`/`enableRestaurantDemo`, and explicitly warned in the code's own comment to "stay off... outside a demo deployment"). It's currently **on** in this database — confirmed by observing it actually return live data during #6's on-device testing.
+
+Impact is now smaller than it would have been before #13 was fixed: `restaurant.password` was already a bcrypt hash (restaurants were never plaintext), and `rider.password` is a bcrypt hash too as of today's migration. So this no longer hands out plaintext credentials — but it still unauthenticated-leaks a real username + password hash for whichever account happens to be "most recently active," which is enough to mount an offline dictionary/brute-force attack against that specific account, and reveals which account is currently active as a minor info leak on its own.
+
+**Not fixed — open question for the user:** is demo mode intentionally on right now (an active demo/staging use case), or is it leftover from earlier testing and safe to disable? Fixing this is either "turn the config flag off" (if unintentional) or, if demo mode is genuinely wanted, changing the resolver to return a fixed/seeded demo account's credentials rather than whichever real account happens to be most recently active.
+
 ## What's already solid
 
 - Passwords are hashed with `bcryptjs` at cost factor 12 for every account type, including Rider as of this fix (`apps/api/graphql/resolvers/auth.js`, `user.js`, `rider.js`).
@@ -159,3 +195,4 @@ This pass covered `apps/admin`, `apps/app`, `apps/rider`, `apps/store`, and touc
 - **2026-08-24** — User chose proactive migration for #13, run now. Deployed a dual-mode `riderLogin` (bcrypt-compare if already hashed, plaintext-compare-then-upgrade if not) so the code was safe to ship ahead of the actual data migration, plus hashing on `createRider`. Wrote `apps/api/scripts/migrate-rider-passwords.js` to bcrypt-hash every existing rider in place (idempotent, `--dry-run` supported).
 - **2026-08-24** — Ran the migration against production via SSH: dry-run found 3 riders, all plaintext; real run migrated all 3, 0 failures; follow-up dry-run confirmed idempotency (3 already-hashed, 0 would-migrate). #13 fully closed. Remaining open: #6, #8, #11.
 - **2026-08-24** — Fixed #8: added a dependency-free in-memory rate limiter, wired into all 9 sensitive resolvers (login, ownerLogin, adminLogin, riderLogin, restaurantLogin, forgotPassword, resetPassword, sendOtpToEmail, sendOtpToPhoneNumber, changePassword). IP-based only for now, not per-account, and in-memory so it won't survive a restart or work across pm2 cluster workers — documented as known limitations rather than solved. Also caught and fixed one more raw-password console.log in `login` that the original #12 sweep's single-line grep missed. Remaining open: #6, #11.
+- **2026-08-24** — Partially fixed #6: migrated rider's auth token from AsyncStorage to expo-secure-store, rebuilt on-device (required a real native rebuild, not just OTA, since it's a new native module — bumped version/runtimeVersion 1.1.63→1.1.64 so the OTA channel protects older installed binaries), verified login works end-to-end. Customer app got the equivalent code change plus a switch from sdkVersion-policy to a literal runtimeVersion (other installs of that app exist beyond a test device), but hasn't been rebuilt/tested or pushed yet. Hit an unrelated provisioning-profile error along the way (Personal Team accounts can't provision Push Notifications) - worked around locally and uncommitted (stripped aps-environment from rider's entitlements file) since the user doesn't want to enroll in the paid Apple Developer Program yet. Testing #6 surfaced a new finding, #14: an unauthenticated `lastOrderCreds` query leaks the most-recently-active rider's/restaurant's username+password(hash) when demo mode is on (which it currently is) - open, waiting on user decision about whether demo mode is intentional. Remaining open: #6 (customer app half), #11, #14.

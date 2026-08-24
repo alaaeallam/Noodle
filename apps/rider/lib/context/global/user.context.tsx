@@ -30,6 +30,7 @@ import {
   IRiderEarningsArray,
 } from "@/lib/utils/interfaces/rider-earnings.interface";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 const UserContext = createContext<IUserContextProps>({} as IUserContextProps);
 
@@ -109,7 +110,7 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
       },
       async (location) => {
         try {
-          const token = await AsyncStorage.getItem(RIDER_TOKEN);
+          const token = await SecureStore.getItemAsync(RIDER_TOKEN);
           if (!token) return;
           if (
             coordinatesRef.current?.coords?.latitude ===

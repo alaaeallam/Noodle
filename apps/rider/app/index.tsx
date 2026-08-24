@@ -6,6 +6,7 @@ import { Href, useRouter } from "expo-router";
 import { useCallback, useEffect } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 // Context
 import { useLocationContext } from "@/lib/context/global/location.context";
@@ -31,7 +32,7 @@ function App() {
   // Handler
 
   const init = async () => {
-    const token = await AsyncStorage.getItem(RIDER_TOKEN);
+    const token = await SecureStore.getItemAsync(RIDER_TOKEN);
     if (token) {
       router.replace(ROUTES.home as Href);
       return;

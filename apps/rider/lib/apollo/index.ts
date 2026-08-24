@@ -14,7 +14,7 @@ import {
   getMainDefinition,
   offsetLimitPagination,
 } from "@apollo/client/utilities";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import { DefinitionNode, FragmentDefinitionNode } from "graphql";
 import { Subscription } from "zen-observable-ts";
 import useEnvVars from "../../environment";
@@ -104,7 +104,7 @@ const setupApollo = () => {
   });
 
   const request = async (operation: Operation) => {
-    const token = await AsyncStorage.getItem(RIDER_TOKEN);
+    const token = await SecureStore.getItemAsync(RIDER_TOKEN);
 
     operation.setContext({
       headers: {
@@ -141,7 +141,7 @@ const setupApollo = () => {
           message.toLowerCase().includes("unauthenticate") ||
           message.toLowerCase().includes("unauthorize")
         ) {
-          AsyncStorage.removeItem(RIDER_TOKEN)
+          SecureStore.deleteItemAsync(RIDER_TOKEN)
             .then(() => {})
             .catch((err) => console.log(err));
         }
