@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as SecureStore from 'expo-secure-store'
 import {
   ApolloClient,
   InMemoryCache,
@@ -87,7 +87,7 @@ const setupApollo = () => {
   })
 
   const request = async operation => {
-    const token = await AsyncStorage.getItem('token')
+    const token = await SecureStore.getItemAsync('token')
 
     operation.setContext({
       headers: {

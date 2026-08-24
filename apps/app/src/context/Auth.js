@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as SecureStore from 'expo-secure-store'
 
 
 const AuthContext = React.createContext()
@@ -8,14 +8,14 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null)
 
   const setTokenAsync = async token => {
-    await AsyncStorage.setItem('token', token)
+    await SecureStore.setItemAsync('token', token)
     setToken(token)
   }
 
   useEffect(() => {
     let isSubscribed = true
     ;(async() => {
-      const token = await AsyncStorage.getItem('token')
+      const token = await SecureStore.getItemAsync('token')
       isSubscribed && setToken(token)
     })()
     return () => {

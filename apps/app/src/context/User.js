@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as SecureStore from 'expo-secure-store'
 import { useApolloClient, useQuery } from '@apollo/client'
 import gql from 'graphql-tag'
 import { v5 as uuidv5 } from 'uuid'
@@ -86,7 +87,7 @@ export const UserProvider = (props) => {
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem('token')
+      await SecureStore.deleteItemAsync('token')
       setToken(null)
       if (location._id) {
         setLocation({
