@@ -5,17 +5,17 @@ const typeDefs = gql`
     radius: Float
   }
   input CircleBoundsInput {
-  radius: Float
-}
+    radius: Float
+  }
   type RestaurantDeliveryZoneInfo {
-  address: String
-  city: String
-  postCode: String
-  deliveryBounds: Polygon
-  circleBounds: CircleBounds
-  location: Point
-  boundType: String
-}
+    address: String
+    city: String
+    postCode: String
+    deliveryBounds: Polygon
+    circleBounds: CircleBounds
+    location: Point
+    boundType: String
+  }
   type Location {
     location: Point
     deliveryAddress: String
@@ -582,7 +582,7 @@ const typeDefs = gql`
   type OwnerData {
     _id: ID!
     email: String!
-    
+
     userType: String!
     firstName: String
     lastName: String
@@ -1151,21 +1151,21 @@ const typeDefs = gql`
     password: String
   }
 
-input VendorInput {
-  _id: ID
-  email: String
-  password: String
-  firstName: String
-  lastName: String
-  phoneNumber: String
-  image: String
-}
-input VendorProfileUpdateInput {
-firstName: String
-lastName: String
-phoneNumber: String
-image: String
-}
+  input VendorInput {
+    _id: ID
+    email: String
+    password: String
+    firstName: String
+    lastName: String
+    phoneNumber: String
+    image: String
+  }
+  input VendorProfileUpdateInput {
+    firstName: String
+    lastName: String
+    phoneNumber: String
+    image: String
+  }
   input ReviewInput {
     order: String
     rating: Int
@@ -1659,11 +1659,7 @@ image: String
       search: String
     ): [Order!]
 
-    ordersByUser(
-      userId: ID!,
-      page: Int,
-      limit: Int
-    ): OrdersByUserResponse!
+    ordersByUser(userId: ID!, page: Int, limit: Int): OrdersByUserResponse!
     getOrdersByDateRange(
       startingDate: String!
       endingDate: String!
@@ -1718,9 +1714,15 @@ image: String
     getCountries: [Country]
     getCountryByIso(iso: String!): Country
     recentOrderRestaurants(latitude: Float!, longitude: Float!): [Restaurant!]
-    recentOrderRestaurantsPreview(latitude: Float!, longitude: Float!): [Restaurant!]
+    recentOrderRestaurantsPreview(
+      latitude: Float!
+      longitude: Float!
+    ): [Restaurant!]
     mostOrderedRestaurants(latitude: Float!, longitude: Float!): [Restaurant!]
-    mostOrderedRestaurantsPreview(latitude: Float!, longitude: Float!): [Restaurant!]
+    mostOrderedRestaurantsPreview(
+      latitude: Float!
+      longitude: Float!
+    ): [Restaurant!]
     relatedItems(itemId: String!, restaurantId: String!): [String!]!
     popularItems(restaurantId: String!): [PopularItemsResponse!]!
     topRatedVendors(latitude: Float!, longitude: Float!): [Restaurant!]
@@ -1733,7 +1735,10 @@ image: String
   }
 
   type Mutation {
-    createWithdrawRequest(requestAmount: Float!, userId: String): WithdrawRequest!
+    createWithdrawRequest(
+      requestAmount: Float!
+      userId: String
+    ): WithdrawRequest!
     updateWithdrawReqStatus(id: ID!, status: String!): UpdateWithdrawResponse!
     sendOtpToEmail(email: String!, otp: String!): Otp!
     sendOtpToPhoneNumber(phone: String!, otp: String!): Otp!
@@ -1770,8 +1775,16 @@ image: String
     deleteSubCategory(_id: String!): Boolean!
     createFood(foodInput: FoodInput): Restaurant!
     editFood(foodInput: FoodInput): Restaurant!
-    updateFoodOutOfStock(id: String!, restaurant: String!, categoryId: String!): Boolean!
-    updateFoodFeatured(id: String!, restaurant: String!, categoryId: String!): Boolean!
+    updateFoodOutOfStock(
+      id: String!
+      restaurant: String!
+      categoryId: String!
+    ): Boolean!
+    updateFoodFeatured(
+      id: String!
+      restaurant: String!
+      categoryId: String!
+    ): Boolean!
     placeOrder(
       restaurant: String!
       orderInput: [OrderInput!]!
@@ -1829,7 +1842,10 @@ image: String
       configurationInput: AppConfigurationsInput!
     ): Configuration!
 
-    saveDeliveryRateConfiguration(deliveryRate: Float!, costType: String): Configuration!
+    saveDeliveryRateConfiguration(
+      deliveryRate: Float!
+      costType: String
+    ): Configuration!
     saveSingleVendorConfiguration(singleVendorId: String): Configuration!
     savePaypalConfiguration(
       configurationInput: PaypalConfigurationInput!
@@ -1890,7 +1906,10 @@ image: String
     editAddon(addonInput: editAddonInput): Restaurant!
     deleteAddon(id: String!, restaurant: String!): Restaurant!
     createCoupon(couponInput: CouponInput!): Coupon!
-    createRestaurantCoupon(restaurantId: ID!, couponInput: CouponInput!): Coupon!
+    createRestaurantCoupon(
+      restaurantId: ID!
+      couponInput: CouponInput!
+    ): Coupon!
     editCoupon(couponInput: CouponInput!): Coupon!
     editRestaurantCoupon(restaurantId: ID!, couponInput: CouponInput!): Coupon!
     deleteCoupon(id: String!): String!
@@ -1926,12 +1945,29 @@ image: String
     assignOrder(id: String): Order!
     muteRing(orderId: String): Boolean!
     updateRiderLocation(latitude: String!, longitude: String!): Rider!
-    updateRiderBussinessDetails(id: String!, bussinessDetails: BussinessDetailsInput): Rider!
-    updateRiderLicenseDetails(id: String!, licenseDetails: LicenseDetailsInput): Rider!
-    updateRiderVehicleDetails(id: String!, vehicleDetails: VehicleDetailsInput): Rider!
-    updateWorkSchedule(riderId: String!, workSchedule: [DayScheduleInput!]!, timeZone: String!): Rider!
+    updateRiderBussinessDetails(
+      id: String!
+      bussinessDetails: BussinessDetailsInput
+    ): Rider!
+    updateRiderLicenseDetails(
+      id: String!
+      licenseDetails: LicenseDetailsInput
+    ): Rider!
+    updateRiderVehicleDetails(
+      id: String!
+      vehicleDetails: VehicleDetailsInput
+    ): Rider!
+    updateWorkSchedule(
+      riderId: String!
+      workSchedule: [DayScheduleInput!]!
+      timeZone: String!
+    ): Rider!
     uploadImageToS3(image: String!): UploadImageResponse!
-    restaurantLogin(username: String!, password: String!, notificationToken: String): RestaurantAuth!
+    restaurantLogin(
+      username: String!
+      password: String!
+      notificationToken: String
+    ): RestaurantAuth!
     createZone(zone: ZoneInput!): Zone!
     editZone(zone: ZoneInput!): Zone!
     deleteZone(id: String!): Zone!

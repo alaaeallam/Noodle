@@ -1,4 +1,4 @@
-require('dotenv').config(); 
+require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const { ApolloServer } = require('@apollo/server')
@@ -16,7 +16,7 @@ const subscriptionTransportWs = require('subscriptions-transport-ws')
 const config = require('./config.js')
 const graphqlTools = require('@graphql-tools/schema')
 
-console.log('[boot] JWT_SECRET present?', !!process.env.JWT_SECRET);
+console.log('[boot] JWT_SECRET present?', !!process.env.JWT_SECRET)
 const http = require('http')
 const populateCountries = require('./helpers/populate-countries-data.js')
 async function startApolloServer() {
@@ -46,7 +46,7 @@ async function startApolloServer() {
     cache: 'bounded',
 
     introspection: config.NODE_ENV !== 'production',
-    formatError: (formattedError) => {
+    formatError: formattedError => {
       console.error('[GraphQL Error]', JSON.stringify(formattedError, null, 2))
       // Security: never let a stack trace reach the client response in
       // production, regardless of what Apollo's own default masking does.
@@ -54,8 +54,8 @@ async function startApolloServer() {
         delete formattedError.extensions.exception
       }
       return formattedError
-    },
-  });
+    }
+  })
   const GRAPHQL_PATH = '/graphql'
   const subscriptionServer = httpServer => {
     return subscriptionTransportWs.SubscriptionServer.create(
@@ -94,7 +94,7 @@ async function startApolloServer() {
   // server) don't send an Origin header at all, so they're unaffected
   // either way - CORS only ever gates browser fetch/XHR requests.
   const allowedOrigins = [config.DASHBOARD_URL, config.WEB_URL].filter(Boolean)
-  const isAllowedOrigin = (origin) => {
+  const isAllowedOrigin = origin => {
     if (!origin) return true
     if (allowedOrigins.includes(origin)) return true
     if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return true
@@ -117,13 +117,13 @@ async function startApolloServer() {
     GRAPHQL_PATH,
     expressMiddleware(server, {
       context: async ({ req, res }) => {
-        const { isAuth, userId, userType, restaurantId } = isAuthenticated(req);
-        req.isAuth = isAuth;
-        req.userId = userId;
-        req.userType = userType;
-        req.restaurantId = restaurantId;
-        return { req, res };
-      },
+        const { isAuth, userId, userType, restaurantId } = isAuthenticated(req)
+        req.isAuth = isAuth
+        req.userId = userId
+        req.userType = userType
+        req.restaurantId = restaurantId
+        return { req, res }
+      }
     })
   )
   app.use(express.static('public'))
@@ -146,12 +146,8 @@ async function startApolloServer() {
   // start subscription server
   subscriptionServer(httpServer)
 
-  console.log(
-    `🚀 Server ready at http://localhost:${PORT}${GRAPHQL_PATH}`
-  )
-  console.log(
-    `🚀 Subscriptions ready at ws://localhost:${PORT}${GRAPHQL_PATH}`
-  )
+  console.log(`🚀 Server ready at http://localhost:${PORT}${GRAPHQL_PATH}`)
+  console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${GRAPHQL_PATH}`)
 
   // Populate countries data in the background; don't block server startup.
   populateCountries().catch(err => {
