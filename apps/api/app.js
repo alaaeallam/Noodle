@@ -13,6 +13,8 @@ const isAuthenticated = require('./middleware/is-auth')
 const Sentry = require('@sentry/node')
 const graphql = require('graphql')
 const subscriptionTransportWs = require('subscriptions-transport-ws')
+const { WebSocketServer } = require('ws')
+const { useServer } = require('graphql-ws/use/ws')
 const config = require('./config.js')
 const graphqlTools = require('@graphql-tools/schema')
 
@@ -57,22 +59,55 @@ async function startApolloServer() {
     }
   })
   const GRAPHQL_PATH = '/graphql'
-  const subscriptionServer = httpServer => {
-    return subscriptionTransportWs.SubscriptionServer.create(
-      {
-        schema,
-        execute: graphql.execute,
-        subscribe: graphql.subscribe,
-        onConnect() {
-          console.log('Connected to subscription server.')
-        }
-      },
-      {
-        server: httpServer,
-        path: GRAPHQL_PATH
+
+  // Dual-protocol subscription transition: subscriptions-transport-ws (old,
+  // deprecated) and graphql-ws (new) use different, incompatible WebSocket
+  // subprotocols ('graphql-ws' vs 'graphql-transport-ws' respectively), so
+  // both servers run side by side and the httpServer's single 'upgrade'
+  // event is routed to whichever one the connecting client actually
+  // requested. This lets already-installed app builds (still on the old
+  // client) keep working unbroken while newer builds switch over - once
+  // every client has migrated, the old server + subscriptions-transport-ws
+  // dependency can be removed.
+  const wsServerOld = new WebSocketServer({ noServer: true })
+  const wsServerNew = new WebSocketServer({ noServer: true })
+
+  subscriptionTransportWs.SubscriptionServer.create(
+    {
+      schema,
+      execute: graphql.execute,
+      subscribe: graphql.subscribe,
+      onConnect() {
+        console.log('[subscriptions-transport-ws] client connected')
       }
-    )
+    },
+    wsServerOld
+  )
+
+  useServer({ schema }, wsServerNew)
+
+  const attachSubscriptionUpgradeRouting = httpServer => {
+    httpServer.on('upgrade', (request, socket, head) => {
+      const { pathname } = new URL(request.url, `http://${request.headers.host}`)
+      if (pathname !== GRAPHQL_PATH) {
+        socket.destroy()
+        return
+      }
+      const requestedProtocols = (request.headers['sec-websocket-protocol'] || '')
+        .split(',')
+        .map(p => p.trim())
+      if (requestedProtocols.includes('graphql-transport-ws')) {
+        wsServerNew.handleUpgrade(request, socket, head, ws => {
+          wsServerNew.emit('connection', ws, request)
+        })
+      } else {
+        wsServerOld.handleUpgrade(request, socket, head, ws => {
+          wsServerOld.emit('connection', ws, request)
+        })
+      }
+    })
   }
+
   await server.start()
   app.engine('ejs', engines.ejs)
   app.set('views', './views')
@@ -143,8 +178,8 @@ async function startApolloServer() {
 
   // Start the HTTP server first so Render can detect the open port quickly.
   await new Promise(resolve => httpServer.listen(PORT, resolve))
-  // start subscription server
-  subscriptionServer(httpServer)
+  // start subscription servers (both protocols, routed by upgrade request)
+  attachSubscriptionUpgradeRouting(httpServer)
 
   console.log(`🚀 Server ready at http://localhost:${PORT}${GRAPHQL_PATH}`)
   console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${GRAPHQL_PATH}`)
