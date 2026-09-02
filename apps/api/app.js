@@ -1,7 +1,8 @@
 require('dotenv').config(); 
 const express = require('express')
 const bodyParser = require('body-parser')
-const { ApolloServer } = require('apollo-server-express')
+const { ApolloServer } = require('@apollo/server')
+const { expressMiddleware } = require('@as-integrations/express4')
 const mongoose = require('mongoose')
 const engines = require('consolidate')
 const typeDefs = require('./graphql/schema/index')
@@ -45,25 +46,17 @@ async function startApolloServer() {
     cache: 'bounded',
 
     introspection: config.NODE_ENV !== 'production',
-    formatError: (err) => {
-      console.error('[GraphQL Error]', JSON.stringify(err, null, 2))
+    formatError: (formattedError) => {
+      console.error('[GraphQL Error]', JSON.stringify(formattedError, null, 2))
       // Security: never let a stack trace reach the client response in
       // production, regardless of what Apollo's own default masking does.
-      if (config.NODE_ENV === 'production' && err.extensions) {
-        delete err.extensions.exception
+      if (config.NODE_ENV === 'production' && formattedError.extensions) {
+        delete formattedError.extensions.exception
       }
-      return err
-    },
-    context: ({ req, res }) => {
-      if (!req) return {};
-      const { isAuth, userId, userType, restaurantId } = isAuthenticated(req);
-      req.isAuth = isAuth;
-      req.userId = userId;
-      req.userType = userType;
-      req.restaurantId = restaurantId;
-      return { req, res };
+      return formattedError
     },
   });
+  const GRAPHQL_PATH = '/graphql'
   const subscriptionServer = httpServer => {
     return subscriptionTransportWs.SubscriptionServer.create(
       {
@@ -76,12 +69,11 @@ async function startApolloServer() {
       },
       {
         server: httpServer,
-        path: server.graphqlPath
+        path: GRAPHQL_PATH
       }
     )
   }
   await server.start()
-  server.applyMiddleware({ app })
   app.engine('ejs', engines.ejs)
   app.set('views', './views')
   app.set('view engine', 'ejs')
@@ -121,6 +113,19 @@ async function startApolloServer() {
     }
     next()
   })
+  app.use(
+    GRAPHQL_PATH,
+    expressMiddleware(server, {
+      context: async ({ req, res }) => {
+        const { isAuth, userId, userType, restaurantId } = isAuthenticated(req);
+        req.isAuth = isAuth;
+        req.userId = userId;
+        req.userType = userType;
+        req.restaurantId = restaurantId;
+        return { req, res };
+      },
+    })
+  )
   app.use(express.static('public'))
   app.use('/paypal', paypal)
   app.use('/stripe', stripe)
@@ -142,10 +147,10 @@ async function startApolloServer() {
   subscriptionServer(httpServer)
 
   console.log(
-    `🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`
+    `🚀 Server ready at http://localhost:${PORT}${GRAPHQL_PATH}`
   )
   console.log(
-    `🚀 Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`
+    `🚀 Subscriptions ready at ws://localhost:${PORT}${GRAPHQL_PATH}`
   )
 
   // Populate countries data in the background; don't block server startup.

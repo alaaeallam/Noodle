@@ -1,4 +1,4 @@
-const { ApolloError } = require('apollo-server-express')
+const { GraphQLError } = require('graphql')
 const Country = require('../../models/country')
 
 const resolvers = {
@@ -9,7 +9,7 @@ const resolvers = {
         const countries = await Country.find()
         return countries
       } catch (error) {
-        throw new ApolloError('Error fetching countries', 'DATABASE_ERROR')
+        throw new GraphQLError('Error fetching countries', { extensions: { code: 'DATABASE_ERROR' } })
       }
     },
 
@@ -19,9 +19,9 @@ const resolvers = {
         const country = await Country.findOne({ iso2: iso.toUpperCase() })
         return country
       } catch (error) {
-        throw new ApolloError(
+        throw new GraphQLError(
           'Error fetching country by name',
-          'DATABASE_ERROR'
+          { extensions: { code: 'DATABASE_ERROR' } }
         )
       }
     }
