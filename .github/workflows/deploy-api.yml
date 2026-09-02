@@ -47,7 +47,16 @@ jobs:
             pm2 restart noodle-api --update-env
 
             echo "==> Health check"
-            sleep 2
-            curl -sS -X POST https://foodapp-api.alaaeallam.com/graphql \
-              -H "Content-Type: application/json" \
-              --data '{"query":"query{__typename}"}' | head -c 200; echo
+            for i in 1 2 3 4 5; do
+              sleep 2
+              RESPONSE=$(curl -sS -X POST https://foodapp-api.alaaeallam.com/graphql \
+                -H "Content-Type: application/json" \
+                --data '{"query":"query{__typename}"}' || true)
+              echo "Attempt $i: $RESPONSE"
+              if echo "$RESPONSE" | grep -q '"__typename":"Query"'; then
+                echo "Health check passed"
+                exit 0
+              fi
+            done
+            echo "Health check failed after 5 attempts"
+            exit 1
