@@ -2,7 +2,7 @@ import { useApptheme } from "@/lib/context/theme.context";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import { MaterialIcons as Icon } from "@expo/vector-icons";
 
 type AccordionItemPros = PropsWithChildren<{
   title: string;

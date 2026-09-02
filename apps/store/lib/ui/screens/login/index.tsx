@@ -14,7 +14,7 @@ import {
 } from "react-native";
 // Components
 // Icon
-import Icon from "react-native-vector-icons/FontAwesome6";
+import { FontAwesome6 as Icon } from "@expo/vector-icons";
 // Schemas
 import { SignInSchema } from "@/lib/utils/schema";
 // Hook
