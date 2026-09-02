@@ -12,7 +12,8 @@ import {
   getMainDefinition,
   offsetLimitPagination
 } from '@apollo/client/utilities'
-import { WebSocketLink } from '@apollo/client/link/ws'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { createClient } from 'graphql-ws'
 import useEnvVars from '../../environment'
 import { useContext } from 'react'
 import { LocationContext } from '../context/Location'
@@ -79,12 +80,16 @@ const setupApollo = () => {
     uri: GRAPHQL_URL
   })
 
-  const wsLink = new WebSocketLink({
-    uri: WS_GRAPHQL_URL,
-    options: {
-      reconnect: true
-    }
-  })
+  const wsLink = new GraphQLWsLink(
+    createClient({
+      url: WS_GRAPHQL_URL,
+      // Match subscriptions-transport-ws's old reconnect:true - retry
+      // indefinitely (mobile network drops in and out constantly), not
+      // just the library's default 5 attempts.
+      retryAttempts: Infinity,
+      shouldRetry: () => true
+    })
+  )
 
   const request = async operation => {
     const token = await SecureStore.getItemAsync('token')
