@@ -41,7 +41,7 @@
       "bundleIdentifier": "com.enatega.multivendor",
       "icon": "./assets/icon.png",
       "config": {
-        "googleMapsApiKey": "AIzaSyA5dVb6K63u31oasGXvNbAl5E-m1zzfy3s"
+        "googleMapsApiKey": "AIzaSyA3erJMO2OuIYFfs7QHHMALVmk4RtIJRhs"
       },
       "usesAppleSignIn": true,
       "infoPlist": {
