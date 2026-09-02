@@ -62,5 +62,14 @@ jobs:
             pm2 restart noodle-admin --update-env
 
             echo "==> Health check"
-            sleep 3
-            curl -sS -o /dev/null -w "HTTP %{http_code}\n" https://foodapp-admin.alaaeallam.com
+            for i in 1 2 3 4 5; do
+              sleep 3
+              STATUS=$(curl -sS -o /dev/null -w "%{http_code}" https://foodapp-admin.alaaeallam.com || true)
+              echo "Attempt $i: HTTP $STATUS"
+              if [ "$STATUS" = "200" ]; then
+                echo "Health check passed"
+                exit 0
+              fi
+            done
+            echo "Health check failed after 5 attempts"
+            exit 1
