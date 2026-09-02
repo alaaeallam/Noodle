@@ -88,12 +88,17 @@ async function startApolloServer() {
 
   const attachSubscriptionUpgradeRouting = httpServer => {
     httpServer.on('upgrade', (request, socket, head) => {
-      const { pathname } = new URL(request.url, `http://${request.headers.host}`)
+      const { pathname } = new URL(
+        request.url,
+        `http://${request.headers.host}`
+      )
       if (pathname !== GRAPHQL_PATH) {
         socket.destroy()
         return
       }
-      const requestedProtocols = (request.headers['sec-websocket-protocol'] || '')
+      const requestedProtocols = (
+        request.headers['sec-websocket-protocol'] || ''
+      )
         .split(',')
         .map(p => p.trim())
       if (requestedProtocols.includes('graphql-transport-ws')) {
