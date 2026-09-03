@@ -1,17 +1,6 @@
 import * as SecureStore from 'expo-secure-store'
-import {
-  ApolloClient,
-  InMemoryCache,
-  createHttpLink,
-  ApolloLink,
-  split,
-  concat,
-  Observable
-} from '@apollo/client'
-import {
-  getMainDefinition,
-  offsetLimitPagination
-} from '@apollo/client/utilities'
+import { ApolloClient, InMemoryCache, createHttpLink, ApolloLink, split, concat, Observable } from '@apollo/client'
+import { getMainDefinition, offsetLimitPagination } from '@apollo/client/utilities'
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { createClient } from 'graphql-ws'
 import useEnvVars from '../../environment'
@@ -53,7 +42,7 @@ const setupApollo = () => {
       RestaurantPreview: {
         fields: {
           distanceWithCurrentLocation: {
-            read(_existing, {variables, field, readField}) {
+            read(_existing, { variables, field, readField }) {
               const restaurantLocation = readField('location')
               const distance = calculateDistance(restaurantLocation?.coordinates[0], restaurantLocation?.coordinates[1], variables.latitude, variables.longitude)
               return distance
@@ -61,16 +50,16 @@ const setupApollo = () => {
           },
           freeDelivery: {
             read(_existing) {
-              const randomValue = Math.random() * 10;
+              const randomValue = Math.random() * 10
               return randomValue > 5
             }
           },
           acceptVouchers: {
             read(_existing) {
-              const randomValue = Math.random() * 10;
+              const randomValue = Math.random() * 10
               return randomValue < 5
             }
-          },
+          }
         }
       }
     }
@@ -91,7 +80,7 @@ const setupApollo = () => {
     })
   )
 
-  const request = async operation => {
+  const request = async (operation) => {
     const token = await SecureStore.getItemAsync('token')
 
     operation.setContext({
@@ -103,10 +92,10 @@ const setupApollo = () => {
 
   const requestLink = new ApolloLink(
     (operation, forward) =>
-      new Observable(observer => {
+      new Observable((observer) => {
         let handle
         Promise.resolve(operation)
-          .then(oper => request(oper))
+          .then((oper) => request(oper))
           .then(() => {
             handle = forward(operation).subscribe({
               next: observer.next.bind(observer),
