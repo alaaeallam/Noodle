@@ -284,6 +284,9 @@ module.exports = {
         if (args.riderInput.vehicleType !== undefined) {
           rider.vehicleType = args.riderInput.vehicleType
         }
+        if (args.riderInput.password) {
+          rider.password = await bcrypt.hash(args.riderInput.password, 12)
+        }
 
         const result = await rider.save()
         if (!isSelf) {
