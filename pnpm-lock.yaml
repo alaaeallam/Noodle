@@ -32,7 +32,7 @@ importers:
     dependencies:
       '@apollo/client':
         specifier: ^3.14.1
-        version: 3.14.1(@types/react@18.3.31)(graphql-ws@5.16.2(graphql@16.14.2))(graphql@16.14.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(subscriptions-transport-ws@0.11.0(graphql@16.14.2))
+        version: 3.14.1(@types/react@18.3.31)(graphql-ws@6.2.1(graphql@16.14.2)(ws@8.21.3))(graphql@16.14.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(subscriptions-transport-ws@0.11.0(graphql@16.14.2))
       '@fortawesome/fontawesome-svg-core':
         specifier: ^6.7.2
         version: 6.7.2
@@ -67,8 +67,8 @@ importers:
         specifier: ^16.14.2
         version: 16.14.2
       graphql-ws:
-        specifier: ^5.16.2
-        version: 5.16.2(graphql@16.14.2)
+        specifier: ^6.2.1
+        version: 6.2.1(graphql@16.14.2)(ws@8.21.3)
       lodash:
         specifier: ^4.18.1
         version: 4.18.1
@@ -99,9 +99,6 @@ importers:
       react-international-phone:
         specifier: ^4.8.0
         version: 4.8.0(react@18.3.1)
-      subscriptions-transport-ws:
-        specifier: ^0.11.0
-        version: 0.11.0(graphql@16.14.2)
       tailwind-merge:
         specifier: ^2.6.1
         version: 2.6.1
@@ -13973,7 +13970,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@apollo/client@3.14.1(@types/react@18.3.31)(graphql-ws@5.16.2(graphql@16.14.2))(graphql@16.14.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(subscriptions-transport-ws@0.11.0(graphql@16.14.2))':
+  '@apollo/client@3.14.1(@types/react@18.3.31)(graphql-ws@6.2.1(graphql@16.14.2)(ws@8.21.3))(graphql@16.14.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(subscriptions-transport-ws@0.11.0(graphql@16.14.2))':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.14.2)
       '@wry/caches': 1.0.1
@@ -13990,7 +13987,7 @@ snapshots:
       tslib: 2.8.1
       zen-observable-ts: 1.2.5
     optionalDependencies:
-      graphql-ws: 5.16.2(graphql@16.14.2)
+      graphql-ws: 6.2.1(graphql@16.14.2)(ws@8.21.3)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       subscriptions-transport-ws: 0.11.0(graphql@16.14.2)
@@ -21898,7 +21895,7 @@ snapshots:
       tinyglobby: 0.2.17
       unrs-resolver: 1.12.2
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.2(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -23710,13 +23707,15 @@ snapshots:
     dependencies:
       graphql: 16.11.0
 
-  graphql-ws@5.16.2(graphql@16.14.2):
-    dependencies:
-      graphql: 16.14.2
-
   graphql-ws@6.2.1(graphql@16.11.0)(ws@8.21.3):
     dependencies:
       graphql: 16.11.0
+    optionalDependencies:
+      ws: 8.21.3
+
+  graphql-ws@6.2.1(graphql@16.14.2)(ws@8.21.3):
+    dependencies:
+      graphql: 16.14.2
     optionalDependencies:
       ws: 8.21.3
 
@@ -28962,6 +28961,7 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+    optional: true
 
   sucrase@3.35.0:
     dependencies:

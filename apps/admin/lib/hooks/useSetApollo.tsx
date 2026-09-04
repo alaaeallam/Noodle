@@ -9,9 +9,9 @@ import {
   Operation,
   split,
 } from '@apollo/client';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { WebSocketLink } from '@apollo/client/link/ws';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
 import { onError } from '@apollo/client/link/error';
 import { APP_NAME } from '../utils/constants';
 
@@ -31,11 +31,13 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
   // because there's no live connection to make at build/render time.
   const wsLink =
     typeof window !== 'undefined'
-      ? new WebSocketLink(
-          new SubscriptionClient(`${WS_SERVER_URL}graphql`, {
-            reconnect: true,
-            timeout: 30000,
-            lazy: true,
+      ? new GraphQLWsLink(
+          createClient({
+            url: `${WS_SERVER_URL}graphql`,
+            // Match subscriptions-transport-ws's old reconnect:true - retry
+            // indefinitely rather than the library's default 5 attempts.
+            retryAttempts: Infinity,
+            shouldRetry: () => true,
           })
         )
       : null;
@@ -43,12 +45,18 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
   // Centralized error logging
   const errorLink = onError(({ networkError, graphQLErrors }) => {
     if (networkError) console.error('Network Error:', networkError);
-    if (graphQLErrors) graphQLErrors.forEach(err => console.error('GraphQL Error:', err.message));
+    if (graphQLErrors)
+      graphQLErrors.forEach((err) =>
+        console.error('GraphQL Error:', err.message)
+      );
   });
 
   // Attach Authorization header
   const request = async (operation: Operation): Promise<void> => {
-    const raw = typeof window !== 'undefined' ? localStorage.getItem(`user-${APP_NAME}`) : null;
+    const raw =
+      typeof window !== 'undefined'
+        ? localStorage.getItem(`user-${APP_NAME}`)
+        : null;
     const token = raw ? JSON.parse(raw).token : '';
     operation.setContext({
       headers: {
@@ -60,7 +68,7 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
   // Turn the async request() into a link
   const requestLink = new ApolloLink(
     (operation, forward) =>
-      new Observable(observer => {
+      new Observable((observer) => {
         let sub:
           | {
               unsubscribe: () => void;
@@ -71,12 +79,12 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
           .then(() => request(operation))
           .then(() => {
             sub = forward(operation).subscribe({
-              next: v => observer.next(v),
-              error: e => observer.error(e),
+              next: (v) => observer.next(v),
+              error: (e) => observer.error(e),
               complete: () => observer.complete(),
             });
           })
-          .catch(e => observer.error(e));
+          .catch((e) => observer.error(e));
 
         return () => {
           if (sub) sub.unsubscribe();
@@ -90,7 +98,10 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
     ? split(
         ({ query }) => {
           const def = getMainDefinition(query);
-          return def.kind === 'OperationDefinition' && def.operation === 'subscription';
+          return (
+            def.kind === 'OperationDefinition' &&
+            def.operation === 'subscription'
+          );
         },
         wsLink,
         httpLink
@@ -104,7 +115,8 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
     link,
     cache,
     devtools: {
-      enabled: typeof window !== 'undefined' && process.env.NODE_ENV !== 'production',
+      enabled:
+        typeof window !== 'undefined' && process.env.NODE_ENV !== 'production',
     },
   });
 
