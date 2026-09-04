@@ -23,14 +23,20 @@ const {
   JOB_TYPE,
   JOB_DELAY_DEFAULT
 } = require('../../queue')
-const { requireAuth, requireRole, ADMIN_ROLES, requireWalletAccess } = require('../../helpers/guards')
+const {
+  requireAuth,
+  requireRole,
+  ADMIN_ROLES,
+  requireWalletAccess
+} = require('../../helpers/guards')
 const { recordAuditLog } = require('../../helpers/auditLog')
 
 // Same unsigned Cloudinary preset the admin panel already uploads
 // restaurant/cuisine images through (apps/admin/.env.production) --
 // reused here so rider document uploads (license/vehicle plate) land
 // in the same real, working media pipeline instead of a fictional S3 bucket.
-const CLOUDINARY_UPLOAD_URL = 'https://api.cloudinary.com/v1_1/' + 'alaaeallam' + '/image/upload'
+const CLOUDINARY_UPLOAD_URL =
+  'https://api.cloudinary.com/v1_1/' + 'alaaeallam' + '/image/upload'
 const CLOUDINARY_UPLOAD_PRESET = 'noodle_admin_unsigned'
 module.exports = {
   Subscription: {
@@ -54,7 +60,7 @@ module.exports = {
     }
   },
   Query: {
-    riders: async(_, args, { req }) => {
+    riders: async (_, args, { req }) => {
       console.log('riders')
       try {
         requireRole(req, ADMIN_ROLES)
@@ -65,11 +71,14 @@ module.exports = {
         throw err
       }
     },
-    rider: async(_, args, { req }) => {
+    rider: async (_, args, { req }) => {
       try {
         requireAuth(req)
         const userId = args.id || req.userId
-        if (!ADMIN_ROLES.has(req.userType || '') && String(userId) !== String(req.userId)) {
+        if (
+          !ADMIN_ROLES.has(req.userType || '') &&
+          String(userId) !== String(req.userId)
+        ) {
           throw new Error('Forbidden')
         }
         const rider = await Rider.findById(userId)
@@ -90,7 +99,7 @@ module.exports = {
         throw err
       }
     },
-    assignedOrders: async(_, args, { req }) => {
+    assignedOrders: async (_, args, { req }) => {
       console.log('assignedOrders', args.id || req.userId)
       const userId = args.id || req.userId
       if (!userId) {
@@ -108,7 +117,7 @@ module.exports = {
         throw err
       }
     },
-    riderCompletedOrders: async(_, args, { req }) => {
+    riderCompletedOrders: async (_, args, { req }) => {
       console.log('rider completed orders')
       try {
         if (!req.isAuth) throw new Error('Unauthenticated')
@@ -123,7 +132,7 @@ module.exports = {
         throw err
       }
     },
-    unassignedOrdersByZone: async(_, args, { req }) => {
+    unassignedOrdersByZone: async (_, args, { req }) => {
       console.log('unassignedOrders')
 
       try {
@@ -144,7 +153,7 @@ module.exports = {
         throw err
       }
     },
-    riderOrders: async(_, args, { req }) => {
+    riderOrders: async (_, args, { req }) => {
       console.log('riderOrders', req.userId)
       try {
         const rider = await Rider.findById(req.userId)
@@ -152,9 +161,7 @@ module.exports = {
         const date = new Date()
         date.setDate(date.getDate() - 1)
         const activeWindow = {
-          $gte: `${date.getFullYear()}-${
-            date.getMonth() + 1
-          }-${date.getDate()}`
+          $gte: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
         }
         // Delivered/cancelled orders are the rider's history, not their
         // active queue — they shouldn't be dropped just because they were
@@ -188,18 +195,16 @@ module.exports = {
           rider: null,
           createdAt: activeWindow
         }).sort({ createdAt: -1 })
-        return orders
-          .concat(activeOrders, historyOrders)
-          .map(order => {
-            return transformOrder(order)
-          })
+        return orders.concat(activeOrders, historyOrders).map(order => {
+          return transformOrder(order)
+        })
       } catch (err) {
         throw err
       }
     }
   },
   Mutation: {
-    createRider: async(_, args, { req }) => {
+    createRider: async (_, args, { req }) => {
       console.log('createRider')
       try {
         requireRole(req, ADMIN_ROLES)
@@ -243,7 +248,7 @@ module.exports = {
         throw err
       }
     },
-    editRider: async(_, args, { req }) => {
+    editRider: async (_, args, { req }) => {
       console.log('editRider')
       try {
         // Admins can edit any rider; a rider can edit their own record via
@@ -304,7 +309,7 @@ module.exports = {
         throw err
       }
     },
-    deleteRider: async(_, { id }, { req }) => {
+    deleteRider: async (_, { id }, { req }) => {
       console.log('deleteRider')
       try {
         requireRole(req, ADMIN_ROLES)
@@ -324,7 +329,7 @@ module.exports = {
         throw err
       }
     },
-    toggleAvailablity: async(_, args, { req }) => {
+    toggleAvailablity: async (_, args, { req }) => {
       console.log('toggleAvailablity')
       const userId = args.id || req.userId // if rider: get id from req, args otherwise
       if (!userId) {
@@ -339,7 +344,7 @@ module.exports = {
         throw err
       }
     },
-    updateOrderStatusRider: async(_, args, { req }) => {
+    updateOrderStatusRider: async (_, args, { req }) => {
       console.log('updateOrderStatusRider', args, req.userId)
       try {
         if (!req.isAuth) throw new Error('Unauthenticated')
@@ -388,7 +393,7 @@ module.exports = {
         throw err
       }
     },
-    assignOrder: async(_, args, { req }) => {
+    assignOrder: async (_, args, { req }) => {
       console.log('assignOrder', args.id, req.userId)
       try {
         const order = await Order.findById(args.id)
@@ -410,7 +415,7 @@ module.exports = {
         throw error
       }
     },
-    updateRiderLocation: async(_, args, { req }) => {
+    updateRiderLocation: async (_, args, { req }) => {
       console.log('updateRiderLocation', req.userId)
       if (!req.userId) {
         throw new Error('Unauthenticated!')
@@ -434,7 +439,7 @@ module.exports = {
       })
       return transformRider(result)
     },
-    updateRiderBussinessDetails: async(_, args, { req }) => {
+    updateRiderBussinessDetails: async (_, args, { req }) => {
       console.log('updateRiderBussinessDetails', args.id)
       try {
         const { userId } = requireWalletAccess(req, 'RIDER', args.id)
@@ -448,7 +453,7 @@ module.exports = {
         throw err
       }
     },
-    updateRiderLicenseDetails: async(_, args, { req }) => {
+    updateRiderLicenseDetails: async (_, args, { req }) => {
       console.log('updateRiderLicenseDetails', args.id)
       try {
         const { userId } = requireWalletAccess(req, 'RIDER', args.id)
@@ -462,7 +467,7 @@ module.exports = {
         throw err
       }
     },
-    updateRiderVehicleDetails: async(_, args, { req }) => {
+    updateRiderVehicleDetails: async (_, args, { req }) => {
       console.log('updateRiderVehicleDetails', args.id)
       try {
         const { userId } = requireWalletAccess(req, 'RIDER', args.id)
@@ -476,7 +481,7 @@ module.exports = {
         throw err
       }
     },
-    updateWorkSchedule: async(_, args, { req }) => {
+    updateWorkSchedule: async (_, args, { req }) => {
       console.log('updateWorkSchedule', args.riderId)
       try {
         const { userId } = requireWalletAccess(req, 'RIDER', args.riderId)
@@ -491,7 +496,7 @@ module.exports = {
         throw err
       }
     },
-    uploadImageToS3: async(_, args, { req }) => {
+    uploadImageToS3: async (_, args, { req }) => {
       console.log('uploadImageToS3')
       try {
         if (!req.isAuth) throw new Error('Unauthenticated')
@@ -501,7 +506,11 @@ module.exports = {
         const buffer = Buffer.from(base64Data, 'base64')
 
         const formData = new FormData()
-        formData.append('file', new Blob([buffer], { type: mime }), 'upload.jpg')
+        formData.append(
+          'file',
+          new Blob([buffer], { type: mime }),
+          'upload.jpg'
+        )
         formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
 
         const response = await fetch(CLOUDINARY_UPLOAD_URL, {
@@ -511,7 +520,9 @@ module.exports = {
         const data = await response.json()
         if (!data.secure_url) {
           console.log('uploadImageToS3 cloudinary error', data)
-          throw new Error((data.error && data.error.message) || 'Image upload failed')
+          throw new Error(
+            (data.error && data.error.message) || 'Image upload failed'
+          )
         }
         return { imageUrl: data.secure_url }
       } catch (err) {
