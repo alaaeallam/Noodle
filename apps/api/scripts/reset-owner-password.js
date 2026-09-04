@@ -8,49 +8,53 @@
 //
 // Usage:
 //   node scripts/reset-owner-password.js <email> <newPassword>
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+const path = require('path')
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') })
 
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const Owner = require('../models/owner');
+const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
+const Owner = require('../models/owner')
 
-const [, , email, newPassword] = process.argv;
+const [, , email, newPassword] = process.argv
 
-(async function resetPassword() {
+;(async function resetPassword() {
   try {
     if (!email || !newPassword) {
-      console.error('Usage: node scripts/reset-owner-password.js <email> <newPassword>');
-      process.exit(1);
+      console.error(
+        'Usage: node scripts/reset-owner-password.js <email> <newPassword>'
+      )
+      process.exit(1)
     }
 
-    const uri = process.env.CONNECTION_STRING;
+    const uri = process.env.CONNECTION_STRING
     if (!uri) {
-      throw new Error('Missing CONNECTION_STRING in apps/api/.env');
+      throw new Error('Missing CONNECTION_STRING in apps/api/.env')
     }
 
-    mongoose.set('strictQuery', true);
+    mongoose.set('strictQuery', true)
     await mongoose.connect(uri, {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+      useUnifiedTopology: true
+    })
 
-    const owner = await Owner.findOne({ email });
+    const owner = await Owner.findOne({ email })
     if (!owner) {
-      console.error(`No owner/admin account found with email "${email}"`);
-      await mongoose.disconnect();
-      process.exit(1);
+      console.error(`No owner/admin account found with email "${email}"`)
+      await mongoose.disconnect()
+      process.exit(1)
     }
 
-    const hashed = await bcrypt.hash(newPassword, 12);
-    await Owner.updateOne({ _id: owner._id }, { $set: { password: hashed } });
+    const hashed = await bcrypt.hash(newPassword, 12)
+    await Owner.updateOne({ _id: owner._id }, { $set: { password: hashed } })
 
-    console.log(`✔ Password reset for "${email}" (${owner._id}, userType: ${owner.userType})`);
+    console.log(
+      `✔ Password reset for "${email}" (${owner._id}, userType: ${owner.userType})`
+    )
 
-    await mongoose.disconnect();
-    process.exit(0);
+    await mongoose.disconnect()
+    process.exit(0)
   } catch (err) {
-    console.error('❌ Reset error:', err);
-    process.exit(1);
+    console.error('❌ Reset error:', err)
+    process.exit(1)
   }
-})();
+})()
