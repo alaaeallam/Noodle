@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+packageExtensionsChecksum: sha256-nOMnWlS6icnjHvndpUo+CXb4hHI5jq8aJWaGUXJcbjk=
+
 patchedDependencies:
   react-native-css-interop@0.2.1:
     hash: b0d640396de4e4fef9ee15792e265da8e3ab78535eaa9a796502eb098865b899
@@ -619,6 +621,9 @@ importers:
       '@expo/metro-config':
         specifier: ~0.20.18
         version: 0.20.18
+      '@react-native/js-polyfills':
+        specifier: 0.79.6
+        version: 0.79.6
       '@types/react':
         specifier: ~19.0.10
         version: 19.0.14
@@ -1121,6 +1126,9 @@ importers:
       graphql-tag:
         specifier: 2.12.7
         version: 2.12.7(graphql@16.11.0)
+      graphql-ws:
+        specifier: ^6.2.1
+        version: 6.2.1(graphql@16.11.0)(ws@8.21.3)
       i18next:
         specifier: ^24.2.2
         version: 24.2.3(typescript@5.8.3)
@@ -1220,9 +1228,6 @@ importers:
       stream:
         specifier: ^0.0.3
         version: 0.0.3
-      subscriptions-transport-ws:
-        specifier: ^0.11.0
-        version: 0.11.0(graphql@16.11.0)
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.18(yaml@2.8.1)
@@ -16441,6 +16446,7 @@ snapshots:
       '@expo/env': 1.0.7
       '@expo/json-file': 9.1.5
       '@expo/spawn-async': 1.7.2
+      '@react-native/js-polyfills': 0.79.6
       chalk: 4.1.2
       debug: 4.4.3(supports-color@8.1.1)
       dotenv: 16.4.7
@@ -21892,7 +21898,7 @@ snapshots:
       tinyglobby: 0.2.17
       unrs-resolver: 1.12.2
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.2(eslint@8.57.1)(typescript@5.8.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 

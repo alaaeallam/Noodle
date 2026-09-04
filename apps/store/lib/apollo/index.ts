@@ -8,7 +8,8 @@ import {
   Operation,
   split,
 } from "@apollo/client";
-import { WebSocketLink } from "@apollo/client/link/ws";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 
 import getEnvVars from "@/environment";
@@ -20,12 +21,16 @@ import { STORE_TOKEN } from "../utils/constants";
 const setupApollo = () => {
   const { GRAPHQL_URL, WS_GRAPHQL_URL } = getEnvVars();
 
-  const wsLink = new WebSocketLink({
-    uri: WS_GRAPHQL_URL,
-    options: {
-      reconnect: true,
-    },
-  });
+  const wsLink = new GraphQLWsLink(
+    createClient({
+      url: WS_GRAPHQL_URL,
+      // Match subscriptions-transport-ws's old reconnect:true - retry
+      // indefinitely (mobile network drops in and out constantly), not
+      // just the library's default 5 attempts.
+      retryAttempts: Infinity,
+      shouldRetry: () => true,
+    }),
+  );
   const cache = new InMemoryCache();
   // eslint-disable-next-line new-cap
   const httpLink = createHttpLink({

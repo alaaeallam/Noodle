@@ -19,6 +19,13 @@
       "react-native-css-interop@0.2.1": "patches/react-native-css-interop@0.2.1.patch",
       "react-native-reanimated@3.17.5": "patches/react-native-reanimated@3.17.5.patch",
       "react-native@0.79.6": "patches/react-native@0.79.6.patch"
+    },
+    "packageExtensions": {
+      "@expo/metro-config": {
+        "dependencies": {
+          "@react-native/js-polyfills": "*"
+        }
+      }
     }
   }
 }
