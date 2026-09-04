@@ -9,7 +9,8 @@ import {
   split,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
-import { WebSocketLink } from "@apollo/client/link/ws";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
 import {
   getMainDefinition,
   offsetLimitPagination,
@@ -95,13 +96,19 @@ const setupApollo = () => {
     uri: GRAPHQL_URL,
   });
 
-  const wsLink = new WebSocketLink({
-    uri: WS_GRAPHQL_URL,
-    options: {
-      reconnect: true,
-      timeout:30000
-    },
-  });
+  const wsLink = new GraphQLWsLink(
+    createClient({
+      url: WS_GRAPHQL_URL,
+      // Match subscriptions-transport-ws's old reconnect:true - retry
+      // indefinitely (mobile network drops in and out constantly), not
+      // just the library's default 5 attempts. graphql-ws has no direct
+      // equivalent of the old client's per-request `timeout` option;
+      // its own keepalive/pong heartbeat covers dead-connection detection
+      // instead.
+      retryAttempts: Infinity,
+      shouldRetry: () => true,
+    }),
+  );
 
   const request = async (operation: Operation) => {
     const token = await SecureStore.getItemAsync(RIDER_TOKEN);

@@ -810,6 +810,9 @@ importers:
       graphql-tag:
         specifier: 2.12.7
         version: 2.12.7(graphql@16.11.0)
+      graphql-ws:
+        specifier: ^6.2.1
+        version: 6.2.1(graphql@16.11.0)(ws@8.21.3)
       i18next:
         specifier: ^24.2.2
         version: 24.2.3(typescript@5.8.3)
@@ -906,9 +909,6 @@ importers:
       sentry-expo:
         specifier: ~7.0.0
         version: 7.0.1(ee418308d48f06aeffd086de033c1b48)
-      subscriptions-transport-ws:
-        specifier: ^0.11.0
-        version: 0.11.0(graphql@16.11.0)
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.18(yaml@2.8.1)
