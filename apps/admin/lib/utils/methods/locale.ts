@@ -4,13 +4,14 @@ import { cookies } from 'next/headers';
 import { TLocale } from '../types/locale';
 import { DEFAULT_LOCALE } from '../constants';
 
-
 const COOKIE_NAME = 'NEXT_LOCALE';
 
 export async function getUserLocale() {
-  return cookies().get(COOKIE_NAME)?.value || DEFAULT_LOCALE;
+  const cookieStore = await cookies();
+  return cookieStore.get(COOKIE_NAME)?.value || DEFAULT_LOCALE;
 }
 
 export async function setUserLocale(locale: TLocale) {
-  cookies().set(COOKIE_NAME, locale);
+  const cookieStore = await cookies();
+  cookieStore.set(COOKIE_NAME, locale);
 }
