@@ -38,19 +38,50 @@ config.resolver.fallback = {
   process: require.resolve('process'),
 };
 
-// The native ExpoModulesCore pod is built from this app's own
-// node_modules/expo-modules-core, but pnpm hands other expo packages
-// (e.g. expo-av) a different version from the root store. Two JS copies
-// that disagree with the native side crash Release builds on first render
-// ("View config getter callback for component ViewManagerAdapter_ExpoVideoView
-// must be a function"), so pin every import to the copy the pod uses.
-const expoModulesCoreDir = path.dirname(
-  require.resolve("expo-modules-core/package.json", { paths: [__dirname] })
-);
+// pnpm installs the same package version more than once when its peer
+// deps differ (e.g. a type-only @types/react, or a different @babel/core),
+// and Metro then bundles every copy. For packages that must be singletons
+// that means two React Native / Expo runtimes clobbering each other's
+// globals and native view registrations - Release builds crashed on launch
+// ("ViewManagerAdapter_ExpoVideoView ... must be a function",
+// "URLSearchParams.has is not implemented", then a Hermes SIGSEGV).
+// Pin each one to the copy this app resolves, which is also the copy its
+// native pods are built from.
+const singletonPackages = [
+  "react",
+  "react-native",
+  "expo",
+  "expo-modules-core",
+  "expo-asset",
+  "expo-constants",
+  "expo-linear-gradient",
+  "@react-native/virtualized-lists",
+  "react-native-reanimated",
+  "react-native-safe-area-context",
+  "react-native-css-interop",
+  "react-native-is-edge-to-edge",
+  "recyclerlistview",
+];
+const resolveFrom = [__dirname];
+const singletonDirs = {};
+for (const name of singletonPackages) {
+  try {
+    singletonDirs[name] = path.dirname(
+      require.resolve(`${name}/package.json`, { paths: resolveFrom })
+    );
+    // Later packages (e.g. expo-asset) may only be reachable via expo or RN.
+    resolveFrom.push(singletonDirs[name]);
+  } catch {
+    // Not installed for this app; nothing to pin.
+  }
+}
 const upstreamResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (moduleName === "expo-modules-core" || moduleName.startsWith("expo-modules-core/")) {
-    moduleName = expoModulesCoreDir + moduleName.slice("expo-modules-core".length);
+  for (const name in singletonDirs) {
+    if (moduleName === name || moduleName.startsWith(name + "/")) {
+      moduleName = singletonDirs[name] + moduleName.slice(name.length);
+      break;
+    }
   }
   return upstreamResolveRequest
     ? upstreamResolveRequest(context, moduleName, platform)
