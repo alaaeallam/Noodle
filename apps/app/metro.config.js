@@ -50,8 +50,48 @@ const reactNativeMapsWebShim = path.resolve(projectRoot, 'web-shims/react-native
 // white page with zero DOM output and no console error (Metro's require
 // runtime swallows the throw rather than surfacing it to window.onerror).
 const trackingTransparencyWebShim = path.resolve(projectRoot, 'web-shims/expo-tracking-transparency.js')
+// pnpm installs the same package version more than once when its peer
+// deps differ (e.g. a type-only @types/react, or a different @babel/core),
+// and Metro then bundles every copy. For packages that must be singletons
+// that means two React Native / Expo runtimes clobbering each other's
+// globals and native registrations, which crashed the store app's Release
+// build on launch. Pin each one to the copy this app resolves, which is
+// also the copy its native pods are built from.
+const singletonPackages = [
+  'react',
+  'react-native',
+  'expo',
+  'expo-modules-core',
+  'expo-asset',
+  'expo-constants',
+  '@react-native/virtualized-lists',
+  '@react-native-async-storage/async-storage',
+  'react-native-reanimated',
+  'react-native-safe-area-context',
+  'react-native-gesture-handler',
+  'react-native-screens',
+  'react-native-is-edge-to-edge',
+]
+const resolveFrom = [projectRoot]
+const singletonDirs = {}
+for (const name of singletonPackages) {
+  try {
+    singletonDirs[name] = path.dirname(require.resolve(`${name}/package.json`, { paths: resolveFrom }))
+    // Later packages (e.g. expo-asset) may only be reachable via expo or RN.
+    resolveFrom.push(singletonDirs[name])
+  } catch {
+    // Not installed for this app; nothing to pin.
+  }
+}
+
 const { resolveRequest: defaultResolveRequest } = defaultConfig.resolver
 defaultConfig.resolver.resolveRequest = (context, moduleName, platform) => {
+  for (const name in singletonDirs) {
+    if (moduleName === name || moduleName.startsWith(name + '/')) {
+      moduleName = singletonDirs[name] + moduleName.slice(name.length)
+      break
+    }
+  }
   if (moduleName === 'react-async-hook') {
     return { type: 'sourceFile', filePath: reactAsyncHookPath }
   }
