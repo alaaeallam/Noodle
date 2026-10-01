@@ -6,7 +6,7 @@ import * as Device from 'expo-device'
 import * as Font from 'expo-font'
 import * as Notifications from 'expo-notifications'
 import * as Updates from 'expo-updates'
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ActivityIndicator, BackHandler, I18nManager, LogBox, Platform, SafeAreaView, StatusBar, StyleSheet, Text, View, useColorScheme } from 'react-native'
 import FlashMessage from 'react-native-flash-message'
 import 'react-native-gesture-handler'
@@ -67,7 +67,11 @@ export default function App() {
   const [orderId, setOrderId] = useState()
   const [isUpdating, setIsUpdating] = useState(false)
   // const { SENTRY_DSN } = useEnvVars()
-  const client = setupApolloClient()
+  // Build the client once per endpoint, not on every App render: a fresh
+  // client means a fresh empty cache, so the profile fetched right after
+  // login was dropped and the app looked logged out until relaunch.
+  const { GRAPHQL_URL, WS_GRAPHQL_URL } = useEnvVars()
+  const client = useMemo(() => setupApolloClient({ GRAPHQL_URL, WS_GRAPHQL_URL }), [GRAPHQL_URL, WS_GRAPHQL_URL])
 
   useKeepAwake()
   // useWatchLocation()

@@ -3,13 +3,11 @@ import { ApolloClient, InMemoryCache, createHttpLink, ApolloLink, split, concat,
 import { getMainDefinition, offsetLimitPagination } from '@apollo/client/utilities'
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { createClient } from 'graphql-ws'
-import useEnvVars from '../../environment'
 import { useContext } from 'react'
 import { LocationContext } from '../context/Location'
 import { calculateDistance } from '../utils/customFunctions'
 
-const setupApollo = () => {
-  const { GRAPHQL_URL, WS_GRAPHQL_URL } = useEnvVars()
+const setupApollo = ({ GRAPHQL_URL, WS_GRAPHQL_URL }) => {
 
   const cache = new InMemoryCache({
     typePolicies: {
