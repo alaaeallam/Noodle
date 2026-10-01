@@ -50,6 +50,19 @@ target 'EnategaStore' do
       :ccache_enabled => podfile_properties['apple.ccacheEnabled'] == 'true',
     )
 
+    # Xcode 27 refuses targets below iOS 15.0. Some pods (and their
+    # resource bundles) still declare 11.0-13.4, so lift every pod target
+    # up to the app's own minimum.
+    min_ios = podfile_properties['ios.deploymentTarget'] || '15.1'
+    installer.pods_project.targets.each do |t|
+      t.build_configurations.each do |c|
+        current = c.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        if current.nil? || Gem::Version.new(current) < Gem::Version.new(min_ios)
+          c.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios
+        end
+      end
+    end
+
     # Xcode 16+'s stricter C++20 consteval checking breaks fmt 11.0.2's
     # FMT_STRING macro on the fmt version bundled with this RN version.
     # A -DFMT_CONSTEVAL= build define doesn't help: base.h unconditionally
