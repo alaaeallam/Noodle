@@ -158,14 +158,18 @@ module.exports = {
       try {
         const rider = await Rider.findById(req.userId)
         if (!rider) throw new Error('Rider does not exist')
-        const date = new Date()
-        date.setDate(date.getDate() - 1)
+        // Orders still waiting on a rider (or out for delivery) stay in the
+        // queue until they're delivered or cancelled - a calendar-day cutoff
+        // ("since midnight yesterday") made an accepted order vanish from
+        // every rider once it was ~1-2 days old, even though the store was
+        // still waiting on a pickup. Keep a rolling bound only so long-
+        // abandoned orders don't pile up forever.
         const activeWindow = {
-          $gte: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+          $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         }
         // Delivered/cancelled orders are the rider's history, not their
         // active queue — they shouldn't be dropped just because they were
-        // created outside the ~24h "active order" window above (e.g. an
+        // created outside the "active order" window above (e.g. an
         // order accepted yesterday and only just marked delivered). Give
         // history a much longer, but still bounded, window instead.
         const historyDate = new Date()
