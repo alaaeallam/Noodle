@@ -24,6 +24,19 @@ import { IRestaurantLocation } from "../utils/interfaces";
 import { calculateDistance } from "../utils/methods/custom-functions";
 // import { onError } from "apollo-link-error";
 
+// The links below live outside React, so they can't call AuthContext's
+// logout() directly. AuthProvider subscribes here instead, and the error
+// link notifies it when the backend rejects the saved token.
+type SessionExpiredListener = () => void;
+const sessionExpiredListeners = new Set<SessionExpiredListener>();
+
+export const onSessionExpired = (listener: SessionExpiredListener) => {
+  sessionExpiredListeners.add(listener);
+  return () => {
+    sessionExpiredListeners.delete(listener);
+  };
+};
+
 const setupApollo = () => {
   const { GRAPHQL_URL, WS_GRAPHQL_URL } = useEnvVars();
 
@@ -148,8 +161,16 @@ const setupApollo = () => {
           message.toLowerCase().includes("unauthenticate") ||
           message.toLowerCase().includes("unauthorize")
         ) {
-          SecureStore.deleteItemAsync(RIDER_TOKEN)
-            .then(() => {})
+          // Only react if a token was actually sent: requests made while
+          // logged out (e.g. on the login screen) also fail this way, and
+          // logout() deleting the token stops this from firing repeatedly.
+          // Previously the token was deleted here but the logged-in screens
+          // stayed up, so every later request went out unauthenticated and
+          // the rider silently saw no orders until they relaunched the app.
+          SecureStore.getItemAsync(RIDER_TOKEN)
+            .then((token) => {
+              if (token) sessionExpiredListeners.forEach((l) => l());
+            })
             .catch((err) => console.log(err));
         }
 

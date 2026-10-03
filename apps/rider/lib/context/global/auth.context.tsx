@@ -2,12 +2,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import * as SecureStore from "expo-secure-store";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 // Interfaces§
 import { RIDER_TOKEN } from "@/lib/utils/constants";
 import { IAuthContext, IAuthProviderProps } from "@/lib/utils/interfaces";
 import { useRouter } from "expo-router";
+import { onSessionExpired } from "@/lib/apollo";
 
 export const AuthContext = React.createContext<IAuthContext>(
   {} as IAuthContext
@@ -59,6 +60,14 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({
       console.log("Logout Error: ", e);
     }
   };
+
+  // When the backend rejects the saved token, run the full logout (clear
+  // storage, stop location updates, go to /login) instead of leaving the
+  // rider on logged-in screens that can no longer load anything. The ref
+  // keeps the subscription stable while still calling the latest logout.
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout;
+  useEffect(() => onSessionExpired(() => logoutRef.current()), []);
 
   const values: IAuthContext = {
     token: token ?? "",
