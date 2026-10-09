@@ -11,7 +11,6 @@ import { fr } from "./languages/fr";
 import { km } from "./languages/km";
 import { zh } from "./languages/zh";
 import { ar } from "./languages/ar";
-import { he } from "./languages/he";
 
 // Define language resources
 export const languageResources: { [key: string]: { translation: object } } = {
@@ -21,7 +20,6 @@ export const languageResources: { [key: string]: { translation: object } } = {
   fr: { translation: fr },
   km: { translation: km },
   ar: { translation: ar },
-  he: { translation: he },
 };
 
 // Function to get stored language from AsyncStorage or fallback to device locale
@@ -29,7 +27,9 @@ const getStoredLanguage = async (): Promise<void> => {
   try {
     const storedLang = await AsyncStorage.getItem("enatega-language");
     const deviceLang = Localization.getLocales()[0]?.languageCode || "en";
-    const initialLang = storedLang || deviceLang;
+    const candidate = storedLang || deviceLang;
+    // A saved language that was since removed (e.g. Hebrew) falls back to English.
+    const initialLang = languageResources[candidate] ? candidate : "en";
 
     await i18next.use(initReactI18next).init({
       lng: initialLang,

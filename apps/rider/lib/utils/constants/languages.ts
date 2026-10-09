@@ -31,12 +31,6 @@ export const LANGUAGES = [
   },
   {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    icon: require('@/lib/assets/images/israeli-flag.png'),
-    value: 'Hebrew',
-    code: 'he',
-  },
-  {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     icon: require('@/lib/assets/images/cambodian-flag.png'),
     value: 'Combodian',
     code: 'km',

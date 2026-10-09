@@ -9,7 +9,6 @@ import { fr } from './translations/fr'
 import { km } from './translations/km'
 import { zh } from './translations/zh'
 import { ar } from './translations/ar'
-import { he } from './translations/he'
 import { hi } from './translations/hi'
 import { es } from './translations/es'
 import { bn } from './translations/bn'
@@ -43,7 +42,6 @@ export const languageResources = {
   fr: { translation: fr },
   km: { translation: km },
   ar: { translation: ar },
-  he: { translation: he },
   hi: { translation: hi },
   es: { translation: es },
   bn: { translation: bn },
