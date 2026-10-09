@@ -50,6 +50,13 @@ export const UserProvider = (props) => {
     onCompleted,
     skip: !token
   })
+  // A profile query that last failed (e.g. after a logout) can hand back that
+  // stale error when a new token un-skips it, so isLoggedIn stays false until
+  // relaunch. Fetch it fresh whenever a token arrives on top of an error.
+  useEffect(() => {
+    if (token && errorProfile) refetchProfile()
+  }, [token])
+
   useEffect(() => {
     let isSubscribed = true
     ;(async () => {
@@ -100,7 +107,11 @@ export const UserProvider = (props) => {
       client.cache.evict({
         id: `${dataProfile?.profile?.__typename}:${dataProfile?.profile?._id}`
       })
-      await client.resetStore()
+      // clearStore, not resetStore: resetStore refetches every active query
+      // straight away - before setToken(null) has re-rendered them as skipped -
+      // so they ran without a token and failed "Unauthenticated", leaving the
+      // profile query stuck on that error after the next login.
+      await client.clearStore()
     } catch (error) {
       console.log('error on logout', error)
     }
