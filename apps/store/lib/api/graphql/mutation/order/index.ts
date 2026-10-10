@@ -39,6 +39,7 @@ const ORDER_FIELDS = `
     }
     addons {
       _id
+      defaultOptions
       options {
         _id
         title

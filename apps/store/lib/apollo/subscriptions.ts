@@ -39,6 +39,7 @@ export const SUBSCRIBE_PLACE_ORDER = gql`
           }
           addons {
             _id
+            defaultOptions
             options {
               _id
               title

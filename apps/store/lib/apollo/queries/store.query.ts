@@ -145,6 +145,7 @@ export const STORE_ORDERS = gql`
         }
         addons {
           _id
+          defaultOptions
           id
           options {
             _id

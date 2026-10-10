@@ -39,6 +39,7 @@ export const GET_ORDERS = gql`
         }
         addons {
           _id
+          defaultOptions
           options {
             _id
             title
