@@ -58,7 +58,7 @@ function HomeHero({ currentTheme, address, onPressAddress, cartCount, onPressCar
             </TextDefault>
             <View style={styles(currentTheme).priceRow}>
               <TextDefault bolder textColor={currentTheme.white} style={{ fontFamily: fontStyles.Anton, fontSize: scale(18) }}>
-                {configuration?.currencySymbol}
+                {configuration?.currencySymbol}{' '}
                 {price}
               </TextDefault>
               <TouchableOpacity activeOpacity={0.7} style={styles(currentTheme).addToBagBtn} onPress={() => onPressAddToBag(featuredItem)}>

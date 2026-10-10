@@ -78,7 +78,7 @@ const Section = ({ itemId, restaurantId }) => {
             textColor={currentTheme.fontFourthColor}
             normal
             bolder>
-            {`${configuration.currencySymbol}${food.variations[0].price}`}
+            {`${configuration.currencySymbol} ${food.variations[0].price}`}
           </TextDefault>
           <TouchableOpacity onPress={onAdd}>
             <View style={styles(currentTheme).addToCart}>

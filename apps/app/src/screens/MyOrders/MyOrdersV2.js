@@ -264,7 +264,7 @@ function MyOrders(props) {
                   right
                   bolder>
                   {' '}
-                  {configuration.currencySymbol}
+                  {configuration.currencySymbol}{' '}
                   {parseFloat(item.orderAmount).toFixed(2)}
                 </TextDefault>
               </View>

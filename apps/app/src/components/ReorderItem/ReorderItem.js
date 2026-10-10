@@ -105,7 +105,7 @@ const ReorderItem = props => {
               bolder
               Normal
             isRTL>
-              {configuration.currencySymbol}
+              {configuration.currencySymbol}{' '}
               {parseFloat(props.dealPrice).toFixed(2)}
             </TextDefault>
           </View>

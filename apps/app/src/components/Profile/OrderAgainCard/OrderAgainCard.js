@@ -70,7 +70,7 @@ function OrderAgainCard(props) {
                 numberOfLines={1}
                 bold
                 Normal>
-                {configuration.currencySymbol}{configuration?.deliveryRate}
+                {configuration.currencySymbol}{' '}{configuration?.deliveryRate}
               </TextDefault>
             </View>
 

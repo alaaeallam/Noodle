@@ -724,8 +724,8 @@ export const currenciesSymbol = [
   },
   {
     currency: 'EGP',
-    label: '£',
-    code: '£',
+    label: 'EGP',
+    code: 'EGP',
   },
   {
     currency: 'ETB',

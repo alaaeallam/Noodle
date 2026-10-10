@@ -432,7 +432,7 @@ function Cart(props) {
                 <View style={styles().cartAmount}>
                   <Animated.View style={[animatedStyle]}>
                     <TextDefault textColor={currentTheme.black} style={styles().totalBill} bolder H2 isRTL>
-                      {configuration.currencySymbol}
+                      {configuration.currencySymbol}{' '}
                       {calculateTotal()}
                     </TextDefault>
                   </Animated.View>

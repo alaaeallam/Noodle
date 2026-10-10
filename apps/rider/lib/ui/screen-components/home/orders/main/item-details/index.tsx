@@ -93,7 +93,7 @@ const ItemDetails = ({
                     <View className="flex-row items-center">
                       <Text style={{ color: appTheme.fontMainColor }}>{item?.variation?.title}</Text>
                       <Text className="ml-2" style={{ color: appTheme.fontMainColor }}>
-                        {configuration?.currencySymbol}
+                        {configuration?.currencySymbol}{' '}
                         {item?.variation?.price}
                       </Text>
                     </View>
@@ -126,7 +126,7 @@ const ItemDetails = ({
                   className="font-[Inter] text-[14px] font-semibold text-left "
                   style={{ color: appTheme.fontMainColor }}
                 >
-                  {configuration?.currencySymbol}
+                  {configuration?.currencySymbol}{' '}
                   {item.variation?.price}
                 </Text>
               </View>
@@ -154,7 +154,7 @@ const ItemDetails = ({
             className="font-[Inter] font-semibold text-left "
             style={{ color: appTheme.fontMainColor }}
           >
-            {configuration?.currencySymbol}
+            {configuration?.currencySymbol}{' '}
             {itemAmount}
           </Text>
         </View>

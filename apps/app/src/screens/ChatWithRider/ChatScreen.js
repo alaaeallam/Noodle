@@ -136,7 +136,7 @@ const ChatScreen = ({ navigation, route }) => {
             <Text style={styles().orderBadgeText}>{orderNo}</Text>
           </View>
           <Text style={styles().totalAmount}>
-            {configuration?.currencySymbol}
+            {configuration?.currencySymbol}{' '}
             {total}
           </Text>
         </View>

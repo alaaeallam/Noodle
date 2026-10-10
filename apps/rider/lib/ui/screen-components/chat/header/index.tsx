@@ -125,7 +125,7 @@ export default function ChatHeader() {
         <Text
           style={{ color: appTheme.white, fontFamily: "Anton", fontSize: 17 }}
         >
-          {configuration?.currencySymbol}
+          {configuration?.currencySymbol}{' '}
           {orderAmount ?? ""}
         </Text>
       </View>

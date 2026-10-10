@@ -41,7 +41,7 @@ function WholeMenu({ currentTheme, items, onPressItem }) {
               )}
             </View>
             <TextDefault bolder textColor={currentTheme.black}>
-              {configuration?.currencySymbol}
+              {configuration?.currencySymbol}{' '}
               {price}
             </TextDefault>
             <TouchableOpacity activeOpacity={0.7} style={styles(currentTheme).addBtn} onPress={() => onPressItem(item)}>

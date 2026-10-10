@@ -179,7 +179,7 @@ const SearchOverlay = ({
             bold
             isRTL={isRTL}
           >
-            {configuration.currencySymbol}
+            {configuration.currencySymbol}{' '}
             {item.variations[0].price}
           </TextDefault>
           {item.variations[0].discounted > 0 && (
@@ -193,7 +193,7 @@ const SearchOverlay = ({
               }}
               isRTL={isRTL}
             >
-              {configuration.currencySymbol}
+              {configuration.currencySymbol}{' '}
               {(
                 item.variations[0].price + item.variations[0].discounted
               ).toFixed(2)}

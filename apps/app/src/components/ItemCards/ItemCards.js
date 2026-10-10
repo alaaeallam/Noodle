@@ -69,7 +69,7 @@ const ItemCard = ({ item, onPressItem, restaurant, tagCart }) => {
           />
           <View style={styles().popularMenuPrice}>
             <Text style={{ color: '#1C1C1E', fontSize: scale(12) }}>
-              {`${configuration.currencySymbol}${formatNumber(item?.variations[0].price)}`}
+              {`${configuration.currencySymbol} ${formatNumber(item?.variations[0].price)}`}
             </Text>
             {item?.variations[0]?.discounted > 0 && (
               <Text

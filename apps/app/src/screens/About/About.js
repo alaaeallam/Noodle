@@ -220,7 +220,7 @@ function About(props) {
             </View>
             <View style={alignment.MTsmall}>
               <TextDefault isRTL H5 textColor={currentTheme.fontThirdColor} bold style={alignment.MTxSmall}>
-                {t('minimumOrder')} {configuration.currencySymbol}
+                {t('minimumOrder')} {configuration.currencySymbol}{' '}
                 {typeName == "RestaurantPreview" ? RestAbout.minimumOrder :restaurantObject.restaurantMinOrder}
               </TextDefault>
 
@@ -230,7 +230,7 @@ function About(props) {
 
               <TextDefault isRTL H5 textColor={currentTheme.fontThirdColor} bold style={alignment.MTxSmall}>
 
-                {t('salesTax')} {configuration.currencySymbol}
+                {t('salesTax')} {configuration.currencySymbol}{' '}
                 {typeName == "RestaurantPreview" ? RestAbout.tax : restaurantObject.restaurantTax}
               </TextDefault>
             </View>

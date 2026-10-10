@@ -806,7 +806,7 @@ function Checkout(props) {
                               {coupon ? coupon.title : null} applied
                             </TextDefault>
                             <TextDefault small bold textColor={currentTheme.fontFourthColor}>
-                              -{configuration.currencySymbol}
+                              -{configuration.currencySymbol}{' '}
                               {parseFloat(calculatePrice(0, false) - calculatePrice(0, true)).toFixed(2)}
                             </TextDefault>
                           </View>
@@ -886,7 +886,7 @@ function Checkout(props) {
                       {t('subTotal')}
                     </TextDefault>
                     <TextDefault numberOfLines={1} textColor={currentTheme.fontFourthColor} normal bold>
-                      {configuration.currencySymbol}
+                      {configuration.currencySymbol}{' '}
                       {calculatePrice(0, false)}
                     </TextDefault>
                   </View>
@@ -899,7 +899,7 @@ function Checkout(props) {
                           {t('deliveryFee')}
                         </TextDefault>
                         <TextDefault numberOfLines={1} textColor={currentTheme.fontFourthColor} normal bold>
-                          {configuration.currencySymbol}
+                          {configuration.currencySymbol}{' '}
                           {deliveryCharges.toFixed(2)}
                         </TextDefault>
                       </View>
@@ -912,7 +912,7 @@ function Checkout(props) {
                       {t('taxFee')}
                     </TextDefault>
                     <TextDefault numberOfLines={1} textColor={currentTheme.fontFourthColor} normal bold>
-                      {configuration.currencySymbol}
+                      {configuration.currencySymbol}{' '}
                       {taxCalculation()}
                     </TextDefault>
                   </View>
@@ -925,7 +925,7 @@ function Checkout(props) {
                           {t('tip')}
                         </TextDefault>
                         <TextDefault numberOfLines={1} textColor={currentTheme.fontFourthColor} normal bold>
-                          {configuration.currencySymbol}
+                          {configuration.currencySymbol}{' '}
                           {parseFloat(calculateTip()).toFixed(2)}
                         </TextDefault>
                       </View>
@@ -940,7 +940,7 @@ function Checkout(props) {
                           {t('voucherDiscount')}
                         </TextDefault>
                         <TextDefault numberOfLines={1} textColor={currentTheme.fontFourthColor} normal bold>
-                          -{configuration.currencySymbol}
+                          -{configuration.currencySymbol}{' '}
                           {parseFloat(calculatePrice(0, false) - calculatePrice(0, true)).toFixed(2)}
                         </TextDefault>
                       </View>
@@ -952,7 +952,7 @@ function Checkout(props) {
                       {t('total')}
                     </TextDefault>
                     <TextDefault numberOfLines={1} textColor={currentTheme.fontFourthColor} normal bold>
-                      {configuration.currencySymbol}
+                      {configuration.currencySymbol}{' '}
                       {calculateTotal()}
                     </TextDefault>
                   </View>
@@ -987,7 +987,7 @@ function Checkout(props) {
                         {t('placeOrder')}
                       </TextDefault>
                       <TextDefault textColor={currentTheme.color4} bolder H4>
-                        {configuration.currencySymbol}
+                        {configuration.currencySymbol}{' '}
                         {calculateTotal()}
                       </TextDefault>
                     </>

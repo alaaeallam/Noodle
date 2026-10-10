@@ -416,7 +416,7 @@ const Order = ({
                         fontSize: 15,
                       }}
                     >
-                      {configuration?.currencySymbol}
+                      {configuration?.currencySymbol}{' '}
                       {orderAmount}{" "}
                       {paymentStatus === "PAID" ? t("Paid") : t("(Not paid yet)")}
                     </Text>

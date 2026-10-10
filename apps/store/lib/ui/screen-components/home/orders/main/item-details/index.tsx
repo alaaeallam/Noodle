@@ -85,7 +85,7 @@ const ItemDetails = ({ orderData: order }: ItemDetailsProps) => {
                   className="font-[Inter] text-[14px] font-semibold text-left"
                   style={{ color: appTheme.fontMainColor }}
                 >
-                  {configuration?.currencySymbol}
+                  {configuration?.currencySymbol}{' '}
                   {item.variation?.price}
                 </Text>
               </View>
@@ -113,7 +113,7 @@ const ItemDetails = ({ orderData: order }: ItemDetailsProps) => {
             className="font-[Inter] font-semibold text-left"
             style={{ color: appTheme.fontMainColor }}
           >
-            {configuration?.currencySymbol}
+            {configuration?.currencySymbol}{' '}
             {itemAmount}
           </Text>
         </View>

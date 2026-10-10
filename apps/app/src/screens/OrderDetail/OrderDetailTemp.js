@@ -186,7 +186,7 @@ function OrderDetail(props) {
                 )}
               </View>
               <TextDefault textColor={currentTheme.fontSecondColor} bold small style={{ width: '25%' }} right>
-                {configuration.currencySymbol}
+                {configuration.currencySymbol}{' '}
                 {parseFloat(calculatePrice(item)).toFixed(2)}
               </TextDefault>
             </View>
@@ -197,7 +197,7 @@ function OrderDetail(props) {
               {t('subTotal')}
             </TextDefault>
             <TextDefault textColor={currentTheme.fontSecondColor} bold small style={{ width: '60%' }} right>
-              {configuration.currencySymbol}
+              {configuration.currencySymbol}{' '}
               {parseFloat(order.orderAmount - (order.isPickedUp ? 0 : order.deliveryCharges) - order.tipping - order.taxationAmount).toFixed(2)}
             </TextDefault>
           </View>
@@ -206,7 +206,7 @@ function OrderDetail(props) {
               {t('tip')}
             </TextDefault>
             <TextDefault textColor={currentTheme.fontSecondColor} bold small style={{ width: '60%' }} right>
-              {configuration.currencySymbol}
+              {configuration.currencySymbol}{' '}
               {parseFloat(order.tipping).toFixed(2)}
             </TextDefault>
           </View>
@@ -215,7 +215,7 @@ function OrderDetail(props) {
               {t('taxFee')}
             </TextDefault>
             <TextDefault textColor={currentTheme.fontSecondColor} bold small style={{ width: '60%' }} right>
-              {configuration.currencySymbol}
+              {configuration.currencySymbol}{' '}
               {parseFloat(order.taxationAmount).toFixed(2)}
             </TextDefault>
           </View>
@@ -225,7 +225,7 @@ function OrderDetail(props) {
                 {t('delvieryCharges')}
               </TextDefault>
               <TextDefault textColor={currentTheme.fontSecondColor} bold small style={{ width: '60%' }} right>
-                {configuration.currencySymbol}
+                {configuration.currencySymbol}{' '}
                 {parseFloat(order.deliveryCharges).toFixed(2)}
               </TextDefault>
             </View>
@@ -235,7 +235,7 @@ function OrderDetail(props) {
               {t('total')}
             </TextDefault>
             <TextDefault textColor={currentTheme.fontSecondColor} bold small style={{ width: '60%' }} right>
-              {configuration.currencySymbol}
+              {configuration.currencySymbol}{' '}
               {parseFloat(order.orderAmount).toFixed(2)}
             </TextDefault>
           </View>

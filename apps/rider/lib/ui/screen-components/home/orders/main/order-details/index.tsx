@@ -743,7 +743,7 @@ export default function OrderDetailScreen() {
                     fontSize: 18,
                   }}
                 >
-                  {configuration?.currencySymbol}
+                  {configuration?.currencySymbol}{' '}
                   {localOrder?.orderAmount}{" "}
                   {localOrder.paymentStatus === "PAID"
                     ? t("Paid")

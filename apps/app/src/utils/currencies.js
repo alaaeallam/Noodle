@@ -35,7 +35,7 @@ export const stripeCurrencies = [
   { currency: 'DKK', currencySymbol: 'kr', multiplier: 100, type: 'STRIPE' },
   { currency: 'DOP', currencySymbol: '$', multiplier: 100, type: 'STRIPE' },
   { currency: 'DZD', currencySymbol: 'د.ج', multiplier: 100, type: 'STRIPE' },
-  { currency: 'EGP', currencySymbol: '£', multiplier: 100, type: 'STRIPE' },
+  { currency: 'EGP', currencySymbol: 'EGP', multiplier: 100, type: 'STRIPE' },
   { currency: 'ETB', currencySymbol: 'Br', multiplier: 100, type: 'STRIPE' },
   { currency: 'EUR', currencySymbol: '€', multiplier: 100, type: 'STRIPE' },
   { currency: 'FJD', currencySymbol: '$', multiplier: 100, type: 'STRIPE' },

@@ -23,7 +23,7 @@ export const formatReceipt = (order) => {
       )
       .join(",")}</p></td>
     <td className="tableitem"><p className="itemtext">${item.quantity}</p></td>
-    <td className="tableitem"><p className="itemtext">${order.currencySymbol}${(
+    <td className="tableitem"><p className="itemtext">${order.currencySymbol} ${(
       item.variation.price +
       item.addons
         .map((addon) =>
@@ -133,14 +133,14 @@ export const formatReceipt = (order) => {
               <tr class="tabletitle">
                 <td></td>
                 <td class="Rate"><h2>Tax</h2></td>
-                <td class="payment"><h2>${order.currencySymbol}${tax.toFixed(
+                <td class="payment"><h2>${order.currencySymbol} ${tax.toFixed(
                   2,
                 )}</h2></td>
               </tr>
               <tr class="tabletitle">
                 <td></td>
                 <td class="Rate"><h2>Tip</h2></td>
-                <td class="payment"><h2>${order.currencySymbol}${tip.toFixed(
+                <td class="payment"><h2>${order.currencySymbol} ${tip.toFixed(
                   2,
                 )}</h2></td>
               </tr>

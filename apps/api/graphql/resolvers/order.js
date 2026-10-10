@@ -477,7 +477,7 @@ module.exports = {
                   itemPrice = itemPrice + option.price
                 }
                 addonDetails.push(
-                  `${option.title}	${configuration.currencySymbol}${isDefault ? 0 : option.price}`
+                  `${option.title}	${configuration.currencySymbol} ${isDefault ? 0 : option.price}`
                 )
               })
             })
@@ -485,7 +485,7 @@ module.exports = {
           price += itemPrice * item.quantity
           return `${item.quantity} x ${item.title}${
             item.variation.title ? `(${item.variation.title})` : ''
-          }	${configuration.currencySymbol}${item.variation.price}`
+          }	${configuration.currencySymbol} ${item.variation.price}`
         })
         let coupon = null
         if (args.couponCode) {

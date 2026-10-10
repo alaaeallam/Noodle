@@ -356,7 +356,7 @@ const Order = ({
                                     fontWeight: "600",
                                   }}
                                 >
-                                  {`${configuration?.currencySymbol}${variation.price}`}
+                                  {`${configuration?.currencySymbol} ${variation.price}`}
                                 </Text>
                               </View>
                             </View>
@@ -381,7 +381,7 @@ const Order = ({
                                       fontSize: 12,
                                     }}
                                   >
-                                    {`(+${configuration?.currencySymbol}${option?.price})`}
+                                    {`(+${configuration?.currencySymbol} ${option?.price})`}
                                   </Text>
                                 </View>
                               ))}
@@ -402,7 +402,7 @@ const Order = ({
                       fontSize: 15,
                     }}
                   >
-                    {`${configuration?.currencySymbol}${itemTotal.toFixed(2)}`}
+                    {`${configuration?.currencySymbol} ${itemTotal.toFixed(2)}`}
                   </Text>
                 </View>
               </View>
@@ -429,7 +429,7 @@ const Order = ({
                 fontFamily: "Archivo800",
               }}
             >
-              {configuration?.currencySymbol}
+              {configuration?.currencySymbol}{' '}
               {orderSubTotal(order)}
             </Text>
           </View>
@@ -445,7 +445,7 @@ const Order = ({
                   fontFamily: "Archivo800",
                 }}
               >
-                {configuration?.currencySymbol}
+                {configuration?.currencySymbol}{' '}
                 {order?.tipping}
               </Text>
             </View>
@@ -461,7 +461,7 @@ const Order = ({
                 fontFamily: "Archivo800",
               }}
             >
-              {configuration?.currencySymbol}
+              {configuration?.currencySymbol}{' '}
               {order?.taxationAmount}
             </Text>
           </View>
@@ -479,7 +479,7 @@ const Order = ({
                   fontFamily: "Archivo800",
                 }}
               >
-                {configuration?.currencySymbol}
+                {configuration?.currencySymbol}{' '}
                 {order?.deliveryCharges}
               </Text>
             </View>
@@ -510,7 +510,7 @@ const Order = ({
                 fontSize: 24,
               }}
             >
-              {configuration?.currencySymbol}
+              {configuration?.currencySymbol}{' '}
               {order?.orderAmount}
             </Text>
           </View>

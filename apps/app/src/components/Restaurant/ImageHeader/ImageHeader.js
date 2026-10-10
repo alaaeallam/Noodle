@@ -290,7 +290,7 @@ function ImageTextCenterHeader(props, ref) {
                 <View style={styles(currentTheme).mainDetailsContainer}>
                   <View style={styles(currentTheme).subDetailsContainer}>
                     <TextDefault textColor={currentTheme.fontMainColor}>
-                      {t('deliveryCharges')} {configuration.currencySymbol}
+                      {t('deliveryCharges')} {configuration.currencySymbol}{' '}
                       {configuration?.deliveryRate}
                     </TextDefault>
                   </View>

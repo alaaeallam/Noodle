@@ -95,7 +95,7 @@ const ItemRow = ({ theme, quantity, title, variationTitle, options = ['raita', '
         </TextDefault>
       </View>
       <TextDefault style={{ width: '20%', textAlign: 'right', paddingRight: 10 }} bolder textColor={theme.gray900} H5 isRTL>
-        {currency}
+        {currency}{' '}
         {formatNumber(price)}
       </TextDefault>
     </View>

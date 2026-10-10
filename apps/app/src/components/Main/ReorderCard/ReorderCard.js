@@ -28,7 +28,7 @@ function ReorderCard({ item }) {
           {item?.title}
         </TextDefault>
         <TextDefault numberOfLines={1} small textColor={currentTheme.fontSecondColor}>
-          {restaurant?.name} · {configuration.currencySymbol}
+          {restaurant?.name} · {configuration.currencySymbol}{' '}
           {price}
         </TextDefault>
         <TouchableOpacity activeOpacity={0.7} style={styles(currentTheme).reorderBtn} onPress={onPress}>

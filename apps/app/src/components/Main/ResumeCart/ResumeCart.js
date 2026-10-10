@@ -47,7 +47,7 @@ function ResumeCart({ currentTheme }) {
           {t('stillInYourBag')}
         </TextDefault>
         <TextDefault uppercase bolder numberOfLines={1} textColor={currentTheme.black}>
-          {cartCount} {cartCount === 1 ? t('item') : t('items')} · {configuration?.currencySymbol}
+          {cartCount} {cartCount === 1 ? t('item') : t('items')} · {configuration?.currencySymbol}{' '}
           {subtotal.toFixed(0)}
         </TextDefault>
       </View>

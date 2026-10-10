@@ -195,7 +195,7 @@ const Item = ({ item, navigation, currentTheme, configuration }) => {
                 style={{ fontFamily: fontStyles.Anton, fontSize: scale(15) }}
                 isRTL
               >
-                {configuration.currencySymbol}
+                {configuration.currencySymbol}{' '}
                 {parseFloat(item.orderAmount).toFixed(2)}
               </TextDefault>
             </View>
