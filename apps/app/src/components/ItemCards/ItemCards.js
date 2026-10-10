@@ -8,7 +8,6 @@ import { IMAGE_LINK } from '../../utils/constants'
 import TextDefault from '../Text/TextDefault/TextDefault'
 import ThemeContext from '../../ui/ThemeContext/ThemeContext'
 import { theme } from '../../utils/themeColors'
-import { formatNumber } from '../../utils/formatNumber'
 
 const ItemCard = ({ item, onPressItem, restaurant, tagCart }) => {
 
@@ -69,7 +68,7 @@ const ItemCard = ({ item, onPressItem, restaurant, tagCart }) => {
           />
           <View style={styles().popularMenuPrice}>
             <Text style={{ color: '#1C1C1E', fontSize: scale(12) }}>
-              {`${configuration.currencySymbol} ${formatNumber(item?.variations[0].price)}`}
+              {`${configuration.currencySymbol} ${Number(item?.variations[0]?.price).toFixed(2)}`}
             </Text>
             {item?.variations[0]?.discounted > 0 && (
               <Text
@@ -79,7 +78,7 @@ const ItemCard = ({ item, onPressItem, restaurant, tagCart }) => {
                   textDecorationLine: 'line-through'
                 }}
               >
-                {`${configuration?.currencySymbol} ${formatNumber(parseFloat(item?.variations[0]?.price + item?.variations[0]?.discounted).toFixed(0))}`}
+                {`${configuration?.currencySymbol} ${(Number(item?.variations[0]?.price) + Number(item?.variations[0]?.discounted)).toFixed(2)}`}
               </Text>
             )}
           </View>
