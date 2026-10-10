@@ -43,11 +43,13 @@ import { useApptheme } from "@/lib/context/theme.context";
 import { WalletScreenMainLoading } from "@/lib/ui/skeletons";
 import { useTranslation } from "react-i18next";
 import { showMessage } from "react-native-flash-message";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function WalletMain() {
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
   const { userId } = useUserContext();
 
   // States
@@ -166,7 +168,7 @@ export default function WalletMain() {
       storeProfileData?.restaurant?.currentWalletAmount || 0;
     if (withdrawAmount > (currentAmount || 0)) {
       return setAmountErrMsg(
-        `${t("Please enter a valid amount")}. ${t("You have")} $${currentAmount} ${"available"}.`
+        `${t("Please enter a valid amount")}. ${t("You have")} ${currency} ${currentAmount} ${"available"}.`
       );
     } else if (withdrawAmount < 10) {
       return setAmountErrMsg(
@@ -240,7 +242,7 @@ export default function WalletMain() {
               {t("Current Balance")}
             </Text>
             <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 36 }}>
-              $
+              {currency}{' '}
               {String(
                 storeProfileData?.restaurant?.currentWalletAmount?.toFixed(2) ??
                   "0.00"

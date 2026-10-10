@@ -20,10 +20,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function PosItemDetailScreen() {
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { userId } = useUserContext();
   const { addItem } = useCart();
@@ -232,7 +234,7 @@ export default function PosItemDetailScreen() {
                       fontSize: 15,
                     }}
                   >
-                    ${v.price.toFixed(2)}
+                    {currency} {v.price.toFixed(2)}
                   </Text>
                   <View
                     className="w-5 h-5 rounded-full"
@@ -311,7 +313,7 @@ export default function PosItemDetailScreen() {
                     </Text>
                     {!isDefaultOption && option.price > 0 && (
                       <Text style={{ color: "#6B6B6B", fontSize: 13, fontFamily: "Archivo700" }}>
-                        +${option.price.toFixed(2)}
+                        +{currency} {option.price.toFixed(2)}
                       </Text>
                     )}
                   </TouchableOpacity>
@@ -374,7 +376,7 @@ export default function PosItemDetailScreen() {
         style={{ borderTopWidth: 2, borderColor: appTheme.horizontalLine }}
       >
         <CustomContinueButton
-          title={`${t("Add to Cart")} · $${(unitPrice * quantity).toFixed(2)}`}
+          title={`${t("Add to Cart")} · ${currency} ${(unitPrice * quantity).toFixed(2)}`}
           disabled={!isValid}
           onPress={onAddToCart}
         />

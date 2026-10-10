@@ -17,6 +17,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 // React Native Modal
 import ReactNativeModal from "react-native-modal";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function EarningBottomBar({
   totalEarnings,
@@ -27,6 +28,7 @@ export default function EarningBottomBar({
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   // Contexts
   const { setStoreOrderEarnings } = useUserContext();
@@ -99,7 +101,7 @@ export default function EarningBottomBar({
             {t("Total Earning")}
           </Text>
           <Text style={{ color: appTheme.fontMainColor }}>
-            ${totalEarnings}
+            {currency} {totalEarnings}
           </Text>
         </View>
 
@@ -133,7 +135,7 @@ export default function EarningBottomBar({
               style={{ color: appTheme.linkColor }}
               className="text-md font-bold"
             >
-              ${totalEarnings}
+              {currency} {totalEarnings}
             </Text>
             <Ionicons
               name="arrow-forward"

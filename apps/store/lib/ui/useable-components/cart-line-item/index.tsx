@@ -2,6 +2,7 @@ import { useApptheme } from "@/lib/context/theme.context";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 import QuantityStepper from "../quantity-stepper";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 interface ICartLineItemProps {
   title: string;
@@ -26,6 +27,7 @@ export default function CartLineItem({
 }: ICartLineItemProps) {
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   return (
     <View
@@ -46,7 +48,7 @@ export default function CartLineItem({
           {title}
         </Text>
         <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 19 }}>
-          ${lineTotal.toFixed(2)}
+          {currency} {lineTotal.toFixed(2)}
         </Text>
       </View>
       {(variationTitle || addonSummary) ? (

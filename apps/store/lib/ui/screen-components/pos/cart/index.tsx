@@ -15,10 +15,12 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, SafeAreaView, Text, TextInput, View } from "react-native";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function PosCartScreen() {
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
   const { userId } = useUserContext();
   const { items, updateQuantity, removeItem, clearCart } = useCart();
   const [instructions, setInstructions] = useState("");
@@ -170,7 +172,7 @@ export default function PosCartScreen() {
         <View className="flex-row justify-between mb-2">
           <Text style={{ color: "#6B6B6B", fontSize: 15 }}>{t("Subtotal")}</Text>
           <Text style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800", fontSize: 15 }}>
-            ${subtotal.toFixed(2)}
+            {currency} {subtotal.toFixed(2)}
           </Text>
         </View>
         <View className="flex-row justify-between mb-2">
@@ -178,7 +180,7 @@ export default function PosCartScreen() {
             {t("Tax")} ({taxRate}%)
           </Text>
           <Text style={{ color: appTheme.fontMainColor, fontFamily: "Archivo800", fontSize: 15 }}>
-            ${estimatedTax.toFixed(2)}
+            {currency} {estimatedTax.toFixed(2)}
           </Text>
         </View>
         <View
@@ -196,7 +198,7 @@ export default function PosCartScreen() {
             {t("Total")}
           </Text>
           <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 26 }}>
-            ${estimatedTotal.toFixed(2)}
+            {currency} {estimatedTotal.toFixed(2)}
           </Text>
         </View>
         <CustomContinueButton

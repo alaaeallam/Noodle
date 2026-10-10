@@ -19,10 +19,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function PosMenuScreen() {
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
   const { userId } = useUserContext();
   const { items } = useCart();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
@@ -165,7 +167,7 @@ export default function PosMenuScreen() {
               fontSize: 17,
             }}
           >
-            ${cartTotal.toFixed(2)}
+            {currency} {cartTotal.toFixed(2)}
           </Text>
         </TouchableOpacity>
       )}

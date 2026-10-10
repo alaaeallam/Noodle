@@ -34,6 +34,7 @@ import { showMessage } from "react-native-flash-message";
 import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
 import EarningsBarChart from "../../bar-chart";
 import EarningStack from "../earnings-stack";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function EarningsMain() {
   // Set dates for the query
@@ -65,6 +66,7 @@ export default function EarningsMain() {
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
   const { userId, setModalVisible } = useUserContext();
 
   // Queries
@@ -131,7 +133,7 @@ export default function EarningsMain() {
                 wordWrap: "wrap",
               }}
             >
-              ${formatNumber(Number(earning.totalEarningsSum))}
+              {currency} {formatNumber(Number(earning.totalEarningsSum))}
             </Text>
           );
         },

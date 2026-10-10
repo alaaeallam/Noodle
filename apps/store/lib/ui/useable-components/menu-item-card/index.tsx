@@ -1,6 +1,7 @@
 import { useApptheme } from "@/lib/context/theme.context";
 import { useTranslation } from "react-i18next";
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 interface IMenuItemVariation {
   _id: string;
@@ -27,6 +28,7 @@ export default function MenuItemCard({
 }: IMenuItemCardProps) {
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   const startingPrice = variations?.length
     ? Math.min(...variations.map((v) => v.price))
@@ -76,7 +78,7 @@ export default function MenuItemCard({
         <Text
           style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 18 }}
         >
-          ${startingPrice.toFixed(2)}
+          {currency} {startingPrice.toFixed(2)}
         </Text>
       </View>
 
