@@ -1,4 +1,5 @@
 import React, { useEffect, useContext } from 'react'
+import { AppState } from 'react-native'
 import { useApolloClient, useQuery } from '@apollo/client'
 import gql from 'graphql-tag'
 import { myOrders } from '../apollo/queries'
@@ -40,6 +41,19 @@ export const OrdersProvider = ({ children }) => {
   useEffect(() => {
     if (!profile) return
     subscribeOrders()
+  }, [profile])
+
+  // iOS suspends the app (and drops its websocket) while it's in the
+  // background, and status events published meanwhile are not replayed on
+  // reconnect - e.g. the store accepting an order while the customer is in
+  // another app left this screen stuck on "waiting for the store" with the
+  // cancel button still showing. Refetch whenever the app comes back.
+  useEffect(() => {
+    if (!profile) return
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') reFetchOrders().catch(() => {})
+    })
+    return () => sub.remove()
   }, [profile])
 
   const subscribeOrders = () => {
