@@ -52,6 +52,7 @@ const config = {
         display: ['var(--font-display)', 'sans-serif'],
         body: ['var(--font-body)', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
+        brand: ['var(--font-brand)', 'Impact', 'sans-serif'],
       },
       borderRadius: {
         card: '14px',

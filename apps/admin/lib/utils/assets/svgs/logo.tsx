@@ -3,61 +3,37 @@ export interface AppLogoProps {
   variant?: 'dark' | 'light';
 }
 
+// BTB (Between The Buns) brand mark — same Anton "BTB" square as the store
+// app's BrandMark (apps/store/lib/ui/screens/login/index.tsx).
 export function AppLogo({ variant = 'dark' }: AppLogoProps) {
   const isLight = variant === 'light';
-  const routeColor = isLight ? '#FBF7EF' : '#0D5C63';
-  const wordmarkColor = isLight ? '#FBF7EF' : '#0D5C63';
-  const steamColor = isLight ? '#FFB238' : '#E4572E';
+  const squareColor = isLight ? '#FF1D02' : '#0A0A0A';
+  const labelColor = isLight ? '#FFFFFF' : '#0A0A0A';
 
   return (
-    <div className="flex items-center justify-center relative p-2" dir="ltr">
-      <svg
-        width="150"
-        height="42"
-        viewBox="0 0 320 90"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        role="img"
-        aria-label="Wasel wordmark"
-        direction="ltr"
+    <div
+      className="relative flex items-center justify-center gap-2 p-2"
+      dir="ltr"
+      role="img"
+      aria-label="BTB Admin"
+    >
+      <div
+        className="flex h-10 w-10 items-center justify-center"
+        style={{ backgroundColor: squareColor }}
       >
-        <path
-          d="M4 66 C 24 66, 30 40, 52 40"
-          fill="none"
-          stroke={routeColor}
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray="1 10"
-        />
-        <g transform="translate(52,22)">
-          <circle cx="22" cy="22" r="22" fill="#FFB238" />
-          <path
-            d="M16 -2 q4 -5 0 -10"
-            fill="none"
-            stroke={steamColor}
-            strokeWidth="3.5"
-            strokeLinecap="round"
-          />
-          <path
-            d="M27 0 q4 -5 0 -10"
-            fill="none"
-            stroke={steamColor}
-            strokeWidth="3.5"
-            strokeLinecap="round"
-          />
-        </g>
-        <text
-          x="112"
-          y="66"
-          direction="ltr"
-          fontFamily="'Baloo Bhaijaan 2',sans-serif"
-          fontWeight="800"
-          fontSize="56"
-          fill={wordmarkColor}
+        <span
+          className="font-brand text-[15px] leading-none tracking-wide"
+          style={{ color: '#FFFFFF' }}
         >
-          Wasel
-        </text>
-      </svg>
+          BTB
+        </span>
+      </div>
+      <span
+        className="font-brand text-[18px] uppercase leading-none tracking-wider"
+        style={{ color: labelColor }}
+      >
+        Admin
+      </span>
     </div>
   );
 }

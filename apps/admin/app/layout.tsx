@@ -3,7 +3,7 @@ import { getLocale, getMessages } from 'next-intl/server';
 import Script from 'next/script';
 import Providers from './providers';
 import React from 'react';
-import { Baloo_Bhaijaan_2, IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from 'next/font/google';
+import { Anton, Baloo_Bhaijaan_2, IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from 'next/font/google';
 
 const displayFont = Baloo_Bhaijaan_2({
   subsets: ['arabic', 'latin'],
@@ -30,10 +30,18 @@ const monoFont = IBM_Plex_Mono({
   display: 'swap',
 });
 
+// BTB brand wordmark font (matches the store/customer apps' Anton headline font).
+const brandFont = Anton({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-brand',
+  display: 'swap',
+});
+
 const RTL_LOCALES = new Set(['ar', 'he']);
 
 export const metadata = {
-  title: 'Enatega Admin Dashboard',
+  title: 'BTB Admin Dashboard',
   icons: { icon: '/favicon.png' },
 };
 
@@ -48,7 +56,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}
+      className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} ${brandFont.variable}`}
     >
       <head>
         <Script id="microsoft-clarity" strategy="afterInteractive">
