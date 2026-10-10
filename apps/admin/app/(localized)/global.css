@@ -25,23 +25,23 @@
   --font-family: var(--font-body), sans-serif;
   /* These mirror tailwind.config.ts's theme.extend.colors — the two
      mechanisms aren't auto-synced, keep them identical when changing either. */
-  --primary-color: #0d5c63;
-  --secondary-color: #0d5c63;
-  --nile: #0d5c63;
-  --nile-deep: #083f45;
-  --nile-tint: #e7f0f0;
-  --mango: #ffb238;
+  --primary-color: #ff1d02;
+  --secondary-color: #ff1d02;
+  --nile: #ff1d02;
+  --nile-deep: #0a0a0a;
+  --nile-tint: #ffe8e5;
+  --mango: #ff1d02;
   --chili: #e4572e;
   --mint: #2e9e6b;
   --amber: #d98e04;
-  --canvas: #f6f4ee;
+  --canvas: #f4f2ef;
   --paper: #ffffff;
-  --ink: #1f2428;
-  --smoke: #6a7178;
-  --line: #e6e1d5;
-  --foreground-rgb: 31, 36, 40;
-  --background-start-rgb: 246, 244, 238;
-  --background-end-rgb: 246, 244, 238;
+  --ink: #0a0a0a;
+  --smoke: #6b6b6b;
+  --line: #e4e1dd;
+  --foreground-rgb: 10, 10, 10;
+  --background-start-rgb: 244, 242, 239;
+  --background-end-rgb: 244, 242, 239;
 }
 
 body {

@@ -81,10 +81,10 @@ export default function SidebarItem({
   const rowClasses = isActiveLeaf
     ? isClickable
       ? 'bg-nile text-white'
-      : 'text-[#CFE3E1]'
+      : 'text-[#D6D3CF]'
     : isActive
       ? 'bg-nile text-white hover:bg-nile hover:text-white'
-      : 'text-[#CFE3E1] hover:bg-nile hover:text-white';
+      : 'text-[#D6D3CF] hover:bg-nile hover:text-white';
 
   return (
     <div className={`mt-[0.4rem] flex flex-col rounded-md`}>

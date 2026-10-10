@@ -26,24 +26,25 @@ const config = {
         none: 'none',
       },
       colors: {
-        // Wasel brand tokens — primary-color/secondary-color kept as the
-        // same value (nile) since every hardcoded usage pairs either with
-        // white text; a lighter secondary tint would break that contrast.
-        'primary-color': '#0D5C63',
-        'secondary-color': '#0D5C63',
+        // BTB brand tokens (Between The Buns — mirrors apps/store colors.ts).
+        // Token names are legacy from the Wasel theme: nile = brand red,
+        // nile-deep = brand black, mango = red CTA. primary/secondary stay
+        // equal since every usage pairs them with white text.
+        'primary-color': '#FF1D02',
+        'secondary-color': '#FF1D02',
         'secondary-border-color': '#111827',
-        nile: '#0D5C63',
-        'nile-deep': '#083F45',
-        'nile-tint': '#E7F0F0',
-        mango: '#FFB238',
+        nile: '#FF1D02',
+        'nile-deep': '#0A0A0A',
+        'nile-tint': '#FFE8E5',
+        mango: '#FF1D02',
         chili: '#E4572E',
         mint: '#2E9E6B',
         amber: '#D98E04',
-        canvas: '#F6F4EE',
+        canvas: '#F4F2EF',
         paper: '#FFFFFF',
-        ink: '#1F2428',
-        smoke: '#6A7178',
-        line: '#E6E1D5',
+        ink: '#0A0A0A',
+        smoke: '#6B6B6B',
+        line: '#E4E1DD',
         'mint-tint': '#E7F4EE',
         'amber-tint': '#FBF1DC',
         'chili-tint': '#FCEAE3',
