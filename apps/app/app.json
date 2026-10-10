@@ -142,7 +142,10 @@
     ],
     "runtimeVersion": "1.0.98",
     "updates": {
-      "url": "https://u.expo.dev/4c7a79f4-2dbc-4b40-a349-ba0e1758e6d3"
+      "url": "https://u.expo.dev/4c7a79f4-2dbc-4b40-a349-ba0e1758e6d3",
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      }
     },
     "extra": {
       "eas": {

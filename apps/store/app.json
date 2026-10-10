@@ -14,7 +14,10 @@
     "newArchEnabled": true,
     "runtimeVersion": "1.0.58",
     "updates": {
-      "url": "https://u.expo.dev/2613dfbe-6b10-4178-9a93-e60d8abf7ca5"
+      "url": "https://u.expo.dev/2613dfbe-6b10-4178-9a93-e60d8abf7ca5",
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      }
     },
     "splash": {
       "image": "./lib/assets/images/black.png",
