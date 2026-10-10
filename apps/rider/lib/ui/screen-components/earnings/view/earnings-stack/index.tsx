@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 // Core
 import { useApptheme } from "@/lib/context/global/theme.context";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function EarningStack({
   date,
@@ -19,6 +20,7 @@ export default function EarningStack({
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   // Handlers
   function handleForwardPress() {
@@ -70,7 +72,7 @@ export default function EarningStack({
         </Text>
       </View>
       <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 19 }}>
-        ${Number(earning ?? 0).toFixed(2)}
+        {currency} {Number(earning ?? 0).toFixed(2)}
       </Text>
     </TouchableOpacity>
   );

@@ -25,6 +25,7 @@ import { EarningScreenMainLoading } from "@/lib/ui/skeletons";
 
 // Components
 import EarningStack from "../earnings-stack";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 type TRange = "Day" | "Week" | "Month";
 
@@ -49,6 +50,7 @@ export default function EarningsMain() {
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   // Contexts
   const { userId, setModalVisible } = useUserContext();
@@ -159,7 +161,7 @@ export default function EarningsMain() {
             lineHeight: 46,
           }}
         >
-          ${rangeSum.toFixed(2)}
+          {currency} {rangeSum.toFixed(2)}
         </Text>
         <Text
           style={{
@@ -168,7 +170,7 @@ export default function EarningsMain() {
             fontSize: 13,
           }}
         >
-          {rangeRuns} {t("runs")} · {t("avg")} ${rangeAvg} {t("per run")}
+          {rangeRuns} {t("runs")} · {t("avg")} {currency} {rangeAvg} {t("per run")}
         </Text>
       </View>
 
@@ -200,7 +202,7 @@ export default function EarningsMain() {
                       color: on ? appTheme.primary : appTheme.fontSecondColor,
                     }}
                   >
-                    {e.totalEarningsSum ? `$${e.totalEarningsSum.toFixed(2)}` : ""}
+                    {e.totalEarningsSum ? `${currency} ${e.totalEarningsSum.toFixed(2)}` : ""}
                   </Text>
                   <View
                     style={{

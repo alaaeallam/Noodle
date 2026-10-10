@@ -17,6 +17,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 // React Native Modal
 import ReactNativeModal from "react-native-modal";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function EarningBottomBar({
   totalEarnings,
@@ -28,6 +29,7 @@ export default function EarningBottomBar({
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   // Contexts
   const { setRiderOrderEarnings } = useUserContext();
@@ -104,7 +106,7 @@ export default function EarningBottomBar({
             {t("Total Earnings")}
           </Text>
           <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 18 }}>
-            ${totalEarnings}
+            {currency} {totalEarnings}
           </Text>
         </View>
         <View
@@ -115,7 +117,7 @@ export default function EarningBottomBar({
             {t("Tips")}
           </Text>
           <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 18 }}>
-            ${totalTips}
+            {currency} {totalTips}
           </Text>
         </View>
         <TouchableOpacity
@@ -149,7 +151,7 @@ export default function EarningBottomBar({
           </Text>
           <View className="flex-row items-center gap-2">
             <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 18 }}>
-              ${totalEarnings - totalTips}
+              {currency} {totalEarnings - totalTips}
             </Text>
             <Ionicons name="arrow-forward" size={20} color={appTheme.primary} />
           </View>

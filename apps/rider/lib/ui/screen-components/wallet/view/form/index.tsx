@@ -12,6 +12,7 @@ import { CustomContinueButton } from "@/lib/ui/useable-components";
 import { useApptheme } from "@/lib/context/global/theme.context";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function WithdrawModal({
   isBottomModalOpen,
@@ -25,6 +26,7 @@ export default function WithdrawModal({
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   // States
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -75,7 +77,7 @@ export default function WithdrawModal({
           <Text
             style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 18 }}
           >
-            ${currentTotal}
+            {currency} {currentTotal}
           </Text>
         </View>
         <View className=" flex flex-col gap-3 w-full">

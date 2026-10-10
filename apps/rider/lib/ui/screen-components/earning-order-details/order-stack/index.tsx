@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 // Core
 import { Text, View } from "react-native";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function OrderStack({
   orderId,
@@ -14,6 +15,7 @@ export default function OrderStack({
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
   return (
     <View
       className="flex flex-row items-center justify-between p-4"
@@ -56,7 +58,7 @@ export default function OrderStack({
           </Text>
         </View>
         <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 17 }}>
-          ${amount}
+          {currency} {amount}
         </Text>
       </View>
     </View>

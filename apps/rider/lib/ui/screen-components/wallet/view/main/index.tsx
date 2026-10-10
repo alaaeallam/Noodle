@@ -41,11 +41,13 @@ import { Alert, ScrollView, Text, View } from "react-native";
 // Skeletons
 import { useApptheme } from "@/lib/context/global/theme.context";
 import { WalletScreenMainLoading } from "@/lib/ui/skeletons";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function WalletMain() {
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   // States
   const [isBottomModalOpen, setIsBottomModalOpen] = useState(false);
@@ -223,7 +225,7 @@ export default function WalletMain() {
               lineHeight: 48,
             }}
           >
-            ${riderProfileData?.rider.currentWalletAmount ?? 0}
+            {currency} {riderProfileData?.rider.currentWalletAmount ?? 0}
           </Text>
         </View>
       )}

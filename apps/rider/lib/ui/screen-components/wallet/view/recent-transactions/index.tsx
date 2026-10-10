@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 
 // Core
 import { Text, View } from "react-native";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function RecentTransaction({
   transaction,
@@ -19,6 +20,7 @@ export default function RecentTransaction({
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   // Constants
   const date = new Date(transaction.createdAt);
@@ -82,7 +84,7 @@ export default function RecentTransaction({
           fontSize: 19,
         }}
       >
-        ${transaction?.amountTransferred}
+        {currency} {transaction?.amountTransferred}
       </Text>
     </View>
   );

@@ -16,11 +16,13 @@ import { useApptheme } from "@/lib/context/global/theme.context";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
+import { useCurrencySymbol } from "@/lib/hooks/useCurrencySymbol";
 
 export default function EarningDetailsHeader() {
   // Hooks
   const { appTheme } = useApptheme();
   const { t } = useTranslation();
+  const currency = useCurrencySymbol();
 
   // States
   const [riderEarningsGrandTotal, setRiderEarningsGrandTotal] = useState({
@@ -101,7 +103,7 @@ export default function EarningDetailsHeader() {
             {t("Total Earnings")}
           </Text>
           <Text style={{ color: appTheme.primary, fontFamily: "Anton", fontSize: 20 }}>
-            ${Number(riderEarningsGrandTotal.earnings).toFixed(2)}
+            {currency} {Number(riderEarningsGrandTotal.earnings).toFixed(2)}
           </Text>
         </View>
         <View
@@ -120,7 +122,7 @@ export default function EarningDetailsHeader() {
             {t("Total Tips")}
           </Text>
           <Text style={{ color: appTheme.fontMainColor, fontFamily: "Anton", fontSize: 20 }}>
-            ${Number(riderEarningsGrandTotal.tips).toFixed(2)}
+            {currency} {Number(riderEarningsGrandTotal.tips).toFixed(2)}
           </Text>
         </View>
         <View
