@@ -678,6 +678,13 @@ const typeDefs = gql`
     ridersCount: Int!
   }
 
+  type DashboardUsersByYearData {
+    usersCount: [Int!]!
+    vendorsCount: [Int!]!
+    restaurantsCount: [Int!]!
+    ridersCount: [Int!]!
+  }
+
   type DashboardSales {
     orders: [SalesValues!]
   }
@@ -1559,6 +1566,7 @@ const typeDefs = gql`
       ending_date: String
     ): [Order!]!
     getDashboardUsers: DashboardUsersData!
+    getDashboardUsersByYear(year: Int!): DashboardUsersByYearData!
     getDashboardTotal(
       starting_date: String
       ending_date: String

@@ -60,6 +60,35 @@ module.exports = {
       ])
       return { usersCount, vendorsCount, restaurantsCount, ridersCount }
     },
+    // Admin home "Growth Overview" chart: new sign-ups per month for the
+    // given year, one 12-value array per stakeholder type. The admin queried
+    // this since the template days but it was never implemented, so the
+    // chart was always empty. Owners have no timestamps, so fall back to the
+    // ObjectId creation time when createdAt is missing.
+    getDashboardUsersByYear: async (_, args, { req }) => {
+      requireRole(req, ADMIN_ROLES)
+      const year = Number(args.year) || new Date().getFullYear()
+      const start = new Date(year, 0, 1)
+      const end = new Date(year + 1, 0, 1)
+      const monthly = async (Model, match = {}) => {
+        const rows = await Model.aggregate([
+          { $match: match },
+          { $addFields: { _joined: { $ifNull: ['$createdAt', { $toDate: '$_id' }] } } },
+          { $match: { _joined: { $gte: start, $lt: end } } },
+          { $group: { _id: { $month: '$_joined' }, count: { $sum: 1 } } }
+        ])
+        const counts = Array(12).fill(0)
+        rows.forEach(r => { counts[r._id - 1] = r.count })
+        return counts
+      }
+      const [usersCount, vendorsCount, restaurantsCount, ridersCount] = await Promise.all([
+        monthly(User),
+        monthly(Owner, { userType: 'VENDOR' }),
+        monthly(Restaurant),
+        monthly(Rider)
+      ])
+      return { usersCount, vendorsCount, restaurantsCount, ridersCount }
+    },
     getDashboardTotal: async(_, args, context) => {
       console.log('getDashboardTotal', args)
       try {
