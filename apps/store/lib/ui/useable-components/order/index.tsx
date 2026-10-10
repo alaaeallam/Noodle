@@ -430,7 +430,7 @@ const Order = ({
               }}
             >
               {configuration?.currencySymbol}{' '}
-              {orderSubTotal(order)}
+              {orderSubTotal(order).toFixed(2)}
             </Text>
           </View>
 
@@ -446,7 +446,7 @@ const Order = ({
                 }}
               >
                 {configuration?.currencySymbol}{' '}
-                {order?.tipping}
+                {Number(order?.tipping ?? 0).toFixed(2)}
               </Text>
             </View>
           )}
@@ -462,7 +462,7 @@ const Order = ({
               }}
             >
               {configuration?.currencySymbol}{' '}
-              {order?.taxationAmount}
+              {Number(order?.taxationAmount ?? 0).toFixed(2)}
             </Text>
           </View>
 
@@ -480,7 +480,7 @@ const Order = ({
                 }}
               >
                 {configuration?.currencySymbol}{' '}
-                {order?.deliveryCharges}
+                {Number(order?.deliveryCharges ?? 0).toFixed(2)}
               </Text>
             </View>
           )}
@@ -511,7 +511,7 @@ const Order = ({
               }}
             >
               {configuration?.currencySymbol}{' '}
-              {order?.orderAmount}
+              {Number(order?.orderAmount ?? 0).toFixed(2)}
             </Text>
           </View>
 
