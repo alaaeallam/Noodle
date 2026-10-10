@@ -7,6 +7,13 @@ on:
       - "apps/admin/**"
   workflow_dispatch: {}
 
+# Deploys build in place in one server directory, so two overlapping runs
+# corrupt each other's node_modules/.next. Queue them instead (no cancel:
+# a half-finished deploy must be allowed to complete).
+concurrency:
+  group: deploy-admin-vps
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
