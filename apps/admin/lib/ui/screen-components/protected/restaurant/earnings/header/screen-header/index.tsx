@@ -3,7 +3,7 @@ import HeaderText from '@/lib/ui/useable-components/header-text';
 import StatsCard from '@/lib/ui/useable-components/stats-card';
 
 // Icons
-import { faDollarSign } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
 
 import { useTranslations } from 'next-intl';
 import { IEarningsRestaurantHeaderComponentProps } from '@/lib/utils/interfaces/earnings.interface';
@@ -23,7 +23,7 @@ const EarningsRestaurantHeader = ({
         <StatsCard
           label={t('Total Stores Earning')}
           total={earnings?.storeTotal || 0}
-          icon={faDollarSign}
+          icon={faMoneyBillWave}
           loading={false}
           route=""
           isClickable={false}

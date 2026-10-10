@@ -7,6 +7,7 @@ import { IExtendedOrder, Items } from '@/lib/utils/interfaces';
 import { UPDATE_STATUS, GET_ORDERS_WITHOUT_PAGINATION } from '@/lib/api/graphql';
 import { ToastContext } from '@/lib/context/global/toast.context';
 import './order-detail-modal.css';
+import { useConfiguration } from '@/lib/hooks/useConfiguration';
 
 interface IOrderDetailModalProps {
   visible: boolean;
@@ -29,6 +30,7 @@ const OrderDetailModal: React.FC<IOrderDetailModalProps> = ({
   restaurantData,
 }) => {
   const t = useTranslations();
+  const { CURRENT_SYMBOL } = useConfiguration();
   const { showToast } = useContext(ToastContext);
 
   const [updateStatus, { loading: statusUpdating }] = useMutation(
@@ -147,23 +149,23 @@ const OrderDetailModal: React.FC<IOrderDetailModalProps> = ({
           <div className="charges-table">
             <div className="charges-row">
               <span>Subtotal</span>
-              <span>${calculateSubtotal(restaurantData?.items || []).toFixed(2)}</span>
+              <span>{CURRENT_SYMBOL} {calculateSubtotal(restaurantData?.items || []).toFixed(2)}</span>
             </div>
             <div className="charges-row">
               <span>Delivery Fee</span>
-              <span>${(restaurantData.deliveryCharges ?? 0)?.toFixed(2)}</span>
+              <span>{CURRENT_SYMBOL} {(restaurantData.deliveryCharges ?? 0)?.toFixed(2)}</span>
             </div>
             <div className="charges-row">
               <span>Tax Charges</span>
-              <span>${(restaurantData.taxationAmount ?? 0)?.toFixed(2)}</span>
+              <span>{CURRENT_SYMBOL} {(restaurantData.taxationAmount ?? 0)?.toFixed(2)}</span>
             </div>
             <div className="charges-row">
               <span>Tip</span>
-              <span>${(restaurantData.tipping ?? 0)?.toFixed(2)}</span>
+              <span>{CURRENT_SYMBOL} {(restaurantData.tipping ?? 0)?.toFixed(2)}</span>
             </div>
             <div className="charges-row total-row">
               <strong>Total</strong>
-              <strong>${restaurantData.orderAmount}</strong>
+              <strong>{CURRENT_SYMBOL} {restaurantData.orderAmount}</strong>
             </div>
           </div>
         </div>

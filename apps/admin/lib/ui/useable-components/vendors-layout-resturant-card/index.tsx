@@ -41,6 +41,7 @@ import { FrameSVG } from '@/lib/utils/assets/svgs/Frame';
 import { CarSVG } from '@/lib/utils/assets/svgs/Car';
 import { ConfigurationContext } from '@/lib/context/global/configuration.context';
 import { useTranslations } from 'next-intl';
+import { useConfiguration } from '@/lib/hooks/useConfiguration';
 
 export default function VendorsLayoutRestaurantCard({
   restaurant,
@@ -58,6 +59,7 @@ export default function VendorsLayoutRestaurantCard({
 
   // Hooks
   const t = useTranslations();
+  const { CURRENT_SYMBOL } = useConfiguration();
   const { showToast } = useContext(ToastContext);
 
   const { vendorId, isRestaurantModifed, setRestaurantModifed } = useContext(
@@ -224,7 +226,7 @@ export default function VendorsLayoutRestaurantCard({
         <div className="flex items-center gap-2 rounded-lg border border-gray-300 p-2 mb-2 text-sm">
           <CarSVG width="24" height="24" />
           <span>
-            {'₪'} {deliveryRate}
+            {CURRENT_SYMBOL} {deliveryRate}
           </span>
         </div>
 
@@ -232,7 +234,7 @@ export default function VendorsLayoutRestaurantCard({
         <div className="flex items-center gap-1 rounded-lg border border-gray-300 p-2 mb-2 text-sm">
           <span>{t('Min Order')}</span>
           <span>
-            {'₪'} {restaurant?.minimumOrder}
+            {CURRENT_SYMBOL} {restaurant?.minimumOrder}
           </span>
         </div>
       </div>
