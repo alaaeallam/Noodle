@@ -5,7 +5,6 @@ import styles from './styles'
 import { useTranslation } from 'react-i18next'
 import { alignment } from '../../../utils/alignment'
 import { scale } from '../../../utils/scaling'
-import { formatNumber } from '../../../utils/formatNumber'
 
 export default function Detail({ theme, from, orderNo, deliveryAddress, items, currencySymbol, subTotal, tip, tax, deliveryCharges, total, navigation, id, rider, orderStatus }) {
   const { t } = useTranslation()
@@ -76,7 +75,7 @@ const ItemRow = ({ theme, quantity, title, variationTitle, options = ['raita', '
           source={image ? { uri: image } : require('../../../assets/images/food_placeholder.png')}
         ></Image>
       </View>
-      <View style={{ width: '60%', justifyContent: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center', marginHorizontal: scale(10) }}>
         <TextDefault uppercase left numberOfLines={1} textColor={theme.gray900} H5 bolder style={{ ...alignment.MBxSmall }} isRTL>
           {title}
         </TextDefault>
@@ -94,9 +93,10 @@ const ItemRow = ({ theme, quantity, title, variationTitle, options = ['raita', '
           x{quantity}
         </TextDefault>
       </View>
-      <TextDefault style={{ width: '20%', textAlign: 'right', paddingRight: 10 }} bolder textColor={theme.gray900} H5 isRTL>
+      {/* Sized to its content (no fixed width) so "EGP 1,250.00" never wraps */}
+      <TextDefault numberOfLines={1} style={{ flexShrink: 0, textAlign: 'right', paddingRight: 10 }} bolder textColor={theme.gray900} H5 isRTL>
         {currency}{' '}
-        {formatNumber(price)}
+        {Number(price).toFixed(2)}
       </TextDefault>
     </View>
   )

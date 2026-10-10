@@ -39,7 +39,7 @@ const Taxes = ({ tax, deliveryCharges, currency }) => {
         </TextDefault>
         <TextDefault style={{ ...alignment.Mmedium }} bolder H5>
           {' '}
-          {currency}{' '}{tax}{' '}
+          {currency}{' '}{Number(tax).toFixed(2)}{' '}
         </TextDefault>
       </View>
       <View
@@ -61,7 +61,7 @@ const Taxes = ({ tax, deliveryCharges, currency }) => {
         </TextDefault>
         <TextDefault H5 bolder style={{ ...alignment.Mmedium }}>
           {' '}
-          {currency}{' '}{deliveryCharges}{' '} 
+          {currency}{' '}{Number(deliveryCharges).toFixed(2)}{' '} 
         </TextDefault>
       </View>
     </View>
