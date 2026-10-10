@@ -1,6 +1,6 @@
-// Component
-import EmailVerificationScreen from '@/lib/ui/screen-components/unprotected/authentication/email-verification';
+import { redirect } from 'next/navigation';
 
+// Unfinished template stub (no backend wiring) — send visitors to the real login.
 export default function VerifyEmailPage() {
-  return <EmailVerificationScreen />;
+  redirect('/authentication/login');
 }

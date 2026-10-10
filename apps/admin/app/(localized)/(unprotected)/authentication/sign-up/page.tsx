@@ -1,6 +1,6 @@
-// Component
-import SignupScreen from '@/lib/ui/screen-components/unprotected/authentication/sign-up';
+import { redirect } from 'next/navigation';
 
+// Unfinished template stub (no backend wiring) — send visitors to the real login.
 export default function SignupPage() {
-  return <SignupScreen />;
+  redirect('/authentication/login');
 }
