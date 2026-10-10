@@ -136,7 +136,7 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
 
   // UseEffects
   useEffect(() => {
-    if (!dataProfile?.rider.zone._id || !dataProfile.rider._id) return;
+    if (!dataProfile?.rider?.zone?._id || !dataProfile.rider._id) return;
 
     const subscribeNewOrders = {
       unsubAssignOrder: subscribeToMore({

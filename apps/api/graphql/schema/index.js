@@ -220,7 +220,7 @@ const typeDefs = gql`
     phone: String!
     image: String
     available: Boolean!
-    zone: Zone!
+    zone: Zone
     isActive: Boolean!
     createdAt: String!
     updatedAt: String!
@@ -508,7 +508,7 @@ const typeDefs = gql`
     taxationAmount: Float!
     rider: Rider
     review: Review
-    zone: Zone!
+    zone: Zone
     completionTime: String
     orderDate: String!
     expectedTime: String

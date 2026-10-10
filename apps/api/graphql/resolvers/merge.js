@@ -71,19 +71,21 @@ const transformRider = rider => {
   return {
     ...rider._doc,
     _id: rider.id,
-    zone: rider.zone ? zone.bind(this, rider.zone) : ''
+    zone: rider.zone ? zone.bind(this, rider.zone) : null
   }
 }
 
+// A rider/order can point at a zone that has since been deleted. Return null
+// instead of throwing: transformOrder used to call this eagerly without
+// awaiting, so a missing zone became an unhandled rejection that killed the
+// whole API process whenever a query didn't select `zone`.
 const zone = async id => {
-  try {
-    const zone = await Zone.findById(id)
-    return {
-      ...zone._doc,
-      _id: zone.id
-    }
-  } catch (error) {
-    throw error
+  if (!id) return null
+  const zone = await Zone.findById(id)
+  if (!zone) return null
+  return {
+    ...zone._doc,
+    _id: zone.id
   }
 }
 
@@ -115,7 +117,7 @@ const transformOrder = async order => {
   return {
     ...order._doc,
     _id: order.id,
-    zone: zone(order.zone),
+    zone: zone.bind(this, order.zone),
     review: review.bind(this, order.review),
     user: order._doc.user ? await user.bind(this, order._doc.user) : null,
     userId: order._doc.user ? order._doc.user.toString() : null,
