@@ -8,7 +8,7 @@ import CustomTextField from '@/lib/ui/useable-components/input-field';
 export default function EmailVerificationMain() {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="w-2/6">
+      <div className="w-full px-4 md:w-1/2 lg:w-[30%]">
         <Card>
           <div className="mb-2 flex flex-col p-2">
             <i className="pi pi-envelope" style={{ fontSize: '40px' }} />

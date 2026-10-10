@@ -14,7 +14,7 @@ const Layout = ({ children }: IProvider) => {
         <AppTopbar />
       </div>
       <div className="layout-main-container">
-        <div className="layout-main">{children}</div>
+        <div className="layout-main w-full">{children}</div>
       </div>
     </div>
   );

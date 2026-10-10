@@ -50,13 +50,13 @@ export default function SignupMain() {
 
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="xlg:w-1/6 h-full sm:w-full md:w-3/6 lg:w-2/6">
+      <div className="w-full px-4 md:w-1/2 lg:w-[30%]">
         <Card className="w-full">
           <div className="flex flex-col gap-2">
             <div className="mb-2 flex flex-col p-2">
               <span className="text-2xl">Let&apos;s get started!</span>
               <span className="text-sm text-gray-400">
-                First, let&apos;s create your Enatega account
+                First, let&apos;s create your BTB account
               </span>
             </div>
 
