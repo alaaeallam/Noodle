@@ -9,8 +9,11 @@ module.exports = {
       try {
         const { userType, userId } = requireWalletAccess(req, args.userType, args.userId)
         const filter = {}
-        if (userType === 'STORE' && userId) filter['storeEarnings.storeId'] = userId
-        if (userType === 'RIDER' && userId) filter['riderEarnings.riderId'] = userId
+        // Cast to ObjectId: find() casts string ids itself, but the totals
+        // aggregate below doesn't, so a string id matched nothing and the
+        // store/rider "total earnings" card always showed 0.
+        if (userType === 'STORE' && userId) filter['storeEarnings.storeId'] = new mongoose.Types.ObjectId(userId)
+        if (userType === 'RIDER' && userId) filter['riderEarnings.riderId'] = new mongoose.Types.ObjectId(userId)
         if (args.orderType) filter.orderType = args.orderType
         if (args.paymentMethod) filter.paymentMethod = args.paymentMethod
         if (args.search) filter.orderId = { $regex: args.search, $options: 'i' }
