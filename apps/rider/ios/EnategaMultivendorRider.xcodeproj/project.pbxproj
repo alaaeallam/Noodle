@@ -22,7 +22,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = EnategaMultivendorRider/Info.plist; sourceTree = "<group>"; };
 		24F983032DAFFCD5E8A9CEEA /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-EnategaMultivendorRider/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		2CA838601C4577B8F0C72573 /* libPods-EnategaMultivendorRider.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EnategaMultivendorRider.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		56665537510E98FE552C5793 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = EnategaMultivendorRider/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		56665537510E98FE552C5793 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = EnategaMultivendorRider/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		5FD8ADA10835FD352BB7E1F7 /* Pods-EnategaMultivendorRider.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EnategaMultivendorRider.debug.xcconfig"; path = "Target Support Files/Pods-EnategaMultivendorRider/Pods-EnategaMultivendorRider.debug.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = EnategaMultivendorRider/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
@@ -64,7 +64,6 @@
 				5FD8ADA10835FD352BB7E1F7 /* Pods-EnategaMultivendorRider.debug.xcconfig */,
 				E8EE993C9E8D7527C8D057CC /* Pods-EnategaMultivendorRider.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -504,7 +503,7 @@
 					"$(inherited)",
 					" ",
 				);
-				REACT_NATIVE_PATH = "${PODS_ROOT}/../../../../node_modules/.pnpm/react-native@0.79.4_patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd0_5626c9e5d378b0b04aa8b25edabf42cb/node_modules/react-native";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../../../node_modules/.pnpm/react-native@0.79.6_patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd0_a6db71d30dabc3ae42931629a2d1a992/node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				USE_HERMES = true;
@@ -562,7 +561,7 @@
 					"$(inherited)",
 					" ",
 				);
-				REACT_NATIVE_PATH = "${PODS_ROOT}/../../../../node_modules/.pnpm/react-native@0.79.4_patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd0_5626c9e5d378b0b04aa8b25edabf42cb/node_modules/react-native";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../../../node_modules/.pnpm/react-native@0.79.6_patch_hash=0540f4d6c7af283b556df82e90acc98e4d8532e752cbcfc0bf282dd0_a6db71d30dabc3ae42931629a2d1a992/node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
