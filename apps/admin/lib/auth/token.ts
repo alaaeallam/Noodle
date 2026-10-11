@@ -17,7 +17,7 @@ export const getToken = (): string | null => {
   // record, so sessions started before this fix keep working.
   try {
     const user = localStorage.getItem(USER_KEY);
-    return user ? JSON.parse(user)?.token ?? null : null;
+    return user ? (JSON.parse(user)?.token ?? null) : null;
   } catch {
     return null;
   }
