@@ -134,6 +134,11 @@ const OrderDetailModal: React.FC<IOrderDetailModalProps> = ({
                           .join(', ')}
                       </div>
                     )}
+                    {item.specialInstructions && (
+                      <div className="item-options item-instructions">
+                        Note: {item.specialInstructions}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -142,6 +147,14 @@ const OrderDetailModal: React.FC<IOrderDetailModalProps> = ({
             <p>No items available</p>
           )}
         </div>
+
+        {/* Customer's note to the store, entered at checkout */}
+        {restaurantData.instructions && (
+          <div className="order-section">
+            <h3 className="section-header">Instructions</h3>
+            <p className="order-instructions">{restaurantData.instructions}</p>
+          </div>
+        )}
 
         {/* Charges Section */}
         <div className="order-section">

@@ -10,6 +10,7 @@ export const GET_ORDERS_BY_USER = gql`
         orderAmount
         orderStatus
         paymentMethod
+        instructions
         createdAt
         restaurant {
           _id

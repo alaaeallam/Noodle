@@ -41,6 +41,14 @@
   margin-top: 2px;
 }
 
+.item-instructions {
+  font-style: italic;
+}
+
+.order-instructions {
+  white-space: pre-wrap;
+}
+
 .item-price {
   font-weight: bold;
   color: #000;

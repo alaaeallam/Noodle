@@ -28,6 +28,7 @@ export const GET_ACTIVE_ORDERS = gql`
         phone
       }
       paymentMethod
+      instructions
       orderStatus
       isPickedUp
       status
@@ -113,6 +114,7 @@ export const GET_ORDER_BY_RESTAURANT = gql`
         email
       }
       paymentMethod
+      instructions
       paidAmount
       orderAmount
       orderStatus
@@ -185,6 +187,7 @@ export const GET_ORDER_BY_RESTAURANT_WITHOUT_PAGINATION = gql`
         email
       }
       paymentMethod
+      instructions
       paidAmount
       orderAmount
       orderStatus
@@ -260,6 +263,7 @@ export const GET_ORDERS = gql`
         email
       }
       paymentMethod
+      instructions
       paidAmount
       orderAmount
       orderStatus
@@ -344,6 +348,7 @@ export const GET_ORDERS_WITHOUT_PAGINATION = gql`
       }
       
       paymentMethod
+      instructions
       paidAmount
       orderAmount
       orderStatus

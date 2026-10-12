@@ -28,6 +28,7 @@ export interface Items {
   description: ReactNode;
   title: string;
   quantity: number;
+  specialInstructions?: string | null;
 }
 
 export interface IOrder extends IGlobalComponentProps {
@@ -56,6 +57,7 @@ export interface IExtendedOrder extends IOrder {
   OrderdeliveryAddress?: string;
   DateCreated?: string;
   restaurant?: IRestaurant;
+  instructions?: string | null;
 }
 
 export interface IOrdersData extends IGlobalComponentProps {
