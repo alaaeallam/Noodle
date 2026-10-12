@@ -54,6 +54,7 @@ export default function Detail({ theme, from, orderNo, deliveryAddress, items, c
               price={totalItemPrice} 
               options={item.addons.map((addon) => addon.options.map(({ title }) => title))} 
               image={item?.image} 
+              note={item?.specialInstructions}
             />
           )
         })}
@@ -61,7 +62,7 @@ export default function Detail({ theme, from, orderNo, deliveryAddress, items, c
     </View>
   )
 }
-const ItemRow = ({ theme, quantity, title, variationTitle, options = ['raita', '7up'], price, currency, image }) => {
+const ItemRow = ({ theme, quantity, title, variationTitle, options = ['raita', '7up'], price, currency, image, note }) => {
   const { t } = useTranslation()
   return (
     <View style={styles.itemRow(theme)}>
@@ -86,6 +87,12 @@ const ItemRow = ({ theme, quantity, title, variationTitle, options = ['raita', '
         {options.length > 0 && (
           <TextDefault bold textColor={theme.gray600} left style={{ ...alignment.MBxSmall }} isRTL>
             {options.join(',')}
+          </TextDefault>
+        )}
+
+        {!!note && (
+          <TextDefault textColor={theme.gray600} left style={{ ...alignment.MBxSmall, fontStyle: 'italic' }} isRTL>
+            {`${t('specialInstructions')}: ${note}`}
           </TextDefault>
         )}
 

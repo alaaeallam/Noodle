@@ -464,6 +464,7 @@ export const myOrders = `query Orders($offset:Int){
         quantityMinimum
         quantityMaximum
       }
+      specialInstructions
     }
     user{
       _id
