@@ -713,6 +713,35 @@ export default function OrderDetailScreen() {
                 </View>
               </View>
 
+              {/* Customer's note, entered at checkout */}
+              {!!localOrder?.instructions && (
+                <View
+                  className="mb-4 px-3 py-3"
+                  style={{ backgroundColor: appTheme.themeBackground }}
+                >
+                  <Text
+                    style={{
+                      color: appTheme.fontSecondColor,
+                      fontFamily: "Archivo800",
+                      fontSize: 11,
+                      letterSpacing: 1,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {t("Instructions")}
+                  </Text>
+                  <Text
+                    style={{
+                      color: appTheme.fontMainColor,
+                      fontFamily: "Archivo800",
+                      fontSize: 14,
+                    }}
+                  >
+                    {localOrder.instructions}
+                  </Text>
+                </View>
+              )}
+
               {/* Payment Method */}
               <View className="flex-1 flex-row justify-between items-center mb-3">
                 <Text style={{ color: appTheme.fontSecondColor, fontSize: 15 }}>

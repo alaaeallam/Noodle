@@ -191,6 +191,7 @@ export const RIDER_ORDERS = gql`
         phone
       }
       paymentMethod
+      instructions
       paidAmount
       orderAmount
       paymentStatus
