@@ -23,6 +23,7 @@ export const OrdersProvider = ({ children }) => {
     loading: loadingOrders,
     error: errorOrders,
     data: dataOrders,
+    previousData: previousDataOrders,
     networkStatus: networkStatusOrders,
     fetchMore: fetchMoreOrders,
     refetch: reFetchOrders,
@@ -102,7 +103,9 @@ export const OrdersProvider = ({ children }) => {
       value={{
         loadingOrders: loadingOrders && calledOrders,
         errorOrders,
-        orders: dataOrders && dataOrders?.orders ? dataOrders?.orders : [],
+        // Keep showing the last good list if a refetch fails (data is
+        // cleared on error, e.g. when iOS resumes before the network is up).
+        orders: (dataOrders ?? previousDataOrders)?.orders ?? [],
         reFetchOrders,
         fetchMoreOrdersFunc,
         networkStatusOrders

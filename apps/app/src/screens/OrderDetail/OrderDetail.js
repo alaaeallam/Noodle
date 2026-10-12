@@ -130,8 +130,10 @@ function OrderDetail(props) {
   if (loadingOrders) {
     return <Spinner backColor={currentTheme.themeBackground} spinnerColor={currentTheme.main} />
   }
-  if (errorOrders) {
-    return <TextError text={JSON.stringify(errorOrders)} />
+  // A failed background refetch (e.g. the network not being back yet when
+  // the app returns to the foreground) must not hide an order we already have.
+  if (errorOrders && !order) {
+    return <TextError text={errorOrders.message} />
   }
 
   const { _id, id: orderId, restaurant, deliveryAddress, items, tipping: tip, taxationAmount: tax, orderAmount: total, deliveryCharges } = order

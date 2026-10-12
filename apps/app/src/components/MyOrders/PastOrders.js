@@ -32,7 +32,7 @@ function emptyViewPastOrders() {
       />
     )
   }
-  if (errorOrders) return <TextError text={errorOrders.message} />
+  if (errorOrders && !orders?.length) return <TextError text={errorOrders.message} />
   else {
     const hasActiveOrders =
       orders.filter((o) => orderStatusActive.includes(o.orderStatus)).length > 0
