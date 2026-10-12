@@ -123,14 +123,14 @@ const OrderDetailModal: React.FC<IOrderDetailModalProps> = ({
                         {index + 1}. {item.title}
                       </span>
                       <span className="item-price">
-                        {item.quantity} &#215; $
+                        {item.quantity} &#215; {CURRENT_SYMBOL}{' '}
                         {calculateItemUnitPrice(item).toFixed(2)}
                       </span>
                     </div>
                     {selectedOptions.length > 0 && (
                       <div className="item-options">
                         {selectedOptions
-                          .map((option) => `${option.title} (+$${option.price.toFixed(2)})`)
+                          .map((option) => `${option.title} (+${CURRENT_SYMBOL} ${option.price.toFixed(2)})`)
                           .join(', ')}
                       </div>
                     )}
@@ -192,7 +192,7 @@ const OrderDetailModal: React.FC<IOrderDetailModalProps> = ({
           <div className="paid-amount">
             <span className="paid-label">Paid Amount</span>
             <span className="paid-value">
-              ${(restaurantData.paidAmount ?? 0)?.toFixed(2)}
+              {CURRENT_SYMBOL} {(restaurantData.paidAmount ?? 0)?.toFixed(2)}
             </span>
           </div>
         </div>
