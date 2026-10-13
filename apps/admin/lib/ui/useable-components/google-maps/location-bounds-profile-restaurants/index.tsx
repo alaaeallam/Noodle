@@ -9,6 +9,7 @@ import {
   useApolloClient,
 } from '@apollo/client';
 import { throttle } from 'lodash';
+import { PlacesAutocompleteService, getPlaceLocation } from '@/lib/utils/methods/google-maps';
 import React, {
   useCallback,
   useContext,
@@ -65,7 +66,7 @@ import calculateZoom from '@/lib/utils/methods/zoom-calculator';
 import { useTranslations } from 'next-intl';
 
 const autocompleteService: {
-  current: google.maps.places.AutocompleteService | null;
+  current: PlacesAutocompleteService | null;
 } = { current: null };
 const GoogleMapAny = GoogleMap as unknown as React.ComponentType<any>;
 const MarkerAny = Marker as unknown as React.ComponentType<any>;
@@ -379,9 +380,7 @@ if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
   ) => {
     const selectedOption = event?.value as IPlaceSelectedOption;
     if (selectedOption) {
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode(
-        { placeId: selectedOption.place_id },
+      getPlaceLocation(selectedOption.place_id,
         (results: google.maps.GeocoderResult[] | null) => {
           if (
             results &&
@@ -579,7 +578,7 @@ if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
 
     if (!autocompleteService.current && google) {
       autocompleteService.current =
-        new google.maps.places.AutocompleteService();
+        new PlacesAutocompleteService();
     }
     if (!autocompleteService.current) {
       return undefined;

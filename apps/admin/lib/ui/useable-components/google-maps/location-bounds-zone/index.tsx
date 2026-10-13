@@ -11,6 +11,7 @@ import React, {
 import { Circle, GoogleMap, Marker, Polygon } from '@react-google-maps/api';
 import parse from 'autosuggest-highlight/parse';
 import { throttle } from 'lodash';
+import { PlacesAutocompleteService, getPlaceLocation } from '@/lib/utils/methods/google-maps';
 
 // Interfaces
 import {
@@ -42,7 +43,7 @@ import { DEFAULT_CENTER, DEFAULT_POLYGON } from '@/lib/utils/constants';
 import { useTranslations } from 'next-intl';
 
 const autocompleteService: {
-  current: google.maps.places.AutocompleteService | null;
+  current: PlacesAutocompleteService | null;
 } = { current: null };
 const GoogleMapAny = GoogleMap as unknown as React.ComponentType<any>;
 const MarkerAny = Marker as unknown as React.ComponentType<any>;
@@ -126,9 +127,7 @@ const CustomGoogleMapsLocationZoneBounds: React.FC<
   ) => {
     const selectedOption = event?.value as IPlaceSelectedOption;
     if (selectedOption) {
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode(
-        { placeId: selectedOption.place_id },
+      getPlaceLocation(selectedOption.place_id,
         (results: google.maps.GeocoderResult[] | null) => {
           if (
             results &&
@@ -240,7 +239,7 @@ const CustomGoogleMapsLocationZoneBounds: React.FC<
   useEffect(() => {
     if (!autocompleteService.current && window.google) {
       autocompleteService.current =
-        new window.google.maps.places.AutocompleteService();
+        new PlacesAutocompleteService();
     }
     if (!autocompleteService.current) {
       return;

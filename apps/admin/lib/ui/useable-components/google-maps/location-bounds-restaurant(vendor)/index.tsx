@@ -8,6 +8,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { throttle } from 'lodash';
+import { PlacesAutocompleteService, getPlaceLocation } from '@/lib/utils/methods/google-maps';
 import React, {
   useCallback,
   useContext,
@@ -66,7 +67,7 @@ const MarkerAny = Marker as unknown as React.ComponentType<any>;
 const CircleAny = Circle as unknown as React.ComponentType<any>;
 const PolygonAny = Polygon as unknown as React.ComponentType<any>;
 const autocompleteService: {
-  current: google.maps.places.AutocompleteService | null;
+  current: PlacesAutocompleteService | null;
 } = { current: null };
 
 const CustomGoogleMapsLocationBounds: React.FC<
@@ -329,9 +330,7 @@ if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
   ) => {
     const selectedOption = event?.value as IPlaceSelectedOption;
     if (selectedOption) {
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode(
-        { placeId: selectedOption.place_id },
+      getPlaceLocation(selectedOption.place_id,
         (results: google.maps.GeocoderResult[] | null) => {
           if (
             results &&
@@ -556,7 +555,7 @@ if (typeof circleBounds?.radius === 'number' && isFinite(circleBounds.radius)) {
 
     if (!autocompleteService.current && window.google) {
       autocompleteService.current =
-        new window.google.maps.places.AutocompleteService();
+        new PlacesAutocompleteService();
     }
     if (!autocompleteService.current) {
       return undefined;

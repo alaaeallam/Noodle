@@ -8,6 +8,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { throttle } from 'lodash';
+import { PlacesAutocompleteService, getPlaceLocation } from '@/lib/utils/methods/google-maps';
 import React, {
   useCallback,
   useContext,
@@ -71,7 +72,7 @@ const MarkerAny = Marker as unknown as React.ComponentType<any>;
 const CircleAny = Circle as unknown as React.ComponentType<any>;
 const PolygonAny = Polygon as unknown as React.ComponentType<any>;
 const autocompleteService: {
-  current: google.maps.places.AutocompleteService | null;
+  current: PlacesAutocompleteService | null;
 } = { current: null };
 
 // Default coordinate for Cairo, Egypt
@@ -437,9 +438,7 @@ async function onRestaurantZoneUpdateCompleted({
   ) => {
     const selectedOption = event?.value as IPlaceSelectedOption;
     if (selectedOption) {
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode(
-        { placeId: selectedOption.place_id },
+      getPlaceLocation(selectedOption.place_id,
         (results: google.maps.GeocoderResult[] | null) => {
           if (
             results &&
@@ -722,7 +721,7 @@ useEffect(() => {
   const initService = () => {
     if (!autocompleteService.current && (window as any)?.google?.maps?.places) {
       autocompleteService.current =
-        new (window as any).google.maps.places.AutocompleteService();
+        new PlacesAutocompleteService();
       sessionTokenRef.current =
         new (window as any).google.maps.places.AutocompleteSessionToken();
       setIsPlacesReady(true);
