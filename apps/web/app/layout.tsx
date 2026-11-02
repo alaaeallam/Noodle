@@ -17,7 +17,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const locale = await getLocale();
-  const rtlLocales = ["ar", "hr", "fa", "ur"];
+  const rtlLocales = ["ar", "fa", "ur"];
   const baseLocale = locale.split("-")[0];
   const dir =
     rtlLocales.includes(locale) || rtlLocales.includes(baseLocale)

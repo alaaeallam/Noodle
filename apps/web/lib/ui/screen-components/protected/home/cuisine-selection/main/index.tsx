@@ -30,7 +30,7 @@ function CuisineSelectionSection() {
   const decoded = decodeURIComponent(rawParam);
   const slugWithSpaces = decoded.replace(/-/g, " ").trim();
 
-  // Normalize for reliable matching across scripts (Hebrew, etc.)
+  // Normalize for reliable matching across scripts (Arabic, etc.)
   const normalizedSlug = slugWithSpaces.normalize("NFKC").toLocaleLowerCase();
 
   // Title (avoid forcing Latin-style capitalization)

@@ -267,22 +267,6 @@ const AppTopbar = () => {
                   onLocaleChange('zh');
                 },
               },
-              {
-                label: 'HEBREW',
-                template(item) {
-                  return (
-                    <div
-                      className={`${currentLocale === 'he' ? 'bg-nile text-white' : ''} p-2 cursor-pointer `}
-                      onClick={()=>onLocaleChange('he')}
-                    >
-                      {item.label}
-                    </div>
-                  );
-                },
-                command: () => {
-                  onLocaleChange('he');
-                },
-              },
             ]}
             popup
             ref={languageMenuRef}

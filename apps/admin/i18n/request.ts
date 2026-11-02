@@ -4,7 +4,7 @@ import { getRequestConfig } from 'next-intl/server';
 
 export default getRequestConfig(async () => {
   const FALLBACK_LOCALE = 'en';
-  const SUPPORTED_LOCALES = ['en', 'ar', 'fr', 'km', 'zh', 'he'] as const;
+  const SUPPORTED_LOCALES = ['en', 'ar', 'fr', 'km', 'zh'] as const;
 
   // 1) Get locale safely
   let locale = FALLBACK_LOCALE;

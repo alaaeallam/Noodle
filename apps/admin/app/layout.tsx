@@ -38,7 +38,7 @@ const brandFont = Anton({
   display: 'swap',
 });
 
-const RTL_LOCALES = new Set(['ar', 'he']);
+const RTL_LOCALES = new Set(['ar']);
 
 export const metadata = {
   title: 'BTB Admin Dashboard',

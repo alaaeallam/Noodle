@@ -28,7 +28,7 @@ const getStoredLanguage = async (): Promise<void> => {
     const storedLang = await AsyncStorage.getItem("btb-language");
     const deviceLang = Localization.getLocales()[0]?.languageCode || "en";
     const candidate = storedLang || deviceLang;
-    // A saved language that was since removed (e.g. Hebrew) falls back to English.
+    // A saved language that was since removed falls back to English.
     const initialLang = languageResources[candidate] ? candidate : "en";
 
     await i18next.use(initReactI18next).init({

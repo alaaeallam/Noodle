@@ -604,23 +604,6 @@ const AppTopbar = ({ handleModalToggle }: IAppBarProps) => {
                             onLocaleChange("fr");
                           },
                         },
-                        {
-                          label: "HEBREW",
-                          template(item) {
-                            return (
-                              <div
-                                className={`${currentLocale === "hr" ? "bg-[#5AC12F]" : ""} p-2 cursor-pointer`}
-                                onClick={() => onLocaleChange("hr")}
-                              >
-                                {" "}
-                                {item.label}{" "}
-                              </div>
-                            );
-                          },
-                          command: () => {
-                            onLocaleChange("hr");
-                          },
-                        },
                       ]}
                       popup
                       ref={languageMenuRef}

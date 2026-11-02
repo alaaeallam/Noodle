@@ -82,7 +82,7 @@ const SearchOverlay = ({
         t('restaurantClosed'),
         [
           {
-            text: t('סגור'), // Hebrew for "close"
+            text: t('close'),
             onPress: () => {
               // Just close the search overlay
               onClose()
