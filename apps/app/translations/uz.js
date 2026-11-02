@@ -18,7 +18,7 @@ export const uz = {
     getStarted: 'Boshlash!',
     welcome:
       "Yalla-ga xush kelibsiz, ba’zida sizga faqat sevgi kerak. Ammo vaqti-vaqti bilan ozgina ovqat ham yomon emas.",
-    welcomeScreen: 'Enatega-ga Xush Kelibsiz',
+    welcomeScreen: 'BTB-ga Xush Kelibsiz',
     loginBtn: 'Kirish',
     registerBtn: 'Ro‘yxatdan o‘tish',
     name: 'Ism',
@@ -283,7 +283,7 @@ export const uz = {
     useCurrentLocation: 'Joriy Joylashuvdan Foydalanish',
     locationPermissionMessage:
       'Ushbu xabarni bosing va Sozlamalarni oching, keyin ilovaga joylashuvdan foydalanishga ruxsat bering.',
-    enategaUseYourLocationMessage:
+    btbUseYourLocationMessage:
       'Yaqin atrofdagi restoranlarni topish uchun bizga faqat sizning joylashuvingiz kerak',
     selectAnotherLocation: 'Joylashuvni Qo‘lda Bel Gilash',
     setLocation: 'Joylashuvni Bel Gilash',
@@ -574,8 +574,8 @@ export const uz = {
     none: 'yo‘q',
     yourEmail: 'Elektron pochta orqali oson kiring!',
     yourEmailPassword: 'Kirish uchun parolingizni hozir kiriting!',
-    brandName: 'Enatega',
-    welcomeText: 'Enatega-ga Xush Kelibsiz',
+    brandName: 'BTB',
+    welcomeText: 'BTB-ga Xush Kelibsiz',
     createAccountDesc:
       'Eng yaxshi restoranlardan bahramand bo‘ling yoki yaqin atrofdagi do‘konlardan kerakli narsalarni yetkazib oling',
     phoneNumber: 'Telefon Raqami',
@@ -634,7 +634,7 @@ export const uz = {
     Done: 'Tayyor',
     addMessage: 'Xabar Qo‘shish',
     kindlyBeAdvisedText: 'Iltimos, xabaringiz buyurtmangizni yetkazib beruvchi hamkorimizga ham ko‘rinishi mumkinligini esda tuting.',
-    exploreYallaCities: 'Enatega Shaharlarini O‘rganing',
+    exploreYallaCities: 'BTB Shaharlarini O‘rganing',
     Card: 'Karta',
     lebelAlreadyExist: "'{{selectedLabel}}' yorlig‘i allaqachon mavjud. Iltimos, boshqasini tanlang.",
     UpdateAvailable: 'Yangilanish Mavjud',

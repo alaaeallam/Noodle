@@ -60,7 +60,7 @@ const LanguageModal = ({ modalVisible, setModalVisible, currentTheme, showCrossB
   async function determineInitialLanguage() {
     try {
       // First, check for stored language
-      const storedLanguageCode = await AsyncStorage.getItem('enatega-language')
+      const storedLanguageCode = await AsyncStorage.getItem('btb-language')
 
       // Get system language
       const systemLanguageCode = Localization?.locale?.split('-')[0]
@@ -99,8 +99,8 @@ const LanguageModal = ({ modalVisible, setModalVisible, currentTheme, showCrossB
       const languageVal = languageTypes[languageInd].value
 
       // Save language preferences
-      await AsyncStorage.setItem('enatega-language', languageCode)
-      await AsyncStorage.setItem('enatega-language-name', languageVal)
+      await AsyncStorage.setItem('btb-language', languageCode)
+      await AsyncStorage.setItem('btb-language-name', languageVal)
 
       // Change app language
       i18next.changeLanguage(languageCode)

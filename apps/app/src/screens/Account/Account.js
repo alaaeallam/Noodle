@@ -185,7 +185,7 @@ function Account(props) {
   }
 
   const fetchSelectedLanguage = async () => {
-    const lang = await AsyncStorage.getItem('enatega-language-name')
+    const lang = await AsyncStorage.getItem('btb-language-name')
     const systemLangCode = Localization?.locale?.split('-')[0]
 
     if (lang) {
@@ -510,30 +510,6 @@ function Account(props) {
                       </View>
                     </TouchableOpacity>
                   </View>
-                </View>
-
-                <View>
-                  <TextDefault H2 bolder textColor={currentTheme.fontThirdColor} style={styles().padding} isRTL>
-                    {t('legal')}
-                  </TextDefault>
-                  <ButtonContainer
-                    title={t('serviceTerms')}
-                    detail={''}
-                    status='null'
-                    onPress={() => {
-                      Linking.openURL('https://multivendor.enatega.com/terms')
-                    }}
-                  />
-                  <View style={styles(currentTheme).line} />
-
-                  <ButtonContainer
-                    title={t('privacyPolicy')}
-                    detail={''}
-                    status='null'
-                    onPress={() => {
-                      Linking.openURL('https://multivendor.enatega.com/privacy')
-                    }}
-                  />
                 </View>
 
                 {/* <View style={styles().padding}>

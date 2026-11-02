@@ -36,6 +36,8 @@ const compareVersions = (version1, version2) => {
   return 0
 }
 
+const STORE_URL = { ios: null, android: null }
+
 const ForceUpdate = () => {
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false)
   const [currentVersion, setCurrentVersion] = useState(null)
@@ -75,10 +77,13 @@ const ForceUpdate = () => {
 
   const handleUpdate = async () => {
     try {
-      let storeUrl =
-        Platform.OS === 'ios'
-          ? 'https://apps.apple.com/pk/app/enatega-multivendor/id1526488093'
-          : 'https://play.google.com/store/apps/details?id=com.enatega.multivendor&pli=1'
+      // BTB has no App Store / Play Store listing yet. Fill these in once it
+      // does; until then the button just dismisses the prompt.
+      const storeUrl = Platform.OS === 'ios' ? STORE_URL.ios : STORE_URL.android
+      if (!storeUrl) {
+        setIsUpdateModalVisible(false)
+        return
+      }
 
       await Linking.openURL(storeUrl)
     } catch (err) {

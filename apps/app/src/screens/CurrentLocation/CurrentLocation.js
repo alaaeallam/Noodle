@@ -294,7 +294,7 @@ export default function CurrentLocation() {
             {t('welcomeScreen')}
           </TextDefault>
           <TextDefault textColor={currentTheme.fontMainColor} bold center style={styles(currentTheme).descriptionEmpty}>
-            {t('enategaUseYourLocationMessage')}
+            {t('btbUseYourLocationMessage')}
           </TextDefault>
 
           <TouchableOpacity activeOpacity={0.7} style={styles(currentTheme).linkButton} onPress={() => setCitiesModalVisible(true)}>

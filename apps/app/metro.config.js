@@ -12,7 +12,7 @@ defaultConfig.resolver.sourceExts.push('cjs')
 // the same machine (default cacheVersion is "1.0" for every Metro project
 // unless overridden). Giving this app its own cacheVersion too, for the
 // same reason, even though its config differs more from the other two.
-defaultConfig.cacheVersion = 'enatega-app-1.0'
+defaultConfig.cacheVersion = 'btb-app-1.0'
 
 // pnpm workspace: hoisted deps (e.g. react-async-hook, a transitive dep of
 // react-native-country-picker-modal) live inside the monorepo root's pnpm

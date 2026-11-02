@@ -342,9 +342,7 @@ function Main(props) {
                       </View>
 
                       <Image
-                        source={{
-                          uri: 'https://enatega.com/wp-content/uploads/2024/02/pngimg-1.png'
-                        }}
+                        source={require('../../assets/images/burger.png')}
                         style={styles().popularMenuImg}
                         resizeMode='contain'
                       />
@@ -357,9 +355,7 @@ function Main(props) {
                         {t('essentialsDeliveredFast')}
                       </TextDefault>
                       <Image
-                        source={{
-                          uri: 'https://enatega.com/wp-content/uploads/2024/02/pngwing-4.png'
-                        }}
+                        source={require('../../assets/images/burger.png')}
                         style={styles().popularMenuImg}
                         resizeMode='contain'
                       />

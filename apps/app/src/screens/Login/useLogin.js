@@ -27,7 +27,7 @@ export const useLogin = () => {
   const Analytics = analytics()
 
   const navigation = useNavigation()
-  const emailRef = useRef('demo-customer@enatega.com')
+  const emailRef = useRef('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(true)
   const [emailError, setEmailError] = useState(null)
@@ -55,11 +55,7 @@ export const useLogin = () => {
   // Reset password when registeredEmail becomes true
   useEffect(() => {
     if (registeredEmail) {
-      if (emailRef.current === 'demo-customer@enatega.com') {
-        setPassword('123123')
-      } else {
-        setPassword('')
-      }
+      setPassword('')
     }
   }, [registeredEmail])
   function validateCredentials() {
