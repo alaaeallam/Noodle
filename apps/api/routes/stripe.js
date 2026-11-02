@@ -51,14 +51,11 @@ router.get('/success', async(req, res) => {
     } = req.query
     const order = await handleCompletedCheckoutSession(stripeSessionId, orderId)
     if (platform === 'web') {
-      console.log('config.WEB_URL', config.WEB_URL)
-      return res.redirect(
-        config.WEB_URL +
-          '#/' +
-          config.ORDER_DETAIL_WEB_URL +
-          order.id +
-          '?clearCart=true'
-      )
+      // The Next.js customer site (apps/web) shows an order at
+      // /order/<_id>/tracking. The old '#/' + ORDER_DETAIL_WEB_URL hash route
+      // belonged to a previous web client and no longer exists.
+      const webBase = (config.WEB_URL || '').replace(/\/+$/, '')
+      return res.redirect(`${webBase}/order/${order.id}/tracking`)
     } else {
       return res.render('stripeSuccess')
     }
