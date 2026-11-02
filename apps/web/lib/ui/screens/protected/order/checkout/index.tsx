@@ -45,6 +45,7 @@ import { PAYMENT_METHOD_LIST, TIPS } from "@/lib/utils/constants";
 
 // API
 import { PLACE_ORDER, VERIFY_COUPON, ORDERS } from "@/lib/api/graphql";
+import { DEFAULT_MAP_CENTER } from "@/lib/utils/constants";
 
 // Interfaces
 import { ICouponData, IOpeningTime, IOrder } from "@/lib/utils/interfaces";
@@ -780,10 +781,15 @@ export default function OrderCheckoutScreen() {
               styles: theme === "dark" ? darkMapStyle : null,
               disableDefaultUI: true,
             }}
-            center={{
-              lat: 24.8607, // Example: Karachi
-              lng: 67.0011,
-            }}
+            // Delivery: the customer's address; pickup: the branch. Falls
+            // back to Cairo before either is known (was hardcoded Karachi).
+            center={
+              !isPickUp && destination.lat && destination.lng
+                ? destination
+                : origin.lat && origin.lng
+                  ? origin
+                  : DEFAULT_MAP_CENTER
+            }
             zoom={13}
           >
             {/* Custom Origin Marker */}

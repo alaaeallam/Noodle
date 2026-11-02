@@ -8,6 +8,7 @@ import {
   PlacesAutocompleteService,
   getPlaceLocation,
 } from "@/lib/utils/methods/google-maps";
+import { DEFAULT_MAP_CENTER } from "@/lib/utils/constants";
 import { Dialog } from "primereact/dialog";
 import { useMutation } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
@@ -576,8 +577,8 @@ export default function UserAddressComponent(
               height: "35vh",
             }}
             center={{
-              lat: Number(userAddress?.location?.coordinates[1]) || 0,
-              lng: Number(userAddress?.location?.coordinates[0]) || 0,
+              lat: Number(userAddress?.location?.coordinates[1]) || DEFAULT_MAP_CENTER.lat,
+              lng: Number(userAddress?.location?.coordinates[0]) || DEFAULT_MAP_CENTER.lng,
             }}
             zoom={13}
             onClick={onClickGoogleMaps}
@@ -766,8 +767,8 @@ export default function UserAddressComponent(
               height: "400px",
             }}
             center={{
-              lat: Number(editAddress?.location?.coordinates[1]) || 0,
-              lng: Number(editAddress?.location?.coordinates[0]) || 0,
+              lat: Number(editAddress?.location?.coordinates[1]) || DEFAULT_MAP_CENTER.lat,
+              lng: Number(editAddress?.location?.coordinates[0]) || DEFAULT_MAP_CENTER.lng,
             }}
             zoom={13}
             onCenterChanged={() => {}}

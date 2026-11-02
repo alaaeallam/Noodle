@@ -25,6 +25,9 @@ export const MAX_VIDEO_FILE_SIZE = 8 * 1024 * 1024; // 8 MB
 // Default Locale
 export const DEFAULT_LOCALE: string = "en";
 
+// Where maps open before we know a better point (BTB operates in Cairo).
+export const DEFAULT_MAP_CENTER = { lat: 30.0444, lng: 31.2357 };
+
 // Severity Styles
 export const SEVERITY_STYLES: ISeverityStyles = {
   error: {

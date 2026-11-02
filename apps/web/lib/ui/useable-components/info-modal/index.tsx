@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { DEFAULT_MAP_CENTER } from "@/lib/utils/constants";
 import { useTranslations } from "next-intl";
 
 // Icons
@@ -22,10 +23,9 @@ import { formatTimeForHoursMins, getCurrentDay } from "@/lib/utils/methods";
 
 const InfoModal = ({ visible, onHide, restaurantInfo }: IInfoModalProps) => {
   const [currentDay, setCurrentDay] = useState<string>("");
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
-    lat: 60.1699,
-    lng: 24.9384,
-  });
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>(
+    DEFAULT_MAP_CENTER
+  );
 
   const { GOOGLE_MAPS_KEY } = useConfig();
   const t = useTranslations();
