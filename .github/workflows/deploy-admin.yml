@@ -69,7 +69,8 @@ jobs:
             pm2 restart noodle-admin --update-env
 
             echo "==> Health check"
-            for i in 1 2 3 4 5; do
+            # Allow ~60s: the VPS can be CPU-bound right after a build.
+            for i in $(seq 1 20); do
               sleep 3
               STATUS=$(curl -sS -o /dev/null -w "%{http_code}" https://foodapp-admin.alaaeallam.com || true)
               echo "Attempt $i: HTTP $STATUS"
@@ -78,5 +79,5 @@ jobs:
                 exit 0
               fi
             done
-            echo "Health check failed after 5 attempts"
+            echo "Health check failed after 20 attempts"
             exit 1
