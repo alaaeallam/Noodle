@@ -18,7 +18,6 @@ import {
   faCog,
   faHome,
   faSliders,
-  faUpRightFromSquare,
   faWallet,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -64,15 +63,6 @@ export default function MakeSidebar() {
     useContext<LayoutContextProps>(LayoutContext);
 
   const navBarItems: ISidebarMenuItem[] = [
-    {
-      text: 'My Website',
-      label: t('My Website'),
-      route: 'https://multivendor.enatega.com/',
-      isParent: true,
-      icon: faUpRightFromSquare,
-      isClickable: true,
-      shouldOpenInNewTab: true,
-    },
     {
       text: 'Home',
       label: t('Home'),
