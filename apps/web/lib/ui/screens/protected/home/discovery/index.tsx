@@ -13,6 +13,9 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import useNearByRestaurantsPreview from "@/lib/hooks/useNearByRestaurantsPreview";
 import { useUserAddress } from "@/lib/context/address/address.context";
 import { getDistanceFromLatLonInKm } from "@/lib/utils/methods/helpers";
+import { useQuery } from "@apollo/client";
+import { ALL_BRANCHES } from "@/lib/api/graphql";
+import { PREFERRED_BRANCH_LS_KEY } from "@/lib/ui/useable-components/branch-switcher";
 
 export default function DiscoveryScreen() {
   const t = useTranslations();
@@ -22,6 +25,20 @@ export default function DiscoveryScreen() {
 
   const hasAddress = !!userAddress?.location?.coordinates?.length;
   const { queryData, loading, error } = useNearByRestaurantsPreview(hasAddress);
+
+  // A branch the customer explicitly picked in the switcher wins over the
+  // nearest one (it may be out of delivery range - fine for pickup), as long
+  // as it's still an active branch.
+  const { data: allBranches } = useQuery<{
+    restaurantList: { _id: string; slug: string; isActive: boolean }[] | null;
+  }>(ALL_BRANCHES, { fetchPolicy: "cache-first" });
+  const preferredBranch = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    const id = localStorage.getItem(PREFERRED_BRANCH_LS_KEY);
+    return (
+      allBranches?.restaurantList?.find((b) => b._id === id && b.isActive) ?? null
+    );
+  }, [allBranches]);
 
   const nearestBranch = useMemo(() => {
     if (!hasAddress) return null;
@@ -36,16 +53,22 @@ export default function DiscoveryScreen() {
     return [...open].sort((a, b) => distance(a) - distance(b))[0] ?? null;
   }, [hasAddress, userAddress, queryData]);
 
+  // Don't fall back to "nearest" until we know whether a saved pick is valid.
+  const hasSavedPick =
+    typeof window !== "undefined" && !!localStorage.getItem(PREFERRED_BRANCH_LS_KEY);
+  const targetBranch =
+    preferredBranch ?? (hasSavedPick && !allBranches ? null : nearestBranch);
+
   useEffect(() => {
-    if (!nearestBranch) return;
+    if (!targetBranch) return;
     localStorage.setItem("currentShopType", "restaurant");
     const query = searchParams?.toString();
     router.replace(
-      `/restaurant/${nearestBranch.slug}/${nearestBranch._id}${query ? `?${query}` : ""}`
+      `/restaurant/${targetBranch.slug}/${targetBranch._id}${query ? `?${query}` : ""}`
     );
-  }, [nearestBranch, router, searchParams]);
+  }, [targetBranch, router, searchParams]);
 
-  if (!hasAddress) {
+  if (!hasAddress && !preferredBranch && !(hasSavedPick && !allBranches)) {
     return (
       <Message
         title={t("menu_set_address_title")}
@@ -56,7 +79,7 @@ export default function DiscoveryScreen() {
     );
   }
 
-  if (loading || nearestBranch) {
+  if (loading || targetBranch || (hasSavedPick && !allBranches)) {
     return (
       <div className="flex h-[60vh] w-full items-center justify-center">
         <ProgressSpinner style={{ width: "48px", height: "48px" }} strokeWidth="4" />

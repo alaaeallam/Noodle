@@ -205,3 +205,21 @@ export const GET_SUB_CATEGORIES = gql`
     }
   }
 `;
+
+// Every BTB branch (not just ones delivering to the current address), for the
+// branch switcher - matches the mobile app's ALL_STORES.
+export const ALL_BRANCHES = gql`
+  query AllBranches {
+    restaurantList {
+      _id
+      name
+      slug
+      address
+      shopType
+      isActive
+      location {
+        coordinates
+      }
+    }
+  }
+`;

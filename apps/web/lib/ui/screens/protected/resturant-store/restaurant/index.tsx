@@ -34,6 +34,7 @@ import { ICategory, IFood, IOpeningTime } from "@/lib/utils/interfaces";
 import { toSlug } from "@/lib/utils/methods";
 import ChatSvg from "@/lib/utils/assets/svg/chat";
 import ReviewsModal from "@/lib/ui/useable-components/reviews-modal";
+import BranchSwitcher from "@/lib/ui/useable-components/branch-switcher";
 import InfoModal from "@/lib/ui/useable-components/info-modal";
 import { onUseLocalStorage } from "@/lib/utils/methods/local-storage";
 
@@ -631,6 +632,14 @@ export default function RestaurantDetailsScreen() {
                 t("see_reviews")
               )}
             </a>
+
+            {/* Branch switcher (renders only when there's more than one branch) */}
+            {!loading && data?.restaurant?._id && (
+              <BranchSwitcher
+                currentBranchId={data.restaurant._id}
+                className="flex items-center gap-2 text-[#0EA5E9] dark:text-sky-400 font-inter font-normal text-sm sm:text-base md:text-lg leading-5 sm:leading-6 md:leading-7 tracking-[0px] align-middle"
+              />
+            )}
           </div>
         </PaddingContainer>
       </div>

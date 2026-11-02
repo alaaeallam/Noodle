@@ -1,4 +1,6 @@
 {
+  "switch_branch_label": "Changer de succursale",
+  "switch_branch_title": "Choisissez votre succursale BTB",
   "menu_set_address_title": "Où devons-nous livrer ?",
   "menu_set_address_message": "Indiquez votre adresse de livraison pour ouvrir le menu de la succursale BTB la plus proche.",
   "menu_set_address_button": "Indiquer l'adresse de livraison",

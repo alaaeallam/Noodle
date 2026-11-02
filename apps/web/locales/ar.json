@@ -1,4 +1,6 @@
 {
+  "switch_branch_label": "تغيير الفرع",
+  "switch_branch_title": "اختر فرع BTB",
   "menu_set_address_title": "أين نوصّل طلبك؟",
   "menu_set_address_message": "حدّد عنوان التوصيل لنفتح لك قائمة أقرب فرع BTB إليك.",
   "menu_set_address_button": "تحديد عنوان التوصيل",

@@ -1,4 +1,6 @@
 {
+  "switch_branch_label": "Switch branch",
+  "switch_branch_title": "Choose your BTB branch",
   "menu_set_address_title": "Where should we deliver?",
   "menu_set_address_message": "Set your delivery address so we can open the menu of the BTB branch nearest to you.",
   "menu_set_address_button": "Set delivery address",
