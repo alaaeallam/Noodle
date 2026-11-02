@@ -1,0 +1,100 @@
+name: Deploy Web (VPS)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "apps/web/**"
+  workflow_dispatch: {}
+
+# Builds in place in one server directory, so overlapping runs would corrupt
+# each other's node_modules/.next. Queue them instead (no cancel: a
+# half-finished deploy must be allowed to complete).
+concurrency:
+  group: deploy-web-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Same layout as apps/admin: /root/noodle/apps/web is a plain directory
+      # (no git checkout). Only git-tracked files are synced, so the
+      # server's .env.production, .next/ and node_modules/ are never touched.
+      - name: Sync apps/web to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "apps/web/*"
+          target: "/root/noodle/apps/web"
+          strip_components: 2
+          overwrite: true
+
+      - name: Build, assemble standalone output, (re)start, health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -e
+
+            cd /root/noodle/apps/web
+
+            # NEXT_PUBLIC_* values are inlined at build time, so the file has
+            # to exist before `next build`. They're public endpoints (no
+            # secrets); only written when missing so a hand edit on the
+            # server wins.
+            if [ ! -f .env.production ]; then
+              echo "==> Creating .env.production"
+              printf '%s\n' \
+                'NEXT_PUBLIC_SERVER_URL=https://foodapp-api.alaaeallam.com/' \
+                'NEXT_PUBLIC_WS_SERVER_URL=wss://foodapp-api.alaaeallam.com/' \
+                > .env.production
+            fi
+
+            echo "==> Install deps"
+            npm ci
+
+            echo "==> Build (Next.js standalone output)"
+            npm run build
+
+            # Standalone output doesn't include static assets or public/.
+            echo "==> Assemble standalone output"
+            rm -rf .next/standalone/.next/static .next/standalone/public
+            cp -r .next/static .next/standalone/.next/static
+            cp -r public .next/standalone/public
+            cp .env.production .next/standalone/.env.production
+
+            # Port 3002 is admin's. Bind to localhost only - nginx is the
+            # public entry point.
+            export PORT=3003 HOSTNAME=127.0.0.1
+            if pm2 describe noodle-web > /dev/null 2>&1; then
+              echo "==> Restart web"
+              pm2 restart noodle-web --update-env
+            else
+              echo "==> First start of web"
+              pm2 start .next/standalone/server.js --name noodle-web \
+                --cwd /root/noodle/apps/web/.next/standalone
+              pm2 save
+            fi
+
+            echo "==> Health check"
+            for i in $(seq 1 20); do
+              sleep 3
+              STATUS=$(curl -sS -o /dev/null -w "%{http_code}" https://foodapp.alaaeallam.com || true)
+              echo "Attempt $i: HTTP $STATUS"
+              if [ "$STATUS" = "200" ]; then
+                echo "Health check passed"
+                exit 0
+              fi
+            done
+            echo "Health check failed after 20 attempts"
+            exit 1
