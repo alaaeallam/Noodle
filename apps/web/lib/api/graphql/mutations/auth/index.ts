@@ -33,7 +33,6 @@ export const LOGIN = gql`
         deliveryAddress
       }
       isNewUser
-      userTypeId
       isActive
     }
   }
@@ -108,7 +107,6 @@ export const CREATE_USER = gql`
       emailIsVerified
       picture
       isNewUser
-      userTypeId
       emailIsVerified
     }
   }

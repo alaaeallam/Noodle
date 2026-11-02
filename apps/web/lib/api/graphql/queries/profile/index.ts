@@ -43,8 +43,6 @@ export const GET_USER_FAVOURITE = gql`
       minimumOrder
       tax
       isAvailable
-      reviewCount
-      reviewAverage
       reviewData {
         total
         ratings

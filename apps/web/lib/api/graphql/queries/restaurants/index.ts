@@ -25,7 +25,7 @@ export const FOOD = gql`
 `;
 
 export const RESTAURANTS_FRAGMENT = gql`
-  fragment RestaurantPreviewFields on RestaurantPreview {
+  fragment RestaurantPreviewFields on Restaurant {
     _id
     name
     image
@@ -36,7 +36,10 @@ export const RESTAURANTS_FRAGMENT = gql`
     location {
       coordinates
     }
-    reviewAverage
+    reviewData {
+      ratings
+      total
+    }
     cuisines
     openingTimes {
       day
@@ -82,18 +85,10 @@ export const MOST_ORDER_RESTAURANTS = gql`
 
 export const NEAR_BY_RESTAURANTS_PREVIEW = gql`
   ${RESTAURANTS_FRAGMENT}
-  query Restaurants(
-    $latitude: Float
-    $longitude: Float
-    $page: Int
-    $limit: Int
-    $shopType: String
-  ) {
+  query Restaurants($latitude: Float, $longitude: Float, $shopType: String) {
     nearByRestaurantsPreview(
       latitude: $latitude
       longitude: $longitude
-      page: $page
-      limit: $limit
       shopType: $shopType
     ) {
       restaurants {
@@ -166,7 +161,6 @@ export const GET_RESTAURANT_BY_ID_SLUG = gql`
         title
         description
         price
-        isOutOfStock
       }
       addons {
         _id
@@ -201,7 +195,6 @@ export const GET_REVIEWS_BY_RESTAURANT = gql`
         _id
         rating
         description
-        comments
         isActive
         createdAt
         updatedAt

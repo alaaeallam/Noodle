@@ -105,14 +105,12 @@ export const ADD_REVIEW_ORDER = gql`
     $order: String!
     $rating: Int!
     $description: String
-    $comments: String
   ) {
     reviewOrder(
       reviewInput: {
         order: $order
         rating: $rating
         description: $description
-        comments: $comments
       }
     ) {
       _id

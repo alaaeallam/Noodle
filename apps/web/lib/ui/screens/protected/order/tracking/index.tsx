@@ -157,9 +157,12 @@ export default function OrderTrackingScreen({
     comment?: string,
     aspects: string[] = []
   ) => {
-    const reviewDescription = comment?.trim() || undefined;
-    const reviewComments =
-      aspects?.filter(Boolean).join(", ") || undefined;
+    // The API stores one free-text description per review, so the picked
+    // aspect tags are folded into it rather than sent as a separate field.
+    const reviewDescription =
+      [aspects?.filter(Boolean).join(", "), comment?.trim()]
+        .filter(Boolean)
+        .join(" - ") || undefined;
 
     // Here you would  call an API to save the rating
     try {
@@ -168,7 +171,6 @@ export default function OrderTrackingScreen({
           order: orderId,
           description: reviewDescription,
           rating: ratingValue,
-          comments: reviewComments,
         },
       });
     } catch (error) {

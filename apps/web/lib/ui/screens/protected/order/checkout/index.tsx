@@ -47,7 +47,7 @@ import { PAYMENT_METHOD_LIST, TIPS } from "@/lib/utils/constants";
 import { PLACE_ORDER, VERIFY_COUPON, ORDERS } from "@/lib/api/graphql";
 
 // Interfaces
-import { ICoupon, ICouponData, IOpeningTime, IOrder } from "@/lib/utils/interfaces";
+import { ICouponData, IOpeningTime, IOrder } from "@/lib/utils/interfaces";
 
 // Types
 import { OrderTypes } from "@/lib/utils/types/order";
@@ -214,6 +214,7 @@ export default function OrderCheckoutScreen() {
     VERIFY_COUPON,
     {
       onCompleted: couponCompleted,
+      onError: couponError,
     }
   );
 
@@ -328,36 +329,34 @@ export default function OrderCheckoutScreen() {
     verifyCoupon({ variables: { coupon: couponText, restaurantId:restaurantId } });
   };
 
-  function couponCompleted({ coupon }: { coupon: ICoupon }) {
-    if(!coupon.success){
+  // The API returns the Coupon itself when it exists and errors when it
+  // doesn't (no success/message wrapper), so "not found" is handled in
+  // onError below.
+  function couponCompleted({ coupon }: { coupon: ICouponData }) {
+    if (coupon?.enabled) {
+      showToast({
+        type: "info",
+        title: t("coupon_applied_title"),
+        message: `${coupon.title} ${t("coupon_has_been_applied_message")}`,
+      });
+      setIsCouponApplied(true);
+      setCoupon(coupon);
+    } else {
       showToast({
         type: "info",
         title: t("coupon_not_found_title"),
-        message: `${couponText} ${t("coupon_is_not_valid_message_with_title")}`,
+        message: `${coupon?.title ?? couponText} ${t("coupon_is_not_valid_message_with_title")}`,
       });
     }
-    else if (coupon.coupon) {
-      if (coupon.coupon.enabled) {
-        showToast({
-          type: "info",
-          title: t("coupon_applied_title"),
-          message: `${coupon.coupon.title} ${t("coupon_has_been_applied_message")}`,
-        });
-        setIsCouponApplied(true);
-        setCoupon(coupon.coupon);
-      } else {
-        showToast({
-          type: "info",
-          title: t("coupon_not_found_title"),
-          message: `${coupon.coupon.title} ${t("coupon_is_not_valid_message_with_title")}`,
-        });
-      }
-    }
-
-
   }
 
-
+  function couponError() {
+    showToast({
+      type: "info",
+      title: t("coupon_not_found_title"),
+      message: `${couponText} ${t("coupon_is_not_valid_message_with_title")}`,
+    });
+  }
 
   // function validateOrder() {
   //   if (!restaurantData.restaurant.isAvailable || !onCheckIsOpen()) {

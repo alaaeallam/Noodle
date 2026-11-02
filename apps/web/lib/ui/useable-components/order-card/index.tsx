@@ -131,7 +131,7 @@ const processReorder = (itemsToReorder: any[]) => {
         localStorage.setItem("cartItems", JSON.stringify(updatedCart));
         localStorage.setItem("restaurant", selectedOrder.restaurant?._id ?? "");
         localStorage.setItem("restaurant-slug", selectedOrder.restaurant?.slug || "");
-        localStorage.setItem("currentShopType", selectedOrder.restaurant?.shopType || "");
+        localStorage.setItem("currentShopType", "restaurant");
         // Save restaurant data for checkout page
         try {
           localStorage.setItem("restaurantData", JSON.stringify(selectedOrder.restaurant || {}));
@@ -146,7 +146,7 @@ const processReorder = (itemsToReorder: any[]) => {
   handleReOrderClicked?.(
     selectedOrder.restaurant?._id ?? "",
     selectedOrder.restaurant?.slug ?? "",
-    selectedOrder.restaurant?.shopType ?? "",
+    "restaurant",
   );
 
   handleCloseDialog();

@@ -5,12 +5,10 @@ export const ORDERS = gql`
     orders(offset: $offset) {
       _id
       orderId
-      id
       restaurant {
         _id
         name
         slug
-        shopType
         image
         address
         location {
@@ -26,7 +24,6 @@ export const ORDERS = gql`
       }
       items {
         _id
-        id
         title
         food
         description
@@ -34,17 +31,14 @@ export const ORDERS = gql`
         image
         variation {
           _id
-          id
           title
           price
           discounted
         }
         addons {
           _id
-          id
           options {
             _id
-            id
             title
             description
             price

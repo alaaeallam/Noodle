@@ -62,7 +62,7 @@ const FavoriteCard: React.FC<IFavoriteCardProps> = ({ item }) => {
             {DELIVERY_RATE && (
               <IconWithTitle logo={CycleSvg} title={DELIVERY_RATE} />
             )}
-            <IconWithTitle logo={FaceSvg} title={Number(item?.reviewAverage)} />
+            <IconWithTitle logo={FaceSvg} title={Number(item?.reviewData?.ratings ?? 0)} />
           </div>
         </div>
       </div>
