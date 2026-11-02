@@ -429,7 +429,7 @@ export default function UserAddressComponent(
       </div>
 
       <button
-        className="w-[90%] h-fit bg-[#5AC12F] mb-2 text-gray-900 py-2 space-x-2 rtl:space-x-reverse  rounded-full text-base lg:text-[14px]"
+        className="w-[90%] h-fit bg-[#FF1D02] mb-2 text-gray-900 py-2 space-x-2 rtl:space-x-reverse  rounded-full text-base lg:text-[14px]"
         onClick={() => {
           getCurrentLocation(onSetUserLocation);
           onHide();
@@ -460,12 +460,12 @@ export default function UserAddressComponent(
                       height={18}
                       darkColor={
                         address.selected && !hasCurrentLocation
-                          ? "#0EA5E9"
+                          ? "#FF1D02"
                           : "#ffffff"
                       }
                       color={
                         address.selected && !hasCurrentLocation
-                          ? "#0EA5E9"
+                          ? "#FF1D02"
                           : undefined
                       }
                     />
@@ -475,12 +475,12 @@ export default function UserAddressComponent(
                       height={18}
                       darkColor={
                         address.selected && !hasCurrentLocation
-                          ? "#0EA5E9"
+                          ? "#FF1D02"
                           : "#ffffff"
                       }
                       color={
                         address.selected && !hasCurrentLocation
-                          ? "#0EA5E9"
+                          ? "#FF1D02"
                           : undefined
                       }
                     />
@@ -490,12 +490,12 @@ export default function UserAddressComponent(
                       height={18}
                       darkColor={
                         address.selected && !hasCurrentLocation
-                          ? "#0EA5E9"
+                          ? "#FF1D02"
                           : "#ffffff"
                       }
                       color={
                         address.selected && !hasCurrentLocation
-                          ? "#0EA5E9"
+                          ? "#FF1D02"
                           : undefined
                       }
                     />
@@ -505,12 +505,12 @@ export default function UserAddressComponent(
                       height={18}
                       darkColor={
                         address.selected && !hasCurrentLocation
-                          ? "#0EA5E9"
+                          ? "#FF1D02"
                           : "#ffffff"
                       }
                       color={
                         address.selected && !hasCurrentLocation
-                          ? "#0EA5E9"
+                          ? "#FF1D02"
                           : undefined
                       }
                     />
@@ -545,7 +545,7 @@ export default function UserAddressComponent(
         )}
 
         <button
-          className="w-[90%] h-fit bg-[#5AC12F] text-gray-900 py-2 rounded-full text-base lg:text-[14px]"
+          className="w-[90%] h-fit bg-[#FF1D02] text-gray-900 py-2 rounded-full text-base lg:text-[14px]"
           onClick={() => paginate(1)}
         >
           <FontAwesomeIcon icon={faPlus} />{" "}
@@ -690,8 +690,8 @@ export default function UserAddressComponent(
               >
                 <div>
                   {item.icon(
-                    selectedLocationType === item.name ? "#0EA5E9" : undefined,
-                    selectedLocationType === item.name ? "#0EA5E9" : undefined
+                    selectedLocationType === item.name ? "#FF1D02" : undefined,
+                    selectedLocationType === item.name ? "#FF1D02" : undefined
                   )}
                 </div>
                 <div className="flex flex-col gap-y-[2px]">
@@ -728,7 +728,7 @@ export default function UserAddressComponent(
           </button>
           <button
             disabled={!isDragged && !selectedCity}
-            className={`w-full h-fit  ${!isDragged && !selectedCity ? "bg-[#429b1c6c] dark:bg-gray-700" : "bg-[#5AC12F]"} text-gray-900 py-2 rounded-full text-base lg:text-[14px]`}
+            className={`w-full h-fit  ${!isDragged && !selectedCity ? "bg-[#429b1c6c] dark:bg-gray-700" : "bg-[#FF1D02]"} text-gray-900 py-2 rounded-full text-base lg:text-[14px]`}
             onClick={() => onHandleCreateAddress()}
           >
             {modifyingAddressLoading ? (
@@ -887,8 +887,8 @@ export default function UserAddressComponent(
               >
                 <div>
                   {item.icon(
-                    selectedLocationType === item.name ? "#0EA5E9" : undefined,
-                    selectedLocationType === item.name ? "#0EA5E9" : undefined
+                    selectedLocationType === item.name ? "#FF1D02" : undefined,
+                    selectedLocationType === item.name ? "#FF1D02" : undefined
                   )}
                 </div>
                 <div className="flex flex-col gap-y-[2px]">
@@ -924,7 +924,7 @@ export default function UserAddressComponent(
             <span>{t("cancel_address")}</span>
           </button>
           <button
-            className="w-full h-fit bg-[#5AC12F] text-gray-900 py-2 rounded-full text-base lg:text-[14px]"
+            className="w-full h-fit bg-[#FF1D02] text-gray-900 py-2 rounded-full text-base lg:text-[14px]"
             onClick={() => onHandleCreateAddress()}
           >
             {modifyingAddressLoading ? (

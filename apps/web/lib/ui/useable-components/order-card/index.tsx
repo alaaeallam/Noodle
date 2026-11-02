@@ -273,7 +273,7 @@ const handleCloseClearCartDialog = () => {
                   : t("select_item_to_reorder")
               }
               iconColor="black"
-              classNames="bg-[#5AC12F]  w-[content] px-4 gap-x-0 text-[12px] font-medium m-0"
+              classNames="bg-[#FF1D02]  w-[content] px-4 gap-x-0 text-[12px] font-medium m-0"
               handleClick={
                 type === "active"
                   ? () => handleTrackOrder(order)
@@ -352,7 +352,7 @@ const handleCloseClearCartDialog = () => {
                 <div className="flex items-center gap-3 w-full">
                   <input
                     type="checkbox"
-                    className="w-5 h-5 rounded border-gray-300 text-[#5AC12F] focus:ring-[#5AC12F] bg-white"
+                    className="w-5 h-5 rounded border-gray-300 text-[#FF1D02] focus:ring-[#FF1D02] bg-white"
                     checked={selectedItems.includes(id)}
                     onChange={() => {
                       if (selectedItems.includes(id)) {
@@ -410,7 +410,7 @@ const handleCloseClearCartDialog = () => {
           {t("cancel_label")}
         </button>
         <button
-          className="px-5 py-2 text-sm rounded-lg bg-[#5AC12F] hover:bg-[#4bb126] text-white w-full sm:w-auto disabled:opacity-50 transition"
+          className="px-5 py-2 text-sm rounded-lg bg-[#FF1D02] hover:bg-[#E01800] text-white w-full sm:w-auto disabled:opacity-50 transition"
           disabled={selectedItems.length === 0}
           onClick={
             handleConfirmReorder
@@ -452,7 +452,7 @@ const handleCloseClearCartDialog = () => {
         Cancel
       </button>
       <button
-        className="px-5 py-2 text-sm rounded-lg bg-[#5AC12F] hover:bg-[#4bb126] text-white w-full sm:w-auto transition"
+        className="px-5 py-2 text-sm rounded-lg bg-[#FF1D02] hover:bg-[#E01800] text-white w-full sm:w-auto transition"
         onClick={handleClearCartAndReorder}
       >
         Clear Cart & Reorder

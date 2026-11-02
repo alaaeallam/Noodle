@@ -601,7 +601,7 @@ export default function RestaurantDetailsScreen() {
 
             {/* Info Link */}
             <a
-              className="flex items-center gap-2 text-[#0EA5E9] dark:text-sky-400 font-inter font-normal text-sm sm:text-base md:text-lg leading-5 sm:leading-6 md:leading-7 tracking-[0px] align-middle"
+              className="flex items-center gap-2 text-[#FF1D02] dark:text-sky-400 font-inter font-normal text-sm sm:text-base md:text-lg leading-5 sm:leading-6 md:leading-7 tracking-[0px] align-middle"
               href="#"
               onClick={(e) => {
                 e.preventDefault();
@@ -618,7 +618,7 @@ export default function RestaurantDetailsScreen() {
 
             {/* Review Link */}
             <a
-              className="flex items-center gap-2 text-[#0EA5E9] dark:text-sky-400 font-inter font-normal text-sm sm:text-base md:text-lg leading-5 sm:leading-6 md:leading-7 tracking-[0px] align-middle"
+              className="flex items-center gap-2 text-[#FF1D02] dark:text-sky-400 font-inter font-normal text-sm sm:text-base md:text-lg leading-5 sm:leading-6 md:leading-7 tracking-[0px] align-middle"
               href="#"
               onClick={(e) => {
                 e.preventDefault();
@@ -637,7 +637,7 @@ export default function RestaurantDetailsScreen() {
             {!loading && data?.restaurant?._id && (
               <BranchSwitcher
                 currentBranchId={data.restaurant._id}
-                className="flex items-center gap-2 text-[#0EA5E9] dark:text-sky-400 font-inter font-normal text-sm sm:text-base md:text-lg leading-5 sm:leading-6 md:leading-7 tracking-[0px] align-middle"
+                className="flex items-center gap-2 text-[#FF1D02] dark:text-sky-400 font-inter font-normal text-sm sm:text-base md:text-lg leading-5 sm:leading-6 md:leading-7 tracking-[0px] align-middle"
               />
             )}
           </div>
@@ -669,7 +669,7 @@ export default function RestaurantDetailsScreen() {
                             type="button"
                             className={`${
                               selectedCategory === _slug
-                                ? "bg-[#F3FFEE] text-[#5AC12F] dark:bg-[#2E3B23] dark:text-[#D2F29E]"
+                                ? "bg-[#F4F2EF] text-[#FF1D02] dark:bg-[#2E3B23] dark:text-[#D2F29E]"
                                 : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                             } rounded-full px-3 py-2 text-[10px] sm:text-sm md:text-base font-medium whitespace-nowrap`}
                             onClick={() => handleScroll(toSlug(category.title))}
@@ -769,7 +769,7 @@ export default function RestaurantDetailsScreen() {
                         </p>
 
                         <div className="flex items-center gap-2">
-                          <span className="text-[#0EA5E9] dark:text-sky-400 text-lg font-semibold">
+                          <span className="text-[#FF1D02] dark:text-sky-400 text-lg font-semibold">
                             {CURRENCY_SYMBOL} {meal.variations[0].price}
                           </span>
                         </div>
@@ -791,7 +791,7 @@ export default function RestaurantDetailsScreen() {
                         className={`${direction === "rtl" ? "left-2" : "right-2"} absolute top-2`}
                       >
                         <button
-                          className="bg-[#0EA5E9] rounded-full shadow-md w-6 h-6 flex items-center justify-center"
+                          className="bg-[#FF1D02] rounded-full shadow-md w-6 h-6 flex items-center justify-center"
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent triggering parent onClick
                             handleRestaurantClick(meal);

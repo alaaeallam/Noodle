@@ -220,7 +220,7 @@ export default function EmailVerification({
               onChange={(e) => handleChange(e, i)}
               onKeyDown={(e) => handleKeyDown(e, i)}
               onPaste={i === 0 ? handlePaste : undefined}
-              className="w-9 h-10 sm:w-10 sm:h-12 md:w-14 md:h-16 text-xl text-center border border-gray-300 dark:bg-gray-800  rounded-lg focus:outline-none focus:border-[#5AC12F] focus:ring-2 focus:ring-[#5AC12F] focus:ring-opacity-20"
+              className="w-9 h-10 sm:w-10 sm:h-12 md:w-14 md:h-16 text-xl text-center border border-gray-300 dark:bg-gray-800  rounded-lg focus:outline-none focus:border-[#FF1D02] focus:ring-2 focus:ring-[#FF1D02] focus:ring-opacity-20"
               autoFocus={i === 0}
             />
           ))}
@@ -234,7 +234,7 @@ export default function EmailVerification({
       <CustomButton
         label={t("continue_label")}
         loading={isLoading}
-        className="bg-[#5AC12F] text-white flex items-center justify-center rounded-full p-3 w-full mb-4 h-12 sm:h-14 text-lg sm:text-md font-medium"
+        className="bg-[#FF1D02] text-white flex items-center justify-center rounded-full p-3 w-full mb-4 h-12 sm:h-14 text-lg sm:text-md font-medium"
         onClick={handleSubmit}
       />
 

@@ -2,7 +2,7 @@ import React from "react";
 import { ISvgComponentProps } from "../../interfaces";
 
 export default function InfoSvg(props: ISvgComponentProps) {
-  const { width = "22", height = "22", color = "#0EA5E9" } = props;
+  const { width = "22", height = "22", color = "#FF1D02" } = props;
 
   return (
     <svg

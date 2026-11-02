@@ -164,7 +164,7 @@ if (!isLoaded || !window.google || debouncedCityName.length < 2) {
                   onClick={() =>
                     handleSelect(suggestion.place_id, suggestion.description)
                   }
-                  className=" hover:text-[#94e469] px-5 hover:cursor-pointer"
+                  className=" hover:text-[#FF1D02] px-5 hover:cursor-pointer"
                 >
                   {suggestion.description}
                 </li>

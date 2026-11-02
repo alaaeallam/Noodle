@@ -21,7 +21,6 @@ import { useTranslations } from "next-intl";
 import { Dialog } from "primereact/dialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-import ThemeToggle from "@/lib/ui/useable-components/theme-button";
 
 export default function SettingsMain() {
   // States for current values
@@ -233,17 +232,6 @@ export default function SettingsMain() {
         </div>
       </div>
 
-      {/* Theme Toggle */}
-      <div className="py-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex justify-between items-center">
-          <TextComponent
-            text={t("theme")}
-            className="font-normal text-gray-700 dark:text-gray-300 text-base md:text-lg"
-          />
-          <ThemeToggle/>
-         
-        </div>
-      </div>
 
       {/* Update Phone Modal */}
       <UpdatePhoneModal
@@ -303,7 +291,7 @@ export default function SettingsMain() {
               />
 
               <button
-                className="w-1/2 h-fit flex items-center justify-center gap-2 bg-[#5AC12F] text-white py-2 rounded-full text-sm font-medium"
+                className="w-1/2 h-fit flex items-center justify-center gap-2 bg-[#FF1D02] text-white py-2 rounded-full text-sm font-medium"
                 onClick={handleLogout}
               >
                 <FontAwesomeIcon icon={faSignOutAlt} /> 

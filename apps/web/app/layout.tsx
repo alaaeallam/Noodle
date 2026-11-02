@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/lib/providers/ThemeProvider";
 import { DirectionHandler } from "@/lib/ui/layouts/global/rtl/DirectionHandler";
 // import InstallPWA from "@/lib/ui/pwa/InstallPWA";
 import { NextIntlClientProvider } from "next-intl";
+import { anton, archivo } from "@/lib/config/fonts";
 import { getLocale, getMessages } from "next-intl/server";
 
 export const metadata = {
@@ -28,29 +29,19 @@ export default async function RootLayout({
   const messages = await getMessages({ locale });
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={dir}
+      className={`${archivo.variable} ${anton.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <link rel="icon" type="image/png" href="/favsicon.png" />
-        {/* 🔥 Inline theme script to prevent flash of wrong theme */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const theme = localStorage.getItem("theme");
-                if (theme === "dark") {
-                  document.documentElement.classList.add("dark");
-                } else {
-                  document.documentElement.classList.remove("dark");
-                }
-              })();
-            `,
-          }}
-        />
 
         {/* Microsoft Clarity */}
 
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#94e469" />
+        <meta name="theme-color" content="#FF1D02" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 

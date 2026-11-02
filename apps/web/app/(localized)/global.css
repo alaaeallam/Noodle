@@ -13,8 +13,17 @@
 }
 
 :root {
-  --primary-color: #b1c748;
-  --secondary-color: #d8e3a3;
+  /* BTB brand tokens (mirrors tailwind.config.ts `btb.*`) */
+  --btb-red: #ff1d02;
+  --btb-red-dark: #e01800;
+  --btb-black: #0a0a0a;
+  --btb-cream: #f4f2ef;
+  --btb-border: #e4e1dd;
+  --primary-color: var(--btb-red);
+  --primary-color-text: #ffffff;
+  --secondary-color: var(--btb-cream);
+  --border-radius: 0;
+  --font-family: var(--font-archivo), Archivo, system-ui, sans-serif;
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 255, 255, 255;
   --background-end-rgb: 255, 255, 255;
@@ -40,7 +49,8 @@ body,
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
+  font-family: var(--font-archivo), Archivo, system-ui, sans-serif;
+  color: var(--btb-black);
   background: linear-gradient(
       to bottom,
       transparent,
@@ -399,8 +409,8 @@ body {
 }
 
 .p-datatable-table .p-checkbox.p-highlight .p-checkbox-box {
-  background-color: #5ac12f !important;
-  border-color: #5ac12f !important;
+  background-color: #FF1D02 !important;
+  border-color: #FF1D02 !important;
 }
 
 .p-datatable-tbody tr td {
@@ -836,7 +846,7 @@ Discovery Caurousal
 
 .p-panelmenu .p-panelmenu-header.p-highlight .p-menuitem-text,
 .p-panelmenu .p-panelmenu-header.p-highlight .p-panelmenu-header-link {
-  color: #5ac12f !important;
+  color: #FF1D02 !important;
 }
 
 /* Remove background color on hover for menu items */
@@ -1031,3 +1041,81 @@ input:-webkit-autofill:active {
 }
 
 
+
+
+/* ------------------------------------------------------------------ */
+/* BTB brand layer                                                     */
+/* ------------------------------------------------------------------ */
+
+/* Headlines: Anton, uppercase - same treatment as the mobile apps'
+   H1-H3 text styles. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-anton), Anton, Impact, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+/* PrimeReact's Lara theme ships compiled blue/cyan values and rounded
+   corners; bring the components the site uses onto the brand. */
+.p-component,
+.p-inputtext,
+.p-dropdown-label,
+.p-dialog .p-dialog-header .p-dialog-title {
+  font-family: var(--font-archivo), Archivo, system-ui, sans-serif;
+}
+.p-button {
+  background: var(--btb-red);
+  border-color: var(--btb-red);
+  border-radius: 0;
+}
+.p-button:enabled:hover {
+  background: var(--btb-red-dark);
+  border-color: var(--btb-red-dark);
+}
+.p-button.p-button-outlined,
+.p-button.p-button-text {
+  background: transparent;
+  color: var(--btb-red);
+}
+.p-inputtext,
+.p-dropdown,
+.p-dialog,
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content,
+.p-dialog .p-dialog-footer,
+.p-sidebar,
+.p-menu,
+.p-toast-message,
+.p-accordion .p-accordion-header-link,
+.p-accordion .p-accordion-content,
+.p-skeleton {
+  border-radius: 0;
+}
+.p-inputtext:enabled:focus,
+.p-dropdown:not(.p-disabled).p-focus,
+.p-button:focus,
+.p-checkbox .p-checkbox-box.p-focus,
+.p-radiobutton .p-radiobutton-box.p-focus {
+  border-color: var(--btb-black);
+  box-shadow: 0 0 0 2px rgba(255, 29, 2, 0.25);
+}
+.p-checkbox .p-checkbox-box.p-highlight,
+.p-radiobutton .p-radiobutton-box.p-highlight,
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+  background: var(--btb-red);
+  border-color: var(--btb-red);
+}
+.p-progress-spinner-circle {
+  stroke: var(--btb-red) !important;
+  animation: p-progress-spinner-dash 1.5s ease-in-out infinite !important;
+}
+.p-accordion .p-accordion-header:not(.p-disabled).p-highlight .p-accordion-header-link {
+  color: var(--btb-black);
+}
+.p-menu .p-menuitem > .p-menuitem-content .p-menuitem-link .p-menuitem-text,
+.p-menu .p-menuitem > .p-menuitem-content .p-menuitem-link .p-menuitem-icon {
+  color: var(--btb-black);
+}
