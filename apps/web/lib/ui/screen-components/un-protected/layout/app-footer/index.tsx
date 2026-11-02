@@ -14,28 +14,12 @@ const AppFooter = () => {
     pathname?.endsWith("/discovery") ||
     pathname?.endsWith("/store");
 
-  const partnerWithEnatega = {
-    title: t("Footer.partnerWithEnatega"),
+  const partnerWithBTB = {
+    title: t("Footer.partnerWithBTB"),
     links: [
       { label: t("Footer.home"), link: "/", internal: true },
       { label: t("Footer.forRiders"), link: "/rider", internal: true },
       { label: t("Footer.forRestaurants"), link: "/restaurantInfo", internal: true },
-    ],
-  };
-
-  const products = {
-    title: t("Footer.products"),
-    links: [
-      {
-        label: t("Footer.enategaRider"),
-        link: "https://play.google.com/store/apps/details?id=com.enatega.multirider&hl=en",
-        internal: false,
-      },
-      {
-        label: t("Footer.enategaRestaurant"),
-        link: "https://play.google.com/store/apps/details?id=multivendor.enatega.restaurant&hl=en",
-        internal: false,
-      },
     ],
   };
 
@@ -45,30 +29,6 @@ const AppFooter = () => {
       { label: t("Footer.aboutUs"), link: "/about", internal: true },
       { label: t("Footer.termsConditions"), link: "/terms", internal: true },
       { label: t("Footer.privacyPolicy"), link: "/privacy", internal: true },
-      { label: t("Footer.contact"), link: "https://ninjascode.com/", internal: false },
-      { label: t("Footer.developers"), link: "https://ninjascode.com/", internal: false },
-    ],
-  };
-
-  const followUs = {
-    title: t("Footer.followUs"),
-    links: [
-      { label: t("Footer.blog"), link: "https://ninjascode.com/blog", internal: false },
-      {
-        label: t("Footer.instagram"),
-        link: "https://www.instagram.com/ninjascodeofficial?igsh=ajFoeGxud3FqYnd3",
-        internal: false,
-      },
-      {
-        label: t("Footer.facebook"),
-        link: "https://www.facebook.com/enatega/",
-        internal: false,
-      },
-      {
-        label: t("Footer.linkedIn"),
-        link: "https://www.linkedin.com/company/enatega/?originalSubdomain=pk",
-        internal: false,
-      },
     ],
   };
 
@@ -79,21 +39,15 @@ const AppFooter = () => {
       }`}
     >
       <div className="mx-auto my-[30px] md:mt-[60px] md:mb-[60px] p-4 flex md:items-center md:justify-center flex-col">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 w-screen md:w-full md:px-0 px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-screen md:w-full md:px-0 px-4">
           <div className="p-2">
             <AppLinks />
           </div>
           <div className="p-2">
-            <FooterLinks section={partnerWithEnatega} />
-          </div>
-          <div className="p-2">
-            <FooterLinks section={products} />
+            <FooterLinks section={partnerWithBTB} />
           </div>
           <div className="p-2">
             <FooterLinks section={usefulLinks} />
-          </div>
-          <div className="p-2">
-            <FooterLinks section={followUs} />
           </div>
         </div>
       </div>
