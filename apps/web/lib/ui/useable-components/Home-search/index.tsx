@@ -1,4 +1,8 @@
 import React, { useRef, useState, useEffect, useContext } from "react";
+import {
+  PlacesAutocompleteService,
+  getPlaceLocation,
+} from "@/lib/utils/methods/google-maps";
 import { useRouter } from "next/navigation";
 
 // Context
@@ -34,19 +38,13 @@ const CitySearch: React.FC = () => {
   const handleSelect = (placeId: string, description: string) => {
     if (!window.google || !isLoaded) return;
 
-    const service = new window.google.maps.places.PlacesService(
-      document.createElement("div")
-    );
-
-    service.getDetails({ placeId }, (place, status) => {
-      if (
-        status === window.google.maps.places.PlacesServiceStatus.OK &&
-        place?.geometry?.location
-      ) {
-        const latitude = place.geometry.location.lat();
-        const longitude = place.geometry.location.lng();
-        console.log("longitude and latitude", longitude, latitude);
-        console.log("description:", description);
+    // Places API (New) - the legacy PlacesService isn't available to this
+    // Google Cloud project.
+    getPlaceLocation(placeId, (results) => {
+      const location = results?.[0]?.geometry?.location;
+      if (location) {
+        const latitude = location.lat();
+        const longitude = location.lng();
         onUseLocalStorage(
           "save",
           USER_CURRENT_LOCATION_LS_KEY,
@@ -88,11 +86,12 @@ if (!isLoaded || !window.google || debouncedCityName.length < 2) {
 }
 
 
-  const autocompleteService =
-    new window.google.maps.places.AutocompleteService();
+  const autocompleteService = new PlacesAutocompleteService();
 
   autocompleteService.getPlacePredictions(
-    { input: debouncedCityName, types: ["(cities)"] },
+    // Street-level addresses, not cities: BTB branch delivery zones are
+    // neighbourhood-sized, so a city's centre point rarely falls inside one.
+    { input: debouncedCityName, componentRestrictions: { country: "eg" } },
     (predictions, status) => {
       if (
         status === window.google.maps.places.PlacesServiceStatus.OK &&

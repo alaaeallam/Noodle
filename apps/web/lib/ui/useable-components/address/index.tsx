@@ -4,6 +4,10 @@
 "use client";
 
 import React, { useContext, useEffect, useMemo, useState } from "react";
+import {
+  PlacesAutocompleteService,
+  getPlaceLocation,
+} from "@/lib/utils/methods/google-maps";
 import { Dialog } from "primereact/dialog";
 import { useMutation } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
@@ -82,7 +86,7 @@ const variants = {
 };
 
 const autocompleteService: {
-  current: google.maps.places.AutocompleteService | null;
+  current: PlacesAutocompleteService | null;
 } = { current: null };
 
 export default function UserAddressComponent(
@@ -215,9 +219,8 @@ export default function UserAddressComponent(
   ) => {
     const selectedOption = event?.value as IPlaceSelectedOption;
     if (selectedOption) {
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode(
-        { placeId: selectedOption.place_id },
+      getPlaceLocation(
+        selectedOption.place_id,
         (results: google.maps.GeocoderResult[] | null) => {
           if (
             results &&
@@ -951,7 +954,7 @@ export default function UserAddressComponent(
       window.google.maps?.places
     ) {
       autocompleteService.current =
-        new window.google.maps.places.AutocompleteService();
+        new PlacesAutocompleteService();
     }
     if (!autocompleteService.current) {
       return;
