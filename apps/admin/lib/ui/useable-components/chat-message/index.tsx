@@ -47,9 +47,9 @@ export default function ChatMessage({ message, isAdmin = false }: IChatMessagePr
           <Image
             width={36}
             height={36}
-            src="/logo.png" // Use your admin/support logo
-            alt="Support avatar"
-            className="h-9 w-9 rounded-full bg-green-500 p-1"
+            src="/assets/images/png/logo.png"
+            alt="BTB support"
+            className="h-9 w-9 rounded-full"
           />
         </div>
       )}
