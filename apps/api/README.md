@@ -2,7 +2,7 @@
 
 This is Food Delivery api using graphQL, mongoose and Node
 
-# Enatega Multivendor Api Readme
+# BTB API
 
 This README provides instructions on setting up and configuring the backend API for your project.
 
@@ -23,7 +23,7 @@ If you do not find a .env file, create one in the root directory and paste the f
 PORT=8001
 CONNECTION_STRING=
 RESET_PASSWORD_LINK=auth/reset/?reset=
-SERVER_URL=https://enatega-multivendor.up.railway.app/
+SERVER_URL=https://foodapp-api.alaaeallam.com/
 STRIPE_WEBHOOK_ENDPOINT_SECRET=
 DASHBOARD_URL=https://practical-minsky-95a652.netlify.app/#/
 WEB_URL=https://pensive-liskov-5320d4.netlify.app/

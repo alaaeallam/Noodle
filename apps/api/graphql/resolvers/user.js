@@ -216,7 +216,7 @@ module.exports = {
         const result = await user.save()
         const attachment = path.join(
           __dirname,
-          '../../public/assets/tempImages/enatega.png'
+          '../../public/assets/tempImages/btb.png'
         )
         const signupTemp = await signupTemplate(args.userInput)
         sendEmail(
@@ -400,7 +400,7 @@ module.exports = {
         const resetPasswordTemp = await resetPasswordTemplate(args.otp)
         const attachment = path.join(
           __dirname,
-          '../../public/assets/tempImages/enatega.png'
+          '../../public/assets/tempImages/btb.png'
         )
         sendEmail(
           args.email,
@@ -426,7 +426,7 @@ module.exports = {
         if (!configuration.skipMobileVerification) {
           sendOtpToPhone(
             args.phone,
-            `Your Enatega phone verfication code is: ${args.otp}`
+            `Your BTB phone verfication code is: ${args.otp}`
           )
         }
         return {

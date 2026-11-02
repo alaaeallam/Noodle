@@ -13,7 +13,7 @@ module.exports = {
   },
   signupText() {
     return `Congratulations
-    You have success created an account for Enatega`
+    You have success created an account for BTB`
   },
   async placeOrderTemplate(params) {
     const template = await ejs.renderFile(
@@ -26,11 +26,11 @@ module.exports = {
     return template
   },
   placeOrderText(params) {
-    return `Hello from Enatega `
+    return `Hello from BTB `
   },
   pickupPlaceOrderText(params) {
     return `Order
-            You placed an order on Enatega
+            You placed an order on BTB
             Order Id: ${params[0]}
             Items: ${params[1]}
             Addons: ${params[5]}
@@ -40,7 +40,7 @@ module.exports = {
   },
   pickupPlaceOrderTemplate(params) {
     return `<h1>Order</h1>
-    <p>You placed an order on Enatega</p>
+    <p>You placed an order on BTB</p>
     <p>Order Id : ${params[0]}</p>
     <p>Items : ${params[1]}</p>
     <p>Addons : ${params[5]}</p>
@@ -68,6 +68,6 @@ Your orders ${params[0]} is ${params[1]} `
     return template
   },
   resetPasswordText(params) {
-    return `Hello From Enatega`
+    return `Hello From BTB`
   }
 }

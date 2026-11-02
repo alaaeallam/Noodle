@@ -10,7 +10,6 @@
 
 
 # manually configure ENV on railway or use Doppler integration, official documentation can be found on the site.
-# https://dashboard.doppler.com/workplace/af4757dfd60eb51259a3/projects/enatega-multivendor-api/sync
 
 services:
   server:

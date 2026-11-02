@@ -165,7 +165,7 @@ adminLogin: async (_, { email, password }, { req }) => {
       if (isNewUser) {
         const attachment = path.join(
           __dirname,
-          '../../public/assets/tempImages/enatega.png'
+          '../../public/assets/tempImages/btb.png'
         );
         const signupTemp = await signupTemplate({
           email: result.name,
@@ -253,7 +253,7 @@ adminLogin: async (_, { email, password }, { req }) => {
       const resetPasswordTxt = resetPasswordText(otp);
       const attachment = path.join(
         __dirname,
-        '../../public/assets/tempImages/enatega.png'
+        '../../public/assets/tempImages/btb.png'
       );
       sendEmail(
         user.email,

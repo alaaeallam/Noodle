@@ -568,7 +568,7 @@ module.exports = {
           publishToDispatcher(transformedOrder)
           const attachment = path.join(
             __dirname,
-            '../../public/assets/tempImages/enatega.png'
+            '../../public/assets/tempImages/btb.png'
           )
           sendEmail(
             user.email,

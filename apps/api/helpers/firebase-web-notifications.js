@@ -1,4 +1,3 @@
-//enatega-multivendor-api-4.0.12/helpers/firebase-web-notifications.js
 var admin = require('firebase-admin')
 
 let firebaseWebEnabled = false
@@ -10,8 +9,7 @@ try {
     const serviceAccount = require('../serviceAccountKey.json')
     firebaseWebApp = admin.initializeApp(
       {
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: 'https://enatega-multivender-web.firebaseio.com'
+        credential: admin.credential.cert(serviceAccount)
       },
       'firebase-web-notifications'
     )

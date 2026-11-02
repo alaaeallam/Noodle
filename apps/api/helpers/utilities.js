@@ -17,8 +17,7 @@ try {
     const serviceAccount = require('../serviceAccountKey.json')
     firebaseAdminApp = admin.initializeApp(
       {
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: 'https://enatega-multivender-web.firebaseio.com'
+        credential: admin.credential.cert(serviceAccount)
       },
       'firebase-admin-notifications'
     )
@@ -76,12 +75,12 @@ const sendNotification = async orderId => {
       },
       token: owner.pushToken,
       notification: {
-        title: 'New Order | Enatega Multivendor',
-        body: 'There are new orders in Enatega multivendor'
+        title: 'New Order | BTB',
+        body: 'There are new orders in BTB'
       },
       webpush: {
         fcm_options: {
-          link: 'https://enatega.com/dashboard'
+          link: 'https://foodapp-admin.alaaeallam.com/'
         }
       }
     }

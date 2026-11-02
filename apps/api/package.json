@@ -1,7 +1,7 @@
 {
-  "name": "enatega-api",
+  "name": "btb-api",
   "version": "2.0.0",
-  "description": "enatega api",
+  "description": "btb api",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
