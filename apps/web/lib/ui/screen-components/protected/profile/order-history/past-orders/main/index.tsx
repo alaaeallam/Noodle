@@ -135,7 +135,7 @@ export default function PastOrders({
         title={t('past_orders_label')}
         message={t("no_past_orders_message")}
         actionLabel={t("browse_store_button")}
-        actionLink="/store"
+        actionLink="/discovery"
       />
     );
   }

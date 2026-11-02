@@ -9,17 +9,13 @@ const AppFooter = () => {
   const t = useTranslations();
   const pathname = usePathname();
 
-  const isDiscoveryPage =
-    pathname?.endsWith("/restaurants") ||
-    pathname?.endsWith("/discovery") ||
-    pathname?.endsWith("/store");
+  const isDiscoveryPage = pathname?.endsWith("/discovery");
 
   const partnerWithBTB = {
     title: t("Footer.partnerWithBTB"),
     links: [
       { label: t("Footer.home"), link: "/", internal: true },
       { label: t("Footer.forRiders"), link: "/rider", internal: true },
-      { label: t("Footer.forRestaurants"), link: "/restaurantInfo", internal: true },
     ],
   };
 

@@ -10,6 +10,24 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Single-vendor: the marketplace listing pages are gone. Old links land on
+  // the menu (nearest branch) instead of a 404; partner sign-up goes home.
+  async redirects() {
+    const toMenu = [
+      '/restaurants',
+      '/store',
+      '/store/:slug/:id',
+      '/category/:slug',
+      '/search/:slug',
+      '/see-all/:slug',
+      '/mapview/:slug',
+    ];
+    return [
+      ...toMenu.map((source) => ({ source, destination: '/discovery', permanent: false })),
+      { source: '/restaurantInfo', destination: '/', permanent: false },
+      { source: '/profile/customerTicket', destination: '/profile/getHelp', permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

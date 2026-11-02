@@ -40,7 +40,7 @@ import { onUseLocalStorage } from "@/lib/utils/methods/local-storage";
 // Queries
 import { GET_POPULAR_SUB_CATEGORIES_LIST } from "@/lib/api/graphql";
 import { Dialog } from "primereact/dialog";
-import Loader from "@/app/(localized)/mapview/[slug]/components/Loader";
+import Loader from "@/lib/ui/useable-components/page-loader";
 import { motion } from "framer-motion";
 import CustomDialog from "@/lib/ui/useable-components/custom-dialog";
 import Image from "next/image";

@@ -1,4 +1,9 @@
 {
+  "menu_set_address_title": "Where should we deliver?",
+  "menu_set_address_message": "Set your delivery address so we can open the menu of the BTB branch nearest to you.",
+  "menu_set_address_button": "Set delivery address",
+  "menu_no_branch_title": "We don't deliver here yet",
+  "menu_no_branch_message": "No BTB branch delivers to this address right now. Try a different address.",
   "selectCity": "Select your country",
   "searchCity": "Search for a city...",
   "gifts": "GIFTS.",

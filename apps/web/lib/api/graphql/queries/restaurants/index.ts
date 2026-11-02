@@ -53,36 +53,6 @@ export const RESTAURANTS_FRAGMENT = gql`
   }
 `;
 
-export const RECENT_ORDER_RESTAURANTS = gql`
-  ${RESTAURANTS_FRAGMENT}
-  query GetRecentOrderRestaurants($latitude: Float!, $longitude: Float!) {
-    recentOrderRestaurantsPreview(latitude: $latitude, longitude: $longitude) {
-      ...RestaurantPreviewFields
-    }
-  }
-`;
-
-export const MOST_ORDER_RESTAURANTS = gql`
-  ${RESTAURANTS_FRAGMENT}
-  query GetMostOrderedRestaurants(
-    $latitude: Float!
-    $longitude: Float!
-    $page: Int
-    $limit: Int
-    $shopType: String
-  ) {
-    mostOrderedRestaurantsPreview(
-      latitude: $latitude
-      longitude: $longitude
-      page: $page
-      limit: $limit
-      shopType: $shopType
-    ) {
-      ...RestaurantPreviewFields
-    }
-  }
-`;
-
 export const NEAR_BY_RESTAURANTS_PREVIEW = gql`
   ${RESTAURANTS_FRAGMENT}
   query Restaurants($latitude: Float, $longitude: Float, $shopType: String) {
@@ -213,23 +183,6 @@ export const GET_REVIEWS_BY_RESTAURANT = gql`
       }
       ratings
       total
-    }
-  }
-`;
-
-export const GET_CATEGORIES_SUB_CATEGORIES_LIST = gql`
-  query FetchCategoryDetailsByStoreId($storeId: String!) {
-    fetchCategoryDetailsByStoreId(storeId: $storeId) {
-      id
-      label
-      # slug
-      url
-      items {
-        id
-        label
-        url
-        # slug
-      }
     }
   }
 `;

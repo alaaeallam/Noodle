@@ -1,4 +1,9 @@
 {
+  "menu_set_address_title": "Où devons-nous livrer ?",
+  "menu_set_address_message": "Indiquez votre adresse de livraison pour ouvrir le menu de la succursale BTB la plus proche.",
+  "menu_set_address_button": "Indiquer l'adresse de livraison",
+  "menu_no_branch_title": "Nous ne livrons pas encore ici",
+  "menu_no_branch_message": "Aucune succursale BTB ne livre à cette adresse pour le moment. Essayez une autre adresse.",
   "selectCity": "Sélectionnez votre pays",
   "searchCity": "Rechercher une ville...",
   "gifts": "CADEAUX.",

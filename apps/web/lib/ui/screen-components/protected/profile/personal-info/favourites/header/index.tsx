@@ -12,11 +12,13 @@ export const HeaderFavourite: React.FC<IHeaderFavourite> = ({ title, onSeeAllCli
   return (
     <div className="flex justify-between items-center w-full">
       <TextComponent text={title} className="text-xl md:text-2xl  font-medium"/>
+      {onSeeAllClick && (
         <CustomButton
           label={t("See_all")}
           onClick={onSeeAllClick}
           className="text-[#0EA5E9] transition-colors duration-200 text-base md:text-lg font-light"
-        />  
+        />
+      )}
     </div>
   )
 }

@@ -27,7 +27,6 @@ import useLocation from "@/lib/hooks/useLocation";
 import useSetUserCurrentLocation from "@/lib/hooks/useSetUserCurrentLocation";
 import useUser from "@/lib/hooks/useUser";
 import { useSearchUI } from "@/lib/context/search/search.context";
-import useNearByRestaurantsPreview from "@/lib/hooks/useNearByRestaurantsPreview";
 
 import Logo from "@/lib/utils/assets/svg/Logo";
 
@@ -108,7 +107,6 @@ const AppTopbar = ({ handleModalToggle }: IAppBarProps) => {
     refetchProfileData,
     setRefetchProfileData,
   } = useAuth();
-  const { queryData = [] } = useNearByRestaurantsPreview(true, 1,100);
 
   const {
     isSearchFocused,
@@ -236,20 +234,9 @@ const AppTopbar = ({ handleModalToggle }: IAppBarProps) => {
   // filters search results
   let searchedKeywords = getSearchedKeywords();
 
-  const filteredResults = useMemo(() => {
-    if (!filter.trim()) return [];
-    if (!queryData || !Array.isArray(queryData) || queryData.length === 0)
-      return [];
-
-    const searchText = filter.toLowerCase();
-    return queryData.filter(({ name, address = "", cuisines = [] }) => {
-      return (
-        name.toLowerCase().includes(searchText) ||
-        address.toLowerCase().includes(searchText) ||
-        cuisines.join(" ").toLowerCase().includes(searchText)
-      );
-    });
-  }, [filter, queryData]);
+  // Single brand: the old header search only matched branch names, so it's
+  // gone - item search lives on the menu page itself.
+  const filteredResults: never[] = [];
 
   //Language Dropdown UseEffect
   useEffect(() => {
@@ -400,43 +387,11 @@ const AppTopbar = ({ handleModalToggle }: IAppBarProps) => {
               <div
                 className={`flex-grow transition-all duration-500 ease-in-out ${isSearchFocused ? "max-w-full" : "max-w-md"} px-2`}
               >
-                <div className="relative w-full">
-                  <input
-                    id="search-input"
-                    value={filter}
-                    onChange={handleSearchInputChange}
-                    onFocus={() => setIsSearchFocused(true)}
-                    placeholder={t("SearchBarPlaceholder")}
-                    className={`
-                w-full px-4 py-2 pr-10 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500
-                ${!isSearchFocused ? "hidden" : "block"} sm:block
-                dark:bg-gray-800 dark:text-white
-              `}
-                  />
 
-                  {isSearchFocused && (
-                    <div
-                      className="absolute top-1/2 right-3 transform -translate-y-1/2 bg-gray-100 dark:bg-gray-700 rounded-full w-6 h-6 items-center justify-center cursor-pointer hidden sm:flex"
-                      onClick={() => setFilter("")}
-                    >
-                      <CircleCrossSvg color="black" width={16} height={16} />
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Right Section */}
               <div className="flex items-center justify-end gap-2 flex-shrink-0">
-                {!isSearchFocused && (
-                  <div className="sm:hidden flex justify-end items-center w-full">
-                    <div
-                      className="w-7 h-7 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center cursor-pointer"
-                      onClick={() => setIsSearchFocused(true)}
-                    >
-                      <SearchSvg width={16} height={16} />
-                    </div>
-                  </div>
-                )}
                 {!authToken && !isSearchFocused ? (
                   <button
                     className="w-auto min-w-[64px] h-fit py-2 md:py-3 px-4 bg-[#5AC12F] rounded text-sm lg:text-[16px] md:text-md flex items-center justify-center"

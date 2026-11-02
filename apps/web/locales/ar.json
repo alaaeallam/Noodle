@@ -1,4 +1,9 @@
 {
+  "menu_set_address_title": "أين نوصّل طلبك؟",
+  "menu_set_address_message": "حدّد عنوان التوصيل لنفتح لك قائمة أقرب فرع BTB إليك.",
+  "menu_set_address_button": "تحديد عنوان التوصيل",
+  "menu_no_branch_title": "لا نوصّل إلى هنا بعد",
+  "menu_no_branch_message": "لا يوجد فرع BTB يوصّل إلى هذا العنوان حالياً. جرّب عنواناً آخر.",
   "selectCity": "اختر دولتك",
   "searchCity": "ابحث عن مدينة...",
   "gifts": "هدايا.",

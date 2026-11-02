@@ -35,7 +35,7 @@ export default function ActiveOrders({ activeOrders, isOrdersLoading }: IActiveO
         title={t("no_active_orders_title")}
         message={t("no_active_orders_message")}
         actionLabel={t("browse_store_button")}
-        actionLink="/store"
+        actionLink="/discovery"
       />
     )
   }

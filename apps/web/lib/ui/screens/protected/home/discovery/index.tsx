@@ -1,135 +1,101 @@
 "use client";
-import {
-  DiscoveryBannerSection,
-  RestaurantsNearYou,
-  MostOrderedRestaurants,
-  GroceryList,
-  TopGroceryPicks,
-  TopRatedVendors,
-  PopularRestaurants,
-  PopularStores,
-  OrderItAgain,
-  CommingSoonScreen,
-} from "@/lib/ui/screen-components/protected/home";
-// ui componnet
-import CuisinesSection from "@/lib/ui/useable-components/cuisines-section";
-// hooks
-import useGetCuisines from "@/lib/hooks/useGetCuisines";
+
+// BTB is one brand with several branches, not a marketplace: instead of
+// listing restaurants, "Menu" sends the customer straight to the menu of the
+// nearest open branch that delivers to their address (same rule as the
+// mobile app's useCurrentStore).
+
+import { useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { ProgressSpinner } from "primereact/progressspinner";
+
 import useNearByRestaurantsPreview from "@/lib/hooks/useNearByRestaurantsPreview";
-import useMostOrderedRestaurants from "@/lib/hooks/useMostOrderedRestaurants";
+import { useUserAddress } from "@/lib/context/address/address.context";
+import { getDistanceFromLatLonInKm } from "@/lib/utils/methods/helpers";
 
 export default function DiscoveryScreen() {
-  const { restaurantCuisinesData, groceryCuisinesData, error, loading } =
-    useGetCuisines();
+  const t = useTranslations();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { userAddress } = useUserAddress();
 
-  const {
-    queryData,
-    loading: mostOrderedLoading,
-    error: mostorderedError,
-  } = useMostOrderedRestaurants(true, 1, 6);
+  const hasAddress = !!userAddress?.location?.coordinates?.length;
+  const { queryData, loading, error } = useNearByRestaurantsPreview(hasAddress);
 
-  const {
-    loading: restaurantsLoading,
-    queryData: restaurantsNearYou,
-    restaurantsData,
-    groceriesData,
-    error: restaurantsError,
-  } = useNearByRestaurantsPreview(true, 1, 6);
+  const nearestBranch = useMemo(() => {
+    if (!hasAddress) return null;
+    const [userLng, userLat] = (userAddress?.location?.coordinates ?? []).map(Number);
+    const open = queryData.filter((branch) => branch.isActive);
+    const distance = (branch: (typeof open)[number]) => {
+      const [lng, lat] = (branch.location?.coordinates ?? []).map(Number);
+      return Number.isFinite(lat) && Number.isFinite(lng)
+        ? getDistanceFromLatLonInKm(userLat, userLng, lat, lng)
+        : Infinity;
+    };
+    return [...open].sort((a, b) => distance(a) - distance(b))[0] ?? null;
+  }, [hasAddress, userAddress, queryData]);
 
-  // Show loader/skeleton while fetching
-  if (loading && restaurantsLoading) {
+  useEffect(() => {
+    if (!nearestBranch) return;
+    localStorage.setItem("currentShopType", "restaurant");
+    const query = searchParams?.toString();
+    router.replace(
+      `/restaurant/${nearestBranch.slug}/${nearestBranch._id}${query ? `?${query}` : ""}`
+    );
+  }, [nearestBranch, router, searchParams]);
+
+  if (!hasAddress) {
     return (
-      <>
-        <DiscoveryBannerSection />
-        <OrderItAgain />
-        <MostOrderedRestaurants
-          data={queryData}
-          loading={mostOrderedLoading}
-          error={!!mostorderedError}
-        />
-        <CuisinesSection
-          title="Restaurant-cuisines"
-          data={restaurantCuisinesData}
-          loading={loading || restaurantsLoading}
-          error={!!error}
-        />
-        <RestaurantsNearYou
-          data={restaurantsNearYou}
-          loading={restaurantsLoading}
-          error={!!restaurantsError}
-        />
-        <CuisinesSection
-          title="Grocery-cuisines"
-          data={groceryCuisinesData}
-          loading={loading || restaurantsLoading}
-          error={!!error}
-        />
-        <GroceryList
-          data={groceriesData}
-          loading={restaurantsLoading}
-          error={!!restaurantsError}
-        />
-        <TopGroceryPicks
-          // // data={MostOrderedRestaurantsGroceryData}
-          // loading={mostOrderedLoading}
-          // error={!!mostorderedError}
-        />
-        <TopRatedVendors />
-        <PopularRestaurants />
-        <PopularStores />
-      </>
+      <Message
+        title={t("menu_set_address_title")}
+        body={t("menu_set_address_message")}
+        action={t("menu_set_address_button")}
+        onAction={() => router.push("/")}
+      />
     );
   }
 
-  // // Show ComingSoon only after loading is complete and data is confirmed empty
-  if (
-    restaurantsData.length === 0 &&
-    groceriesData.length === 0 &&
-    !loading &&
-    !restaurantsLoading
-  ) {
-    return <CommingSoonScreen />;
+  if (loading || nearestBranch) {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <ProgressSpinner style={{ width: "48px", height: "48px" }} strokeWidth="4" />
+      </div>
+    );
   }
 
   return (
-    <>
-      <DiscoveryBannerSection />
-      <OrderItAgain />
-      <MostOrderedRestaurants
-        data={queryData}
-        loading={mostOrderedLoading}
-        error={!!mostorderedError}
-      />
-      <CuisinesSection
-        title="Restaurant-cuisines"
-        data={restaurantCuisinesData}
-        loading={loading || restaurantsLoading}
-        error={!!error}
-      />
-      <RestaurantsNearYou
-        data={restaurantsNearYou}
-        loading={restaurantsLoading}
-        error={!!restaurantsError}
-      />
-      <CuisinesSection
-        title="Grocery-cuisines"
-        data={groceryCuisinesData}
-        loading={loading || restaurantsLoading}
-        error={!!error}
-      />
-      <GroceryList
-        data={groceriesData}
-        loading={restaurantsLoading}
-        error={!!restaurantsError}
-      />
-      <TopGroceryPicks
-        // // data={MostOrderedRestaurantsGroceryData}
-        // loading={mostOrderedLoading}
-        // error={!!mostorderedError}
-      />
-      <TopRatedVendors />
-      <PopularRestaurants />
-      <PopularStores />
-    </>
+    <Message
+      title={error ? t("something_went_wrong") : t("menu_no_branch_title")}
+      body={error ? "" : t("menu_no_branch_message")}
+      action={t("menu_set_address_button")}
+      onAction={() => router.push("/")}
+    />
+  );
+}
+
+function Message({
+  title,
+  body,
+  action,
+  onAction,
+}: {
+  title: string;
+  body: string;
+  action: string;
+  onAction: () => void;
+}) {
+  return (
+    <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-3 px-6 text-center">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
+      {body && <p className="max-w-md text-gray-500 dark:text-gray-400">{body}</p>}
+      <button
+        type="button"
+        onClick={onAction}
+        className="mt-2 rounded-full bg-primary-color px-6 py-2 font-medium text-white"
+      >
+        {action}
+      </button>
+    </div>
   );
 }

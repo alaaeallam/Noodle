@@ -30,26 +30,18 @@ const FavouriteProducts = () => {
   });
   
   //Handlers
-  // Handle See All Click
-  const handleSeeAllClick = useDebounceFunction(() => {
-    // use route state to handle fetching all favourites Restaurants on that page
-    router.push("/see-all/favourites");
-  }, 500);
-
   // use debouncefunction if user click multiple times at once it will call function only 1 time
   const handleClickFavRestaurant = useDebounceFunction(
     (FavRestaurantId: string | undefined, shopType: string | undefined, slug: string | undefined) => {
-      router.push( `/${shopType === "restaurant" ? "restaurant" : "store"}/${slug}/${FavRestaurantId}`);
+      router.push(`/restaurant/${slug}/${FavRestaurantId}`);
     },
     500 // Debounce time in milliseconds
   );
 
   return (
     <div className="w-full py-6 flex flex-col gap-6">
-      <HeaderFavourite
-        title={t('your_fav')}
-        onSeeAllClick={handleSeeAllClick}
-      />
+      {/* The grid below already lists every favourite branch. */}
+      <HeaderFavourite title={t('your_fav')} />
       {isFavouriteRestaurantsLoading ? (
         <CardSkeletonGrid count={4} />
       ) : FavouriteRestaurantsData?.userFavourite && FavouriteRestaurantsData.userFavourite.length > 0 ? (
