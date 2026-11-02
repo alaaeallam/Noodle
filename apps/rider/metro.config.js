@@ -14,7 +14,7 @@ const config = getSentryExpoConfig(__dirname);
 // keys can collide, letting one app's bundler serve the other's cached
 // module graph when run from the same machine. A unique cacheVersion per
 // app rules that out.
-config.cacheVersion = "enatega-rider-1.0";
+config.cacheVersion = "btb-rider-1.0";
 
 // pnpm installs the same package version more than once when its peer
 // deps differ (e.g. a type-only @types/react, or a different @babel/core),

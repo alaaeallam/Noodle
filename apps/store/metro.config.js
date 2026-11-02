@@ -14,7 +14,7 @@ const config = getSentryExpoConfig(__dirname);
 // keys can collide, letting one app's bundler serve the other's cached
 // module graph when run from the same machine. A unique cacheVersion per
 // app rules that out.
-config.cacheVersion = "enatega-store-1.0";
+config.cacheVersion = "btb-store-1.0";
 
 // Add Node.js polyfills for React Native
 config.resolver.alias = {

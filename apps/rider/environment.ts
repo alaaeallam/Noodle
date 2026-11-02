@@ -10,8 +10,6 @@ const getEnvVars = (env = Updates.channel) => {
   }
   if (!__DEV__) {
     return {
-      // GRAPHQL_URL: "https://enatega-multivendor.up.railway.app/graphql",
-      // WS_GRAPHQL_URL: "wss://enatega-multivendor.up.railway.app/graphql",
       GRAPHQL_URL: "https://foodapp-api.alaaeallam.com/graphql",
       WS_GRAPHQL_URL: "wss://foodapp-api.alaaeallam.com/graphql",
       SENTRY_DSN:

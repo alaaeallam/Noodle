@@ -144,7 +144,7 @@ Anton/blocky treatment), so extended the same visual language to them:
 - **Kitchen-timer pie icon was still green.** `TimeLeftIcon`
   (`lib/ui/useable-components/svg/time-left.tsx`) is a static two-tone SVG
   (white circle + a pie-wedge `Path`) — the wedge was hardcoded
-  `fill="#90E36D"` (old Enatega green), never touched by the color cascade
+  `fill="#90E36D"` (old template green), never touched by the color cascade
   since it's baked into the SVG, not `appTheme`-driven. Changed to
   `#FF1D02`. Note: it's a **static** wedge shape, not an actual
   progress-driven pie chart like the mockup's `conic-gradient` — it doesn't

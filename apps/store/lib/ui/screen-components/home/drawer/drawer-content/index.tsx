@@ -4,7 +4,7 @@ import {
   DrawerContentScrollView,
 } from "@react-navigation/drawer";
 import { useContext } from "react";
-import { Linking, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 // Context
 import { AuthContext } from "@/lib/context/global/auth.context";
@@ -15,9 +15,7 @@ import CustomDrawerHeader from "@/lib/ui/screen-components/home/drawer/drawer-he
 // UI-Componetns
 import { useApptheme } from "@/lib/context/theme.context";
 import {
-  AboutIcon,
   LogoutIcon,
-  PrivacyIcon,
   RightArrowIcon,
   UserIcon,
 } from "@/lib/ui/useable-components/svg";
@@ -149,59 +147,6 @@ export default function CustomDrawerContent(
             );
         })}
 
-        {/* EXTERNAL LINKS  */}
-        <TouchableOpacity
-          onPress={() => {
-            Linking.openURL("https://enatega.com/");
-          }}
-          className="flex-row justify-between items-center px-5 py-4 border-b-2"
-          style={{ borderColor: appTheme.horizontalLine }}
-        >
-          <View className="flex-row items-center gap-3.5">
-            <View
-              className="h-[36px] w-[36px] items-center justify-center"
-              style={{ backgroundColor: appTheme.sidebarIconBackground }}
-            >
-              <AboutIcon width={16} height={16} color={appTheme.iconColor} />
-            </View>
-            <Text
-              style={{
-                color: appTheme.fontMainColor,
-                fontFamily: "Archivo800",
-                fontSize: 15,
-              }}
-            >
-              {t("About Us")}
-            </Text>
-          </View>
-          <RightArrowIcon color="#B4B0AB" height={18} width={18} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            Linking.openURL("https://multivendor.enatega.com/privacy");
-          }}
-          className="flex-row justify-between items-center px-5 py-4 border-b-2"
-          style={{ borderColor: appTheme.horizontalLine }}
-        >
-          <View className="flex-row items-center gap-3.5">
-            <View
-              className="h-[36px] w-[36px] items-center justify-center"
-              style={{ backgroundColor: appTheme.sidebarIconBackground }}
-            >
-              <PrivacyIcon width={16} height={16} color={appTheme.iconColor} />
-            </View>
-            <Text
-              style={{
-                color: appTheme.fontMainColor,
-                fontFamily: "Archivo800",
-                fontSize: 15,
-              }}
-            >
-              {t("Privacy Policy")}
-            </Text>
-          </View>
-          <RightArrowIcon color="#B4B0AB" height={18} width={18} />
-        </TouchableOpacity>
         {/* Logout Button */}
 
         <TouchableOpacity

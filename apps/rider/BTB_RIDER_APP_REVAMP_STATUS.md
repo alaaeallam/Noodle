@@ -7,7 +7,7 @@ Same brand as the customer app (`apps/app`) and store app (`apps/store`) —
 see `apps/app/src/utils/themeColors.js` / `apps/store/lib/utils/constants/colors.ts`
 for the canonical palette; keep all three in sync if the brand changes.
 apps/rider had not been touched before this session — it was still on the
-stock Enatega green theme.
+stock template green theme.
 
 ## Palette (identical to customer/store apps)
 
