@@ -9,6 +9,7 @@ import { Dialog } from "primereact/dialog";
 import useToast from "@/lib/hooks/useToast";
 import ChatSkeleton from "../custom-skeletons/chat-skeleton";
 
+import { useDirection } from "@/lib/context/direction/DirectionContext";
 interface ITicketChatModalProps {
   visible: boolean;
   onHide: () => void;
@@ -170,7 +171,7 @@ const pollingIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   };
 
    // get the RTL direction
-   const direction = document.documentElement.getAttribute("dir") || "ltr";
+   const direction = useDirection();
 
   return (
     <Dialog

@@ -25,7 +25,8 @@ function SearchSeeAllSection() {
   // Get slug from URL params
   const params = useParams();
   const t = useTranslations()
-  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  const slug =
+    (Array.isArray(params?.slug) ? params.slug[0] : params?.slug) ?? "";
 
   // Generate a formatted title from the slug
   let title = slug

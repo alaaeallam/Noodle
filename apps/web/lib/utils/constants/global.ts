@@ -9,7 +9,6 @@ import {
 import { ISeverityStyles } from "../interfaces/toast.interface";
 
 
-export const ENV: "DEV" | "STAGE" | "PROD" = "STAGE";
 
 // Prices
 export const APP_NAME = "BTB";

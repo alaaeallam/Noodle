@@ -3,7 +3,7 @@ import {
   STRIPE_ALLOWED_CURRENCIES,
 } from "../constants/currencies";
 import { OrderStatus } from "../interfaces";
-import emailjs from "emailjs-com";
+import emailjs from "@emailjs/browser";
 import { onUseLocalStorage } from "./local-storage";
 
 export function formatDate(dateString?: string): string {
@@ -211,13 +211,15 @@ export const getDistanceFromLatLonInKm = (
 
 
 
-export const sendEmail = (templateId : any, templateParams : any) => {
-  return emailjs.send(
-    "service_463sz1v",
-    templateId,
-    templateParams,
-    "kfOnsw1Kn8ZWu4l77"
-  );
+// EmailJS account comes from env so form submissions reach our inbox (the
+// stock code shipped with the vendor's own service ID/key hardcoded).
+export const sendEmail = (templateId: string, templateParams: Record<string, unknown>) => {
+  const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+  const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+  if (!serviceId || !publicKey) {
+    return Promise.reject(new Error("Email sending is not configured"));
+  }
+  return emailjs.send(serviceId, templateId, templateParams, { publicKey });
 };
 
 const LOCAL_STORAGE_KEY = "searchedKeywords";

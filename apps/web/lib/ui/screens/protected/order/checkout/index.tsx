@@ -109,7 +109,10 @@ export default function OrderCheckoutScreen() {
   } = useUser();
 
   const { userAddress } = useUserAddress();
-  const restaurantFromLocalStorage = localStorage.getItem("restaurant");
+  // Guarded: this component also renders on the server, where there's no
+  // localStorage (unguarded access made /order/checkout return 500).
+  const restaurantFromLocalStorage =
+    typeof window !== "undefined" ? localStorage.getItem("restaurant") : null;
   const { data: restaurantData } = useRestaurant(restaurantId || "") || {
     data: restaurantFromLocalStorage
       ? JSON.parse(restaurantFromLocalStorage)

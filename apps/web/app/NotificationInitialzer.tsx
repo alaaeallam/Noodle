@@ -36,6 +36,20 @@ export default function NotificationInitializer() {
       appId: FIREBASE_APP_ID,
     };
 
+    // Register the push service worker with the backend's Firebase config
+    // (it can't read app state, so the config travels in its URL).
+    if (!("serviceWorker" in navigator) || !FIREBASE_PROJECT_ID || !FIREBASE_APP_ID) {
+      return;
+    }
+    const swParams = new URLSearchParams(
+      Object.entries(firebaseConfig).filter(
+        (entry): entry is [string, string] => !!entry[1]
+      )
+    );
+    navigator.serviceWorker
+      .register(`/sw.js?${swParams.toString()}`)
+      .catch((error) => console.error("SW registration failed:", error));
+
     const initNotifications = async () => {
       const localToken = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");

@@ -1,9 +1,7 @@
 "use client";
 
-import getEnv from "@/environment";
 // GQL
 import { GET_CONFIG } from "@/lib/api/graphql/queries";
-import { ENV } from "@/lib/utils/constants";
 
 // Interfaces
 import { IConfigProps } from "@/lib/utils/interfaces";
@@ -59,7 +57,9 @@ export const ConfigurationProvider = ({
   const FIREBASE_VAPID_KEY = configuration?.vapidKey;
   const FIREBASE_AUTH_DOMAIN = configuration?.authDomain;
 
-  const { SERVER_URL } = getEnv(ENV);
+  // Same backend Apollo talks to (set per environment in .env.*), so REST
+  // calls like Stripe checkout hit our API rather than a hardcoded host.
+  const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? "";
 
   return (
     <ConfigurationContext.Provider

@@ -20,13 +20,14 @@ import { useConfig } from "@/lib/context/configuration/configuration.context";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 
+import { useDirection } from "@/lib/context/direction/DirectionContext";
 export default function FoodItemDetail(props: IFoodItemDetalComponentProps) {
   const { foodItem, addons, options, onClose, restaurant, isRecommendedProduct } = props;
   const { CURRENCY_SYMBOL } = useConfig();
   const { id, slug }: { id: string; slug: string } = useParams();
 
     // get the RTL direction
-    const direction = document.documentElement.getAttribute('dir') || 'ltr';
+    const direction = useDirection();
 
   // Access user context for cart functionality
   const {

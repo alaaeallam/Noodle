@@ -66,9 +66,10 @@ import { ToastContext } from "@/lib/context/global/toast.context";
 import { useTranslations } from "next-intl";
 import { onUseLocalStorage } from "@/lib/utils/methods/local-storage";
 
+import { useDirection } from "@/lib/context/direction/DirectionContext";
 export default function StoreDetailsScreen() {
   // get the RTL direction
-  const direction = document.documentElement.getAttribute("dir") || "ltr";
+  const direction = useDirection();
 
   const t = useTranslations();
   // Access the UserContext via our custom hook

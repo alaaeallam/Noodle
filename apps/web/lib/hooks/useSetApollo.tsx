@@ -1,11 +1,7 @@
-// Environment
-// import getEnv from "@/environment";
-
 // Apollo
 import {
   ApolloClient,
   ApolloLink,
-  concat,
   createHttpLink,
   InMemoryCache,
   NormalizedCacheObject,
@@ -14,18 +10,13 @@ import {
   split,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error"; // Import onError utility
-import { WebSocketLink } from "@apollo/client/link/ws";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from "@apollo/client/utilities";
 
 // GQL
-import { SubscriptionClient } from "subscriptions-transport-ws";
-
-// Utility imports
-import { Subscription } from "zen-observable-ts";
-// import { ENV } from "../utils/constants";
+import { createClient } from "graphql-ws";
 
 export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
-  // const { SERVER_URL, WS_SERVER_URL } = getEnv(ENV);
   const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
   const WS_SERVER_URL = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
@@ -36,14 +27,19 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
     // useGETForQueries: true, 
   });
 
-  // WebSocketLink with error handling
-  const wsLink = new WebSocketLink(
-    new SubscriptionClient(`${WS_SERVER_URL}graphql`, {
-      reconnect: true,
-      timeout: 30000,
-      lazy: true,
-    })
-  );
+  // Subscriptions only make sense in the browser - creating the client
+  // during SSR throws, since there's no live connection to make there.
+  // retryAttempts: Infinity matches the old client's reconnect:true.
+  const wsLink =
+    typeof window !== "undefined"
+      ? new GraphQLWsLink(
+          createClient({
+            url: `${WS_SERVER_URL}graphql`,
+            retryAttempts: Infinity,
+            shouldRetry: () => true,
+          })
+        )
+      : null;
 
   // Error Handling Link using ApolloLink's onError (for network errors)
   const errorLink = onError(({ networkError, graphQLErrors }) => {
@@ -69,13 +65,12 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
 
   const request = async (operation: Operation): Promise<void> => {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+    // Only Authorization: the API ignores the stock userId/isAuth/
+    // X-Client-Type headers, and its CORS allowlist (Content-Type,
+    // Authorization) rejects the preflight if they're sent.
     operation.setContext({
       headers: {
-        authorization: (token ?? "") ? `Bearer ${token ?? ""}` : "",
-        userId: userId ?? "",
-        isAuth: !!token,
-        "X-Client-Type": "web"
+        authorization: token ? `Bearer ${token}` : "",
       },
     });
   };
@@ -84,7 +79,7 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
   const requestLink = new ApolloLink(
     (operation, forward) =>
       new Observable((observer) => {
-        let handle: Subscription | undefined;
+        let handle: { unsubscribe: () => void } | undefined;
         Promise.resolve(operation)
           .then((oper) => request(oper))
           .then(() => {
@@ -103,19 +98,22 @@ export const useSetupApollo = (): ApolloClient<NormalizedCacheObject> => {
   );
 
   // Terminating Link for split between HTTP and WebSocket
-  const terminatingLink = split(({ query }) => {
-    const definition = getMainDefinition(query);
-    return (
-      definition.kind === "OperationDefinition" &&
-      definition.operation === "subscription"
-    );
-  }, wsLink);
+  const terminatingLink = wsLink
+    ? split(
+        ({ query }) => {
+          const definition = getMainDefinition(query);
+          return (
+            definition.kind === "OperationDefinition" &&
+            definition.operation === "subscription"
+          );
+        },
+        wsLink,
+        httpLink
+      )
+    : httpLink;
 
   const client = new ApolloClient({
-    link: concat(
-      ApolloLink.from([errorLink, terminatingLink, requestLink]),
-      httpLink
-    ),
+    link: ApolloLink.from([errorLink, requestLink, terminatingLink]),
     cache,
     connectToDevTools: true,
   });

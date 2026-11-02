@@ -35,6 +35,7 @@ import VerificationEmailForChangePassword from "./change-password/email-otp";
 import { Tooltip } from "react-tooltip";
 import { useTranslations } from "next-intl";
 
+import { useDirection } from "@/lib/context/direction/DirectionContext";
 export default function AuthModal({
   isAuthModalVisible,
   handleModalToggle,
@@ -60,7 +61,7 @@ export default function AuthModal({
     }
   }, [isAuthModalVisible]);
   // get the RTL direction
-  const direction = document.documentElement.getAttribute("dir") || "ltr";
+  const direction = useDirection();
 
   // Refs
   const authenticationPanelRef = useRef(null);

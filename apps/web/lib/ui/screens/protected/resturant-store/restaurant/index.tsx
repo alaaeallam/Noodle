@@ -46,6 +46,7 @@ import CustomDialog from "@/lib/ui/useable-components/custom-dialog";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
+import { useDirection } from "@/lib/context/direction/DirectionContext";
 export default function RestaurantDetailsScreen() {
   // Access the UserContext via our custom hook
   const {
@@ -64,7 +65,7 @@ export default function RestaurantDetailsScreen() {
   const selectedCategoryRef = useRef<string>("");
 
   // get the RTL direction
-  const direction = document.documentElement.getAttribute("dir") || "ltr";
+  const direction = useDirection();
 
   // State
   const [filter, setFilter] = useState("");

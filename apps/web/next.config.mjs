@@ -1,25 +1,15 @@
 import createNextIntlPlugin from "next-intl/plugin";
-// import PWA from 'next-pwa';
 
-/* const withPWA = PWA({
-    skipWaiting: false,
-    register:false,
-    dest:'public',
-    // disable: process.env.NODE_ENV === 'development',
-    swSrc: 'public/serviceWorker.js', // Or service-worker.ts if using TS & custom build process
-    buildExcludes: [
-      /app-build-manifest\.json$/,
-      /middleware-manifest\.json$/,     // (often fails too)
-    ],
-    scope: '/',
-  }
-);
- */
 
 const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Self-contained server bundle for the VPS (same as apps/admin).
+  output: 'standalone',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async headers() {
     return [
       {
@@ -27,7 +17,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: 'upgrade-insecure-requests; media-src \'self\' https://*.amazonaws.com https://*.s3.amazonaws.com data: blob:'
+            value: 'upgrade-insecure-requests; media-src \'self\' https://res.cloudinary.com https://*.amazonaws.com https://*.s3.amazonaws.com data: blob:'
           },
           // Optional: Add other security headers
           {
@@ -141,5 +131,4 @@ const nextConfig = {
     ], // Add placehold.co as an allowed domain
   },
 };
-// export default withPWA(withNextIntl(nextConfig));
 export default withNextIntl(nextConfig);
